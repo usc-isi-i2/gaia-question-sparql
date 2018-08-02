@@ -1,0 +1,88 @@
+{
+  "prefix": {
+    "aida": "http://darpa.mil/aida/interchangeOntology#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "aidas": "http://darpa.mil/ontologies/SeedlingOntology#",
+    "xij": "http://isi.edu/xij-rule-set#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ldcOnt": "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"
+  },
+  "class": {
+    "Vehicle": {
+      "path": "ldcOnt:Vehicle"
+    },
+    "Entity": {
+      "path": "aida:Entity"
+    },
+    "text_entrypoint": {
+      "path": "aida:TextJustification"
+    },
+    "video_entrypoint": {
+      "path": "aida:VideoJustification"
+    },
+    "image_entrypoint": {
+      "path": "aida:ImageJustification"
+    },
+    "audio_entrypoint": {
+      "path": "aida:AudioJustification"
+    }
+  },
+  "predicate": {
+    "Conflict.Attack_Target": {
+      "path": ["aidas:conflict_attack_target"]
+    },
+    "Conflict.Attack_Attacker": {
+      "path": ["aidas:conflict_attack_attacker"]
+    },
+    "enttype": {
+      "path": ["rdf:type"],
+      "range": "uri"
+    },
+    "name_string": {
+      "path": ["skos:prefLabel"],
+      "range": "string"
+    },
+    "doceid": {
+      "path": ["aida:justifiedBy", "aida:source"],
+      "range": "string"
+    },
+    "start": {
+      "path": ["aida:justifiedBy", "aida:startOffset"],
+      "range": "number"
+    },
+    "end": {
+      "path": ["aida:justifiedBy", "aida:endOffsetInclusive"],
+      "range": "number"
+    },
+    "keyframeid": {
+      "path": ["aida:justifiedBy", "aida:keyFrame"],
+      "range": "string"
+    },
+    "topleft": {
+      "splitter": ",",
+      "split_to": [
+        {
+          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxUpperLeftX"],
+          "range": "number"
+        },
+        {
+          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxUpperLeftY"],
+          "range": "number"
+        }
+      ]
+    },
+    "bottomright": {
+      "splitter": ",",
+      "split_to": [
+        {
+          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxLowerRightX"],
+          "range": "number"
+        },
+        {
+          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxLowerRightY"],
+          "range": "number"
+        }
+      ]
+    }
+  }
+}
