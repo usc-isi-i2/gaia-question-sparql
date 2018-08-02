@@ -1,9 +1,15 @@
-from src.QuestionParser import QuestionParser
+from src.Answering import Answering
+import os
 
-qp = QuestionParser('../resources/ontology_mapping.json')
-q = qp.parse_question('question.xml')
+endpoint = 'http://gaiadev01.isi.edu:3030/clusters/sparql'
+ont = '../resources/ontology_mapping.json'
 
-print(q.to_sparql())
+answering = Answering(endpoint=endpoint, ont_path=ont)
 
-# import json
-# print(json.dumps(ori, indent=2))
+dir_path = '../examples/questions/'
+for filename in os.listdir(dir_path):
+    print('\n----- %s -----' % filename)
+    ans = answering.answer(xml_question_file=dir_path+filename)
+    print('@RESULT:')
+    print(ans)
+
