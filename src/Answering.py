@@ -7,8 +7,8 @@ class Answering(object):
         self.query_wrapper = SPARQLWrapper(endpoint=endpoint)
         self.question_parser = QuestionParser(ont_path)
 
-    def answer(self, xml_question_file):
-        question = self.question_parser.parse_question(xml_question_file)
+    def answer(self, xml_question):
+        question = self.question_parser.parse_question(xml_question)
         strategies = iter(question.relax.keys())
 
         # answer the question with strict query:

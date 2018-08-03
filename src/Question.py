@@ -47,7 +47,7 @@ class Question(object):
 
     @staticmethod
     def serialize_final_query(prefix, edges, others):
-        return '%s\n\nCONSTRUCT {\n%s\n}\nWHERE {\n%s\n\n%s\n}' % (prefix, edges, edges, others)
+        return '%s\n\nCONSTRUCT {\n\t%s\n}\nWHERE {\n\t%s\n\n%s\n}' % (prefix, edges, edges, others)
 
     @staticmethod
     def serialize_filters(filter_statements, joiner):
@@ -61,9 +61,9 @@ class Question(object):
 
     @staticmethod
     def serialize_triples(triples: dict) -> str:
-        return '\n'.join(['\n'.join([' '.join((k if i == 0 else '\t', v[i][0], v[i][1], '.' if i == len(v)-1 else ';'))
-                                     for i in range(len(v))]) for k, v in triples.items()])
+        return '\n\t'.join(['\n'.join([' '.join(('\t\t' if i else k, v[i][0], v[i][1], ';' if i < len(v)-1 else '.'))
+                                       for i in range(len(v))]) for k, v in triples.items()])
 
     @staticmethod
     def union(clauses: list) -> str:
-        return '{\n%s\n}' % '\n}\nUNION\n{\n'.join(clauses)
+        return '\t{\n\t%s\n\t}' % '\n\t}\n\tUNION\n\t{\n\t'.join(clauses)

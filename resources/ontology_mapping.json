@@ -11,6 +11,12 @@
     "Vehicle": {
       "path": "ldcOnt:Vehicle"
     },
+    "Organization": {
+      "path": "aidas:Organization"
+    },
+    "Person": {
+      "path": "aidas:Person"
+    },
     "Entity": {
       "path": "aida:Entity"
     },
@@ -28,11 +34,47 @@
     }
   },
   "predicate": {
+    "Conflict.Attack_Place": {
+      "path": ["aidas:conflict_attack_place"]
+    },
+    "Conflict.Attack_Instrument": {
+      "path": ["aidas:conflict_attack_instrument"]
+    },
+    "Conflict.Demonstrate_Place": {
+      "path": ["aidas:conflict_demonstrate_place"]
+    },
+    "Conflict.Demonstrate_Demonstrator": {
+      "path": ["aidas:conflict_demonstrate_demonstrator"]
+    },
     "Conflict.Attack_Target": {
       "path": ["aidas:conflict_attack_target"]
     },
     "Conflict.Attack_Attacker": {
       "path": ["aidas:conflict_attack_attacker"]
+    },
+    "GeneralAffiliation.APORA_Affiliate": {
+      "path": ["aidas:affiliate"]
+    },
+    "Conflict.Attack_Agent": {
+      "path": ["aidas:conflict_attack_agent"]
+    },
+    "GeneralAffiliation.APORA_Affiliation": {
+      "path": ["aidas:affiliation"]
+    },
+    "Organization-Affiliation.Employment-Membership": {
+      "path": ["aidas:orgafl_empmem"]
+    },
+    "Physical.Located-Near": {
+      "path": ["aidas:phys_locnear"]
+    },
+    "General-Affiliation.Person-Member-Origin-Religion-Ethnicity (MORE)": {
+      "path": ["aidas:genafl_more"]
+    },
+    "Contact.Meet_Participant": {
+      "path": ["aidas:contact_meet_participant"]
+    },
+    "Life.Die_Place": {
+      "path": ["aidas:life_die_place"]
     },
     "enttype": {
       "path": ["rdf:type"],

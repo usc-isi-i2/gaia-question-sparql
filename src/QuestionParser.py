@@ -14,19 +14,27 @@ class QuestionParser(object):
             'uri': lambda x: self.get_path(self.ont, ['class', x, 'path']),
             'number': lambda x: x
         }
-        self.JUSTIFIEDBY = 'aida:justifiedBy'
 
-    def parse_question(self, xml_path: str) -> Question:
+        self.JUSTIFIEDBY = 'aida:justifiedBy'
+        self.INCLUSTER = 'xij:inCluster'
+        self.SUPER_EDGE = lambda s, p, o: [('rdf:subject', s),
+                                           ('rdf:predicate', p),
+                                           ('rdf:object', o),
+                                           ('a', 'aida:SuperEdge')]
+
+    def parse_question(self, xml: str) -> Question:
         """
         parse a xml question to a json representation with valid ontology in sparql
-        :param xml_path: file path of the question in xml
+        :param xml: file path of the question in xml, or the xml question text
         :return: a Question instance with json representation of the question
         """
-        with open(xml_path) as xml_file:
-            ori = xmltodict.parse(xml_file.read()).get('query', {})
-
-            edges = self.parse_edges(self.get_path(ori, ['graph', 'edges', 'edge']))
-            entrypoints = self.parse_entrypoints(self.get_path(ori, ['entrypoints']))
+        text = xml
+        if xml.endswith('.xml'):
+            with open(xml) as f:
+                text = f.read()
+        ori = xmltodict.parse(text).get('query', {})
+        edges = self.parse_edges(self.get_path(ori, ['graph', 'edges', 'edge']))
+        entrypoints = self.parse_entrypoints(self.get_path(ori, ['entrypoints']))
 
         return Question(query={
                 '@id': ori.get('@id', ''),
@@ -38,9 +46,9 @@ class QuestionParser(object):
         ret = {}
         for e in edges:
             key, s, p, o = e.values()
-            # TODO: merge to super edges if available
             predicate = self.get_path(self.ont, ['predicate', p, 'path'])[0]
-            self.add_triple(s, predicate, o, ret)
+            super_edge = '?%s' % key
+            ret[super_edge] = self.SUPER_EDGE(s, predicate, o)
         return ret
 
     def parse_entrypoints(self, entrypoints: dict) -> dict:
@@ -50,7 +58,8 @@ class QuestionParser(object):
         return ret
 
     def parse_entrypoint(self, ep_type: str, children: dict) -> dict:
-        s, triples, exists = children.get('node'), {}, {}
+        s, triples, exists = '%s_node' % children.get('node'), {}, {}
+        self.add_triple(s, self.INCLUSTER, children.get('node'), triples)
         for k, v in children.items():
             predicate = self.get_path(self.ont, ['predicate', k])
             if 'splitter' in predicate:
