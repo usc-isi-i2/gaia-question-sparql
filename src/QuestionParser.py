@@ -40,7 +40,7 @@ class QuestionParser(object):
             key, s, p, o = e.values()
             # TODO: merge to super edges if available
             predicate = self.get_path(self.ont, ['predicate', p, 'path'])[0]
-            ret[key] = self.wrap_triple(s, predicate, o)
+            self.add_triple(s, predicate, o, ret)
         return ret
 
     def parse_entrypoints(self, entrypoints: dict) -> dict:
@@ -49,8 +49,8 @@ class QuestionParser(object):
             ret[k] = self.parse_entrypoint(k, v)
         return ret
 
-    def parse_entrypoint(self, ep_type: str, children: dict) -> list:
-        s, triples, exists = children.get('node'), [], {}
+    def parse_entrypoint(self, ep_type: str, children: dict) -> dict:
+        s, triples, exists = children.get('node'), {}, {}
         for k, v in children.items():
             predicate = self.get_path(self.ont, ['predicate', k])
             if 'splitter' in predicate:
@@ -63,22 +63,22 @@ class QuestionParser(object):
 
         justify_type = self.get_path(self.ont, ['class', ep_type, 'path'])
         if justify_type and self.JUSTIFIEDBY in exists:
-            triples.append(self.wrap_triple(exists[self.JUSTIFIEDBY], 'a', justify_type))
+            self.add_triple(exists[self.JUSTIFIEDBY], 'a', justify_type, triples)
 
         return triples
 
-    def parse_triple(self, s: str, predicate: dict, value: str, exists: dict, triples: list) -> None:
+    def parse_triple(self, s: str, predicate: dict, value: str, exists: dict, triples: dict) -> None:
         path = predicate.get('path')
         o = self.ranges.get(predicate.get('range'), lambda x: x)(value)
         for i in range(len(path)):
             if i < len(path) - 1:
                 if path[i] not in exists:
-                    triples.append(self.wrap_triple(s, path[i], '?var%d' % i))
+                    self.add_triple(s, path[i], '?var%d' % i, triples)
                     exists[path[i]] = s = '?var%d' % i
                 else:
                     s = exists[path[i]]
             else:
-                triples.append(self.wrap_triple(s, path[i], o))
+                self.add_triple(s, path[i], o, triples)
 
     @staticmethod
     def get_path(target: dict, path: list):
@@ -87,12 +87,11 @@ class QuestionParser(object):
         return target
 
     @staticmethod
-    def wrap_triple(s: str, p: str, o: str) -> dict:
-        return {
-            'subject': s,
-            'predicate': p,
-            'object': o
-        }
+    def add_triple(s, p, o, triples):
+        if s in triples:
+            triples[s].append((p, o))
+        else:
+            triples[s] = [(p, o)]
 
     @staticmethod
     def load_ont(ont_path: str) -> dict:

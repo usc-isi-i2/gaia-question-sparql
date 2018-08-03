@@ -2,53 +2,48 @@ class Question(object):
     def __init__(self, query: dict, prefix: dict=None):
         self.query = query
         self.sparql_prefix = self.serialize_prefix(prefix)
+        self.sparql_edges = self.serialize_triples(self.query.get('edges', {}))
         self.relax = {
             'wider_range': lambda: self._relax_range({'aida:startOffset'}, {'aida:endOffsetInclusive'}),
             'larger_bound': lambda: self._relax_range({'aida:boundingBoxUpperLeftX', 'aida:boundingBoxUpperLeftY'},
                                                       {'aida:boundingBoxLowerRightX', 'aida:boundingBoxLowerRightY'}),
             'ignore_enttype': self._ignore_enttype
         }
+        self.SPARQL_TYPE = ['a', 'rdf:type']
 
     def to_sparql(self, relax_strategy=None) -> str:
-        query_str = self.relax.get(relax_strategy, self.strict)()
+        entries = self.relax.get(relax_strategy, self.strict)()
+        query_str = self.serialize_final_query(self.sparql_prefix, self.sparql_edges, self.union(entries))
         print(query_str)
         return query_str
 
     def strict(self):
-        edges = self.serialize_triples(self.query.get('edges', {}).values())
-        entrypoints = self.union([self.serialize_triples(ep) for ep in self.query.get('entrypoints', {}).values()])
-        return self.serialize_final_query(self.sparql_prefix, edges, entrypoints)
+        return [self.serialize_triples(ep) for ep in self.query.get('entrypoints', {}).values()]
 
     def _relax_range(self, less_than, greater_than):
-        edges = self.serialize_triples(self.query.get('edges', {}).values())
         entries = []
         for ep in self.query.get('entrypoints', {}).values():
-            statements = []
-            filters = []
-            for t in ep:
-                s, p, o = t.values()
-                if p in less_than or p in greater_than:
-                    var_name = '?%s' % p.split(':')[-1]
-                    filters.append('%s %s= %s' % (var_name, '<' if p in less_than else '>', o))
-                    o = var_name
-                statements.append(self.serialize_single_triple(s, p, o))
-            statements.append(self.serialize_filters(filters, '||'))
-            entries.append(''.join(statements))
-        return self.serialize_final_query(self.sparql_prefix, edges, self.union(entries))
+            updated_ep, filters = {}, []
+            for s, tuples in ep.items():
+                updated_ep[s] = []
+                for (p, o) in tuples:
+                    if p in less_than or p in greater_than:
+                        var_name = '?%s' % p.split(':')[-1]
+                        filters.append('%s %s= %s' % (var_name, '<' if p in less_than else '>', o))
+                        o = var_name
+                    updated_ep[s].append((p, o))
+            entries.append('%s\n%s' % (self.serialize_triples(updated_ep), self.serialize_filters(filters, '||')))
+        return entries
 
     def _ignore_enttype(self):
-        ignore_pred = ['a', 'rdf:type']
-        edges = self.serialize_triples(self.query.get('edges', {}).values())
         entries = []
         for ep in self.query.get('entrypoints', {}).values():
-            main_node = ep[0]['subject']
-            statements = []
-            for t in ep:
-                s, p, o = t.values()
-                if s != main_node or p not in ignore_pred:
-                    statements.append(self.serialize_single_triple(s, p, o))
-            entries.append(''.join(statements))
-        return self.serialize_final_query(self.sparql_prefix, edges, self.union(entries))
+            updated_ep, flag = {}, True
+            for s, tuples in ep.items():
+                updated_ep[s] = [t for t in tuples if (t[0] not in self.SPARQL_TYPE and flag)]
+                flag = True
+            entries.append(self.serialize_triples(updated_ep))
+        return entries
 
     @staticmethod
     def serialize_final_query(prefix, edges, others):
@@ -65,12 +60,9 @@ class Question(object):
         return '\n'.join(['PREFIX %s: <%s>' % (k, v) for k, v in prefix.items()])
 
     @staticmethod
-    def serialize_single_triple(s, p, o) -> str:
-        return '%s %s %s .\n' % (s, p, o)
-
-    @staticmethod
-    def serialize_triples(triples: iter) -> str:
-        return '\n'.join(['%s .' % ' '.join(t.values()) for t in triples])
+    def serialize_triples(triples: dict) -> str:
+        return '\n'.join(['\n'.join([' '.join((k if i == 0 else '\t', v[i][0], v[i][1], '.' if i == len(v)-1 else ';'))
+                                     for i in range(len(v))]) for k, v in triples.items()])
 
     @staticmethod
     def union(clauses: list) -> str:
