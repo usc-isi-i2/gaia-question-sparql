@@ -35,18 +35,18 @@ First, try to query with strictly translated SPARQL query. If there is no result
   ```
   
  * larger_bound:
-  * change the specified coordinate of images/videos to a range. (from 'equal to' to 'less than'/'greater than')
-  * e. g. 
-  ```
+    * change the specified coordinate of images/videos to a range. (from 'equal to' to 'less than'/'greater than')
+    * e. g. 
+    ```
     ...
     ?var1 aida:boundingBoxUpperLeftX 20 .
     ?var1 aida:boundingBoxUpperLeftY 20 .
     ?var1 aida:boundingBoxLowerRightX 50 .
     ?var1 aida:boundingBoxLowerRightY 50 .
     ...
-  ``` 
-  will be replaced by
-  ```
+    ``` 
+    will be replaced by
+    ```
     ...
     ?var1 aida:boundingBoxUpperLeftX ?boundingBoxUpperLeftX .
     ?var1 aida:boundingBoxUpperLeftY ?boundingBoxUpperLeftY .
@@ -54,8 +54,8 @@ First, try to query with strictly translated SPARQL query. If there is no result
     ?var1 aida:boundingBoxLowerRightY ?boundingBoxLowerRightY .
     FILTER( ?boundingBoxUpperLeftX <= 20 || ?boundingBoxUpperLeftY <= 20 || ?boundingBoxLowerRightX >= 50 || ?boundingBoxLowerRightY >= 50 )
     ...
-  
-  ```
+    
+    ```
   
  * ignore_enttype:
     * remove specified `enttype`
