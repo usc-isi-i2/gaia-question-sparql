@@ -40,8 +40,8 @@ class Question(object):
         for ep in self.query.get('entrypoints', {}).values():
             updated_ep, flag = {}, True
             for s, tuples in ep.items():
-                updated_ep[s] = [t for t in tuples if (t[0] not in self.SPARQL_TYPE and flag)]
-                flag = True
+                updated_ep[s] = [t for t in tuples if t[0] not in self.SPARQL_TYPE] if flag else tuples
+                flag = False
             entries.append(self.serialize_triples(updated_ep))
         return entries
 
