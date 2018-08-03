@@ -6,11 +6,10 @@ class Answering(object):
     def __init__(self, endpoint='http://gaiadev01.isi.edu:3030/clusters/sparql', ont_path='../resources/ontology_mapping.json'):
         self.query_wrapper = SPARQLWrapper(endpoint=endpoint)
         self.question_parser = QuestionParser(ont_path)
-        self.strategies = ['wider_range', 'ignore_enttype']
 
     def answer(self, xml_question_file):
         question = self.question_parser.parse_question(xml_question_file)
-        strategies = iter(self.strategies)
+        strategies = iter(question.relax.keys())
 
         # answer the question with strict query:
         print('@ try strict query')

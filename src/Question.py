@@ -3,7 +3,9 @@ class Question(object):
         self.query = query
         self.sparql_prefix = self.serialize_prefix(prefix)
         self.relax = {
-            'wider_range': self._wider_range,
+            'wider_range': lambda: self._relax_range({'aida:startOffset'}, {'aida:endOffsetInclusive'}),
+            'larger_bound': lambda: self._relax_range({'aida:boundingBoxUpperLeftX', 'aida:boundingBoxUpperLeftY'},
+                                                      {'aida:boundingBoxLowerRightX', 'aida:boundingBoxLowerRightY'}),
             'ignore_enttype': self._ignore_enttype
         }
 
@@ -17,7 +19,7 @@ class Question(object):
         entrypoints = self.union([self.serialize_triples(ep) for ep in self.query.get('entrypoints', {}).values()])
         return self.serialize_final_query(self.sparql_prefix, edges, entrypoints)
 
-    def _wider_range(self):
+    def _relax_range(self, less_than, greater_than):
         edges = self.serialize_triples(self.query.get('edges', {}).values())
         entries = []
         for ep in self.query.get('entrypoints', {}).values():
@@ -25,18 +27,13 @@ class Question(object):
             filters = []
             for t in ep:
                 s, p, o = t.values()
-                if 'startOffset' in p:
-                    var_name = '?startOffset'
-                    filters.append('%s <= %s' % (var_name, o))
-                    o = var_name
-                elif 'endOffset' in p:
-                    var_name = '?endOffset'
-                    filters.append('%s >= %s' % (var_name, o))
+                if p in less_than or p in greater_than:
+                    var_name = '?%s' % p.split(':')[-1]
+                    filters.append('%s %s= %s' % (var_name, '<' if p in less_than else '>', o))
                     o = var_name
                 statements.append(self.serialize_single_triple(s, p, o))
             statements.append(self.serialize_filters(filters, '||'))
             entries.append(''.join(statements))
-
         return self.serialize_final_query(self.sparql_prefix, edges, self.union(entries))
 
     def _ignore_enttype(self):
@@ -52,7 +49,6 @@ class Question(object):
                     statements.append(self.serialize_single_triple(s, p, o))
             entries.append(''.join(statements))
         return self.serialize_final_query(self.sparql_prefix, edges, self.union(entries))
-
 
     @staticmethod
     def serialize_final_query(prefix, edges, others):
