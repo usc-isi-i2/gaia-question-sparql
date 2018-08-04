@@ -1,4 +1,5 @@
-import json, os
+import json, os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from flask import Flask, render_template, request, redirect
 from src.Answering import Answering
 
