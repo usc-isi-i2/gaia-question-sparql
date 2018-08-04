@@ -14,7 +14,6 @@ class Question(object):
     def to_sparql(self, relax_strategy=None) -> str:
         entries = self.relax.get(relax_strategy, self.strict)()
         query_str = self.serialize_final_query(self.sparql_prefix, self.sparql_edges, self.union(entries))
-        print(query_str)
         return query_str
 
     def strict(self):

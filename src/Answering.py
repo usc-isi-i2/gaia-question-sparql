@@ -1,5 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSONLD
 from src.QuestionParser import QuestionParser
+import json
 
 
 class Answering(object):
@@ -12,26 +13,30 @@ class Answering(object):
         strategies = iter(question.relax.keys())
 
         # answer the question with strict query:
-        print('@ try strict query')
         strict_query = question.to_sparql()
         ans = self.query_db(strict_query)
+        strategy_tried = {'strict': strict_query}
         while not self.good_answer(ans):
             # TODO: define strategies and apply to sparql query, and the try order/priority
             strategy = next(strategies, None)
             if not strategy:
                 break
-            print('@ BAD RESULT\n\n@ try relax strategy: %s' % strategy)
             q = question.to_sparql(relax_strategy=strategy)
             ans = self.query_db(q)
+            strategy_tried[strategy] = q
 
-        return ans
+        return {
+            'strategies': strategy_tried,
+            'json': question.query,
+            'graph': ans
+        }
 
     def query_db(self, sparql_query: str):
         self.query_wrapper.setQuery(sparql_query)
         self.query_wrapper.setReturnFormat(JSONLD)
         results = self.query_wrapper.query().convert()
 
-        return results.serialize(format='json-ld').decode('utf-8')
+        return json.loads(results.serialize(format='json-ld').decode('utf-8'))
 
     @staticmethod
     def good_answer(ans):

@@ -1,5 +1,5 @@
 from src.Answering import Answering
-import os
+import os, json
 
 endpoint = 'http://kg2018a.isi.edu:3030/all_clusters/sparql'
 # endpoint = 'http://gaiadev01.isi.edu:3030/clusters/sparql'
@@ -12,5 +12,5 @@ for filename in os.listdir(dir_path):
     print('\n----- %s -----' % filename)
     ans = answering.answer(xml_question=dir_path+filename)
     print('@RESULT:')
-    print(ans)
+    print(json.dumps(ans['graph'], indent=2))
 

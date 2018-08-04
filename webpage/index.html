@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <style type="text/css">
+        div#left, div#right {
+            width: 48%;
+            display: inline-block;
+            vertical-align: top;
+        }
+        h4 {
+            margin: 5px;
+        }
+        textarea {
+            width: 95%;
+        }
+        #send_question {
+            border: 1px solid #2500ff;
+            padding: 5px 20px;
+        }
+        #endpoint {
+            width: 100%;
+        }
+        #endpoint > * {
+            display: inline-block;
+        }
+        table {
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+    </style>
+    <head>
+        <title>Question Answering Playground</title>
+    </head>
+    <body>
+        <div id="left">
+            <form action="/example" method="post">
+                <span>Example Questions</span>
+                <select name="example" id="example">
+                    {{option_examples|safe}}
+                </select>
+                <input type="submit" value="Apply Example">
+            </form>
+
+            <form action="/query" method="post">
+                <div id="endpoint">
+                    <h4>Endpoint</h4>
+                    <textarea name="endpoint" rows="1" style="width:60%;vertical-align: text-top;">{{ endpoint }}</textarea>
+                    <input type="submit" value="Send Question" id="send_question">
+                </div>
+
+                <h4 class="inlineblock">XML Question</h4>
+                <textarea name="xml_question" rows="30">{{ xml_question }}</textarea>
+
+                <h4 class="inlineblock">Question in JSON</h4>
+                <textarea disabled name="json_question" rows="30">{{ json_question }}</textarea>
+            </form>
+        </div>
+        <div id="right">
+            <h4>Results:</h4>
+            <textarea disabled rows="40">{{ query_result }}</textarea>
+            <h4>Strategies tried:</h4>
+            <div id="strategies">
+                {{ textarea_strategies|safe }}
+            </div>
+
+        </div>
+    </body>
+</html>
