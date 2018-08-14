@@ -2,7 +2,7 @@ import os, json, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.Answering import Answering
 
-endpoint = 'http://gaiadev01.isi.edu:7200/repositories/dry_en'
+endpoint = 'http://kg2018a.isi.edu:3030/all_clusters/sparql'
 # endpoint = 'http://gaiadev01.isi.edu:3030/clusters/sparql'
 ont = '../resources/ontology_mapping.json'
 
