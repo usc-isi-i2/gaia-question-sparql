@@ -5,7 +5,7 @@ from src.Answering import Answering
 
 app = Flask(__name__, template_folder='./')
 
-ENDPOINT = 'http://kg2018a.isi.edu:3030/all_clusters/sparql'
+ENDPOINT = 'http://gaiadev01.isi.edu:7200/repositories/dry_en'
 
 qs = []
 for qf in os.listdir('../examples/questions/'):
@@ -18,10 +18,17 @@ endpoint = ENDPOINT
 xml_question = '<?xml version="1.0"?>\n'
 json_question = textarea_strategies = query_result = ''
 
+
+def update_forms(forms):
+    global endpoint, xml_question
+    if 'endpoint' in forms:
+        endpoint = forms['endpoint']
+    if 'xml_question' in forms:
+        xml_question = forms['xml_question']
+
+
 @app.route('/')
 def hello_world():
-    global query_str, frame, context, option_real_queries, option_full_frames
-
     return render_template('index.html',
                            option_examples=option_examples,
                            endpoint=endpoint,
@@ -44,6 +51,7 @@ def query():
         query_result = json.dumps(ans['graph'], indent=2)
     except Exception as e:
         query_result = 'Failed, please check your inputs and try again. \n %s' % str(e)
+    update_forms(request.form)
     return redirect('/')
 
 
@@ -52,6 +60,7 @@ def examples():
     global xml_question, json_question, textarea_strategies, query_result
     xml_question = qs[int(request.form['example'])]['xml']
     json_question = textarea_strategies = query_result = ''
+    update_forms(request.form)
     return redirect('/')
 
 

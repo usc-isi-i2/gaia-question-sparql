@@ -42,10 +42,13 @@ class QuestionParser(object):
                 'entrypoints': entrypoints
             }, prefix=self.ont.get('prefix'))
 
-    def parse_edges(self, edges: list) -> dict:
+    def parse_edges(self, edge: list or dict) -> dict:
         ret = {}
-        for e in edges:
-            key, s, p, o = e.values()
+        if isinstance(edge, list):
+            for e in edge:
+                ret.update(self.parse_edges(e))
+        else:
+            key, s, p, o = edge.values()
             predicate = self.get_path(self.ont, ['predicate', p, 'path'])[0]
             super_edge = '?%s' % key
             ret[super_edge] = self.SUPER_EDGE(s, predicate, o)
@@ -57,22 +60,27 @@ class QuestionParser(object):
             ret[k] = self.parse_entrypoint(k, v)
         return ret
 
-    def parse_entrypoint(self, ep_type: str, children: dict) -> dict:
-        s, triples, exists = '%s_node' % children.get('node'), {}, {}
-        self.add_triple(s, self.INCLUSTER, children.get('node'), triples)
-        for k, v in children.items():
-            predicate = self.get_path(self.ont, ['predicate', k])
-            if 'splitter' in predicate:
-                values = v.split(predicate.get('splitter'))
-                predicates = predicate.get('split_to', [])
-                for i in range(len(values)):
-                    self.parse_triple(s, predicates[i], values[i], exists, triples)
-            elif predicate:
-                self.parse_triple(s, predicate, v, exists, triples)
+    def parse_entrypoint(self, ep_type: str, children: dict or list) -> dict:
+        triples = {}
+        if isinstance(children, list):
+            for child in children:
+                triples.update(self.parse_entrypoint(ep_type, child))
+        else:
+            s, exists = '%s_node' % children.get('node'), {}
+            self.add_triple(s, self.INCLUSTER, children.get('node'), triples)
+            for k, v in children.items():
+                predicate = self.get_path(self.ont, ['predicate', k])
+                if 'splitter' in predicate:
+                    values = v.split(predicate.get('splitter'))
+                    predicates = predicate.get('split_to', [])
+                    for i in range(len(values)):
+                        self.parse_triple(s, predicates[i], values[i], exists, triples)
+                elif predicate:
+                    self.parse_triple(s, predicate, v, exists, triples)
 
-        justify_type = self.get_path(self.ont, ['class', ep_type, 'path'])
-        if justify_type and self.JUSTIFIEDBY in exists:
-            self.add_triple(exists[self.JUSTIFIEDBY], 'a', justify_type, triples)
+            justify_type = self.get_path(self.ont, ['class', ep_type, 'path'])
+            if justify_type and self.JUSTIFIEDBY in exists:
+                self.add_triple(exists[self.JUSTIFIEDBY], 'a', justify_type, triples)
 
         return triples
 
