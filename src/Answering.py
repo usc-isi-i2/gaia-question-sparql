@@ -4,7 +4,7 @@ import json
 
 
 class Answering(object):
-    def __init__(self, endpoint='http://gaiadev01.isi.edu:3030/clusters/sparql', ont_path='../resources/ontology_mapping.json'):
+    def __init__(self, endpoint='http://gaiadev01.isi.edu:7200/repositories/dry_en', ont_path='../resources/ontology_mapping.json'):
         self.query_wrapper = SPARQLWrapper(endpoint=endpoint)
         self.question_parser = QuestionParser(ont_path)
 

@@ -1,8 +1,7 @@
 {
   "prefix": {
-    "aida": "http://darpa.mil/aida/interchangeOntology#",
+    "aida": "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
-    "aidas": "http://darpa.mil/ontologies/SeedlingOntology#",
     "xij": "http://isi.edu/xij-rule-set#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "ldcOnt": "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"
@@ -12,10 +11,13 @@
       "path": "ldcOnt:Vehicle"
     },
     "Organization": {
-      "path": "aidas:Organization"
+      "path": "ldcOnt:Organization"
     },
     "Person": {
-      "path": "aidas:Person"
+      "path": "ldcOnt:Person"
+    },
+    "Place": {
+      "path": "ldcOnt:Place"
     },
     "Entity": {
       "path": "aida:Entity"
@@ -35,53 +37,53 @@
   },
   "predicate": {
     "Conflict.Attack_Place": {
-      "path": ["aidas:conflict_attack_place"]
+      "path": ["ldcOnt:conflict_attack_place"]
     },
     "Conflict.Attack_Instrument": {
-      "path": ["aidas:conflict_attack_instrument"]
+      "path": ["ldcOnt:conflict_attack_instrument"]
     },
     "Conflict.Demonstrate_Place": {
-      "path": ["aidas:conflict_demonstrate_place"]
+      "path": ["ldcOnt:conflict_demonstrate_place"]
     },
     "Conflict.Demonstrate_Demonstrator": {
-      "path": ["aidas:conflict_demonstrate_demonstrator"]
+      "path": ["ldcOnt:conflict_demonstrate_demonstrator"]
     },
     "Conflict.Attack_Target": {
-      "path": ["aidas:conflict_attack_target"]
+      "path": ["ldcOnt:conflict_attack_target"]
     },
     "Conflict.Attack_Attacker": {
-      "path": ["aidas:conflict_attack_attacker"]
+      "path": ["ldcOnt:conflict_attack_attacker"]
     },
     "GeneralAffiliation.APORA_Affiliate": {
-      "path": ["aidas:affiliate"]
+      "path": ["ldcOnt:affiliate"]
     },
     "Conflict.Attack_Agent": {
-      "path": ["aidas:conflict_attack_agent"]
+      "path": ["ldcOnt:conflict_attack_agent"]
     },
     "GeneralAffiliation.APORA_Affiliation": {
-      "path": ["aidas:affiliation"]
+      "path": ["ldcOnt:affiliation"]
     },
     "Organization-Affiliation.Employment-Membership": {
-      "path": ["aidas:orgafl_empmem"]
+      "path": ["ldcOnt:orgafl_empmem"]
     },
     "Physical.Located-Near": {
-      "path": ["aidas:phys_locnear"]
+      "path": ["ldcOnt:phys_locnear"]
     },
-    "General-Affiliation.Person-Member-Origin-Religion-Ethnicity (MORE)": {
-      "path": ["aidas:genafl_more"]
+    "General-Affiliation.Person-MORE": {
+      "path": ["ldcOnt:genafl_more"]
     },
     "Contact.Meet_Participant": {
-      "path": ["aidas:contact_meet_participant"]
+      "path": ["ldcOnt:contact_meet_participant"]
     },
     "Life.Die_Place": {
-      "path": ["aidas:life_die_place"]
+      "path": ["ldcOnt:life_die_place"]
     },
     "enttype": {
       "path": ["rdf:type"],
       "range": "uri"
     },
     "name_string": {
-      "path": ["skos:prefLabel"],
+      "path": ["aida:hasName"],
       "range": "string"
     },
     "doceid": {
