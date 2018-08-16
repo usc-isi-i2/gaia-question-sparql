@@ -4,9 +4,9 @@ class Question(object):
         self.sparql_prefix = self.serialize_prefix(prefix)
         self.sparql_edges = self.serialize_triples(self.query.get('edges', {}))
         self.relax = {
-            'wider_range': lambda: self._relax_range({'aida:startOffset'}, {'aida:endOffsetInclusive'}),
-            'larger_bound': lambda: self._relax_range({'aida:boundingBoxUpperLeftX', 'aida:boundingBoxUpperLeftY'},
-                                                      {'aida:boundingBoxLowerRightX', 'aida:boundingBoxLowerRightY'}),
+            'wider_range': lambda: self._relax_range({'io:startOffset'}, {'io:endOffsetInclusive'}),
+            'larger_bound': lambda: self._relax_range({'io:boundingBoxUpperLeftX', 'io:boundingBoxUpperLeftY'},
+                                                      {'io:boundingBoxLowerRightX', 'io:boundingBoxLowerRightY'}),
             'ignore_enttype': self._ignore_enttype
         }
         self.SPARQL_TYPE = ['a', 'rdf:type']

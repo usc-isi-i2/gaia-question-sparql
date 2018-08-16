@@ -15,12 +15,12 @@ class QuestionParser(object):
             'number': lambda x: x
         }
 
-        self.JUSTIFIEDBY = 'aida:justifiedBy'
+        self.JUSTIFIEDBY = 'io:justifiedBy'
         self.INCLUSTER = 'xij:inCluster'
         self.SUPER_EDGE = lambda s, p, o: [('rdf:subject', s),
                                            ('rdf:predicate', p),
                                            ('rdf:object', o),
-                                           ('a', 'aida:SuperEdge')]
+                                           ('a', 'io:SuperEdge')]
 
     def parse_question(self, xml: str) -> Question:
         """

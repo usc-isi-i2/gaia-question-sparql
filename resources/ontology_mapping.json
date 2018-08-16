@@ -1,116 +1,116 @@
 {
   "prefix": {
-    "aida": "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#",
+    "io": "http://darpa.mil/aida/interchangeOntology#",
     "skos": "http://www.w3.org/2004/02/skos/core#",
     "xij": "http://isi.edu/xij-rule-set#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "ldcOnt": "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#"
+    "so": "http://darpa.mil/ontologies/SeedlingOntology#"
   },
   "class": {
     "Vehicle": {
-      "path": "ldcOnt:Vehicle"
+      "path": "so:Vehicle"
     },
     "Organization": {
-      "path": "ldcOnt:Organization"
+      "path": "so:Organization"
     },
     "Person": {
-      "path": "ldcOnt:Person"
+      "path": "so:Person"
     },
     "Place": {
-      "path": "ldcOnt:Place"
+      "path": "so:Place"
     },
     "Entity": {
-      "path": "aida:Entity"
+      "path": "io:Entity"
     },
     "text_entrypoint": {
-      "path": "aida:TextJustification"
+      "path": "io:TextJustification"
     },
     "video_entrypoint": {
-      "path": "aida:VideoJustification"
+      "path": "io:VideoJustification"
     },
     "image_entrypoint": {
-      "path": "aida:ImageJustification"
+      "path": "io:ImageJustification"
     },
     "audio_entrypoint": {
-      "path": "aida:AudioJustification"
+      "path": "io:AudioJustification"
     }
   },
   "predicate": {
     "Conflict.Attack_Place": {
-      "path": ["ldcOnt:conflict_attack_place"]
+      "path": ["so:conflict_attack_place"]
     },
     "Conflict.Attack_Instrument": {
-      "path": ["ldcOnt:conflict_attack_instrument"]
+      "path": ["so:conflict_attack_instrument"]
     },
     "Conflict.Demonstrate_Place": {
-      "path": ["ldcOnt:conflict_demonstrate_place"]
+      "path": ["so:conflict_demonstrate_place"]
     },
     "Conflict.Demonstrate_Demonstrator": {
-      "path": ["ldcOnt:conflict_demonstrate_demonstrator"]
+      "path": ["so:conflict_demonstrate_demonstrator"]
     },
     "Conflict.Attack_Target": {
-      "path": ["ldcOnt:conflict_attack_target"]
+      "path": ["so:conflict_attack_target"]
     },
     "Conflict.Attack_Attacker": {
-      "path": ["ldcOnt:conflict_attack_attacker"]
+      "path": ["so:conflict_attack_attacker"]
     },
     "GeneralAffiliation.APORA_Affiliate": {
-      "path": ["ldcOnt:affiliate"]
+      "path": ["so:affiliate"]
     },
     "Conflict.Attack_Agent": {
-      "path": ["ldcOnt:conflict_attack_agent"]
+      "path": ["so:conflict_attack_agent"]
     },
     "GeneralAffiliation.APORA_Affiliation": {
-      "path": ["ldcOnt:affiliation"]
+      "path": ["so:affiliation"]
     },
     "Organization-Affiliation.Employment-Membership": {
-      "path": ["ldcOnt:orgafl_empmem"]
+      "path": ["so:orgafl_empmem"]
     },
     "Physical.Located-Near": {
-      "path": ["ldcOnt:phys_locnear"]
+      "path": ["so:phys_locnear"]
     },
     "General-Affiliation.Person-MORE": {
-      "path": ["ldcOnt:genafl_more"]
+      "path": ["so:genafl_more"]
     },
     "Contact.Meet_Participant": {
-      "path": ["ldcOnt:contact_meet_participant"]
+      "path": ["so:contact_meet_participant"]
     },
     "Life.Die_Place": {
-      "path": ["ldcOnt:life_die_place"]
+      "path": ["so:life_die_place"]
     },
     "enttype": {
       "path": ["rdf:type"],
       "range": "uri"
     },
     "name_string": {
-      "path": ["aida:hasName"],
+      "path": ["skos:prefLabels"],
       "range": "string"
     },
     "doceid": {
-      "path": ["aida:justifiedBy", "aida:source"],
+      "path": ["io:justifiedBy", "io:source"],
       "range": "string"
     },
     "start": {
-      "path": ["aida:justifiedBy", "aida:startOffset"],
+      "path": ["io:justifiedBy", "io:startOffset"],
       "range": "number"
     },
     "end": {
-      "path": ["aida:justifiedBy", "aida:endOffsetInclusive"],
+      "path": ["io:justifiedBy", "io:endOffsetInclusive"],
       "range": "number"
     },
     "keyframeid": {
-      "path": ["aida:justifiedBy", "aida:keyFrame"],
+      "path": ["io:justifiedBy", "io:keyFrame"],
       "range": "string"
     },
     "topleft": {
       "splitter": ",",
       "split_to": [
         {
-          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxUpperLeftX"],
+          "path": ["io:justifiedBy", "io:BoundingBoxPropertyShape", "io:boundingBoxUpperLeftX"],
           "range": "number"
         },
         {
-          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxUpperLeftY"],
+          "path": ["io:justifiedBy", "io:BoundingBoxPropertyShape", "io:boundingBoxUpperLeftY"],
           "range": "number"
         }
       ]
@@ -119,11 +119,11 @@
       "splitter": ",",
       "split_to": [
         {
-          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxLowerRightX"],
+          "path": ["io:justifiedBy", "aida:BoundingBoxPropertyShape", "io:boundingBoxLowerRightX"],
           "range": "number"
         },
         {
-          "path": ["aida:justifiedBy", "aida:BoundingBoxPropertyShape", "aida:boundingBoxLowerRightY"],
+          "path": ["io:justifiedBy", "aida:BoundingBoxPropertyShape", "io:boundingBoxLowerRightY"],
           "range": "number"
         }
       ]
