@@ -24,9 +24,15 @@
         #endpoint > *, div#radios {
             display: inline-block;
         }
-        table {
+        table.result_table {
             border: 1px solid #e0e0e0;
-            text-align: center;
+            max-height: 50vh;
+            overflow-y: scroll;
+            display: block;
+            text-align:center;
+        }
+        table.result_table td {
+            border: 1px solid #e0e0e0;
         }
 
     </style>
@@ -61,7 +67,7 @@
         </div>
         <div id="right">
             <h4>Results:</h4>
-            <textarea disabled rows="40">{{ query_result }}</textarea>
+            <table class="result_table">{{ query_result|safe }}</table>
             <h4>{{ manually }}</h4>
             <div id="strategies">
                 {{ textarea_strategies|safe }}

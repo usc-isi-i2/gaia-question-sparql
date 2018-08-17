@@ -7,6 +7,8 @@ app = Flask(__name__, template_folder='./')
 
 ENDPOINT = 'http://gaiadev01.isi.edu:3030/gaiaold/sparql'
 STRATEGY = ['strict', 'wider_range', 'larger_bound', 'ignore_enttype']
+RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+XIJ = 'http://gaiadev01.isi.edu:5005/cluster/'
 
 qs = []
 for qf in os.listdir('../examples/questions/'):
@@ -57,6 +59,21 @@ def update_forms(forms):
         xml_question = forms['xml_question']
 
 
+def wrap_td(k, uri):
+    if k == 'predicate':
+        return '<td>%s</td>' % uri.split('#')[-1]
+    clusterid = '/'.join(uri.split('/')[-2:])
+    return '<td><a href="%s">%s</a></td>' % (XIJ+clusterid, clusterid)
+
+
+def pretty_result(result):
+    keys = ['subject', 'predicate', 'object']
+    ret = ['<tr>%s</tr>' % ''.join(['<th>%s</th>' % k for k in keys])]
+    for se in result:
+        ret.append('<tr>%s</tr>' % ''.join([wrap_td(k, se[RDF+k][0]['@id']) for k in keys]))
+    return '\n'.join(ret)
+
+
 @app.route('/')
 def hello_world():
     strategy_title = ''
@@ -89,8 +106,7 @@ def query():
             strategies_tried = strategies_tried + list(ans['strategies'].items()) if manually else list(ans['strategies'].items())
             manually = True
         json_question = json.dumps(ans['json'], indent=2)
-        query_result = json.dumps(ans['graph'], indent=2)
-
+        query_result = pretty_result(ans['graph'])
     except Exception as e:
         query_result = 'Failed, please check your inputs and try again. \n %s' % str(e)
     update_forms(request.form)
