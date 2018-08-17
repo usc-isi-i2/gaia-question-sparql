@@ -86,7 +86,7 @@
       "range": "uri"
     },
     "name_string": {
-      "path": ["skos:prefLabels"],
+      "path": ["skos:prefLabel"],
       "range": "string"
     },
     "doceid": {
