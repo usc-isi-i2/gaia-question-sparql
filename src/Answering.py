@@ -31,6 +31,15 @@ class Answering(object):
             'graph': ans
         }
 
+    def answer_with_specified_strategy(self, xml_question, strategy=None):
+        question = self.question_parser.parse_question(xml_question)
+        q = question.to_sparql(relax_strategy=strategy)
+        return {
+            'strategies': {strategy: q},
+            'json': question.query,
+            'graph': self.query_db(q)
+        }
+
     def query_db(self, sparql_query: str):
         self.query_wrapper.setQuery(sparql_query)
         self.query_wrapper.setReturnFormat(JSONLD)
