@@ -57,7 +57,13 @@ class QuestionParser(object):
     def parse_entrypoints(self, entrypoints: dict) -> dict:
         ret = {}
         for k, v in entrypoints.items():
-            ret[k] = self.parse_entrypoint(k, v)
+            if k not in ret:
+                ret[k] = []
+            if isinstance(v, list):
+                for v_ in v:
+                    ret[k].append(self.parse_entrypoint(k, v_))
+            else:
+                ret[k].append(self.parse_entrypoint(k, v))
         return ret
 
     def parse_entrypoint(self, ep_type: str, children: dict or list) -> dict:

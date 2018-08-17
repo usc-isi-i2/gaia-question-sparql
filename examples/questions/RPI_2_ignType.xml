@@ -13,7 +13,7 @@
         <string_entrypoint>
             <node> ?place </node>
             <name_string> Saudi </name_string>
-            <enttype> GeopoliticalEntity </enttype>
+            <enttype> Place </enttype>
         </string_entrypoint>
         <text_entrypoint>
             <node> ?place </node>

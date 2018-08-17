@@ -23,7 +23,7 @@ class Question(object):
         return query_str
 
     def strict(self):
-        return [self.serialize_triples(ep) for ep in self.query.get('entrypoints', {}).values()]
+        return [self.serialize_triples(ep) for ep in self.flatten_ep(self.query.get('entrypoints', {}).values())]
 
     def relax(self, strategies):
         less_than = set.union(*[self.LESS_THAN.get(lt, set()) for lt in strategies])
@@ -36,7 +36,7 @@ class Question(object):
 
     def _relax(self, less_than=set(), greater_than=set(), ignore_type=False):
         entries = []
-        for ep in self.query.get('entrypoints', {}).values():
+        for ep in self.flatten_ep(self.query.get('entrypoints', {}).values()):
             updated_ep, filters, flag = {}, [], True
             for s, tuples in ep.items():
                 updated_ep[s] = []
@@ -51,6 +51,16 @@ class Question(object):
                 flag = False
             entries.append('%s\n%s' % (self.serialize_triples(updated_ep), self.serialize_filters(filters, '||')))
         return entries
+
+    @staticmethod
+    def flatten_ep(ep_list):
+        ret = []
+        for eps in ep_list:
+            if isinstance(eps, list):
+                ret += eps
+            else:
+                ret.append(eps)
+        return ret
 
     @staticmethod
     def serialize_final_query(prefix, edges, others):
