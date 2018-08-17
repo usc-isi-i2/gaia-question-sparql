@@ -10,7 +10,7 @@ answering = Answering(endpoint=endpoint, ont_path=ont)
 
 dir_path = './questions/'
 for filename in os.listdir(dir_path):
-    if filename != '2_RPI_Data_Q2.xml':
+    if not filename.startswith('RPI'):
         continue
     print('\n----- %s -----' % filename)
     ans = answering.answer(xml_question=dir_path+filename)

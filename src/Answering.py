@@ -1,6 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSONLD
 from src.QuestionParser import QuestionParser
-import json
+import json, itertools
 
 
 class Answering(object):
@@ -10,20 +10,22 @@ class Answering(object):
 
     def answer(self, xml_question):
         question = self.question_parser.parse_question(xml_question)
-        strategies = iter(question.relax.keys())
 
         # answer the question with strict query:
         strict_query = question.to_sparql()
         ans = self.query_db(strict_query)
         strategy_tried = {'strict': strict_query}
-        while not self.good_answer(ans):
-            # TODO: define strategies and apply to sparql query, and the try order/priority
-            strategy = next(strategies, None)
-            if not strategy:
-                break
-            q = question.to_sparql(relax_strategy=strategy)
-            ans = self.query_db(q)
-            strategy_tried[strategy] = q
+
+        if not self.good_answer(ans):
+            strategies = iter(self.auto_strategies(question.STRATEGY_TYPE))
+            while not self.good_answer(ans):
+                # TODO: different order/priority ?
+                strategy = next(strategies, None)
+                if not strategy:
+                    break
+                q = question.to_sparql(relax_strategy=strategy)
+                ans = self.query_db(q)
+                strategy_tried['+'.join(strategy)] = q
 
         return {
             'strategies': strategy_tried,
@@ -35,7 +37,7 @@ class Answering(object):
         question = self.question_parser.parse_question(xml_question)
         q = question.to_sparql(relax_strategy=strategy)
         return {
-            'strategies': {strategy: q},
+            'strategies': {'+'.join(strategy): q},
             'json': question.query,
             'graph': self.query_db(q)
         }
@@ -52,3 +54,11 @@ class Answering(object):
         if not ans or ans == '[]':
             return False
         return True
+
+    @staticmethod
+    def auto_strategies(S):
+        to_try = []
+        for m in range(1, len(S)+1):
+            for s in itertools.combinations(S, m):
+                to_try.append(s)
+        return to_try
