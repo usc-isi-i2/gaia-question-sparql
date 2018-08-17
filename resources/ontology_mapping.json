@@ -19,6 +19,9 @@
     "Place": {
       "path": "so:Place"
     },
+    "GeopoliticalEntity": {
+      "path": "so:GeopoliticalEntity"
+    },
     "Entity": {
       "path": "io:Entity"
     },
@@ -119,11 +122,11 @@
       "splitter": ",",
       "split_to": [
         {
-          "path": ["io:justifiedBy", "aida:BoundingBoxPropertyShape", "io:boundingBoxLowerRightX"],
+          "path": ["io:justifiedBy", "io:BoundingBoxPropertyShape", "io:boundingBoxLowerRightX"],
           "range": "number"
         },
         {
-          "path": ["io:justifiedBy", "aida:BoundingBoxPropertyShape", "io:boundingBoxLowerRightY"],
+          "path": ["io:justifiedBy", "io:BoundingBoxPropertyShape", "io:boundingBoxLowerRightY"],
           "range": "number"
         }
       ]

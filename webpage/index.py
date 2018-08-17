@@ -5,7 +5,7 @@ from src.Answering import Answering
 
 app = Flask(__name__, template_folder='./')
 
-ENDPOINT = 'http://gaiadev01.isi.edu:7200/repositories/dry_en'
+ENDPOINT = 'http://gaiadev01.isi.edu:3030/gaiaold/sparql'
 
 qs = []
 for qf in os.listdir('../examples/questions/'):
