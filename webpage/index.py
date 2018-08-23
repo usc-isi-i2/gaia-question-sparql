@@ -48,7 +48,7 @@ def check_strategies():
 
 
 def tried_strategies(kvs):
-    return '\n'.join(['<div><p>%s</p><textarea disabled rows="10">%s</textarea></div>' % (s, q) for s, q in kvs])
+    return '\n'.join(['<li><span>%s</span><textarea disabled>%s</textarea></li>' % (s, q) for s, q in kvs])
 
 
 def update_forms(forms):
@@ -62,8 +62,7 @@ def update_forms(forms):
 def wrap_td(k, uri):
     if k == 'predicate':
         return '<td>%s</td>' % uri.split('#')[-1]
-    clusterid = '/'.join(uri.split('/')[-2:])
-    return '<td><a href="%s">%s</a></td>' % (XIJ+clusterid, clusterid)
+    return '<td><a href="%s">%s</a></td>' % (XIJ+'/'.join(uri.split('/')[-2:]), uri)
 
 
 def pretty_result(result):
