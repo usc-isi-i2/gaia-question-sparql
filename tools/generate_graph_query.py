@@ -49,13 +49,21 @@ def generate_two_layer_graph(root, max_edges_per_layer):
     return construct_graph(edges, entrypoints)
 
 
-test_query_json = generate_two_layer_graph(test_event, 3)
-pprint(test_query_json)
+
+all_events = get_all_event_uri()
+for i in range(min(len(all_events), 5)):
+    output_file = './sample_question_%d.xml' % i
+
+    test_query_json = generate_two_layer_graph(test_event, 3)
+    # pprint(test_query_json)
+
+    from dicttoxml import dicttoxml
+    test_query_xml = dicttoxml(test_query_json, attr_type=False, item_func=lambda x: x.rstrip('s'))
+    # pprint(test_query_xml)
+
+    write_file(test_query_xml, output_file)
 
 
-from dicttoxml import dicttoxml
-test_query_xml = dicttoxml(test_query_json, attr_type=False, item_func=lambda x: x.rstrip('s'))
-pprint(test_query_xml)
 
 
 

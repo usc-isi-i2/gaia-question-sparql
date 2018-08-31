@@ -38,6 +38,14 @@ def select_query(q):
     return res.get('results', {}).get('bindings', [])
 
 
+def get_all_event_uri():
+    q = '''
+    SELECT DISTINCT ?event
+    WHERE { ?event a aida:Event }
+    '''
+    return [x['event']['value'] for x in select_query(q)]
+
+
 def get_edges_event(event_uri):
     # event_uri = "http://www.isi.edu/gaia/events/f2ca779a-0b83-4da2-92d4-4c332940949c"
     q = '''
@@ -82,7 +90,9 @@ def construct_ep(node, enttype, descriptors):
         NODE: node,
         ENTTYPE: enttype.rsplit('#', 1)[-1],
     }
-    ret.update(descriptors)
+    for descriptor in descriptors:
+        ret[descriptor] = descriptors[descriptor][:1]
+    # ret.update(descriptors)
     return ret
 
 
@@ -256,3 +266,17 @@ def pprint(x):
             print(minidom.parseString(x).toprettyxml())
         except:
             print(x)
+
+
+def write_file(x, output):
+    with open(output, 'w') as f:
+        if isinstance(x, dict) or isinstance(x, list):
+            json.dump(x, f, indent=2)
+        else:
+            if isinstance(x, bytes):
+                x = x.decode('utf-8')
+            try:
+                from xml.dom import minidom
+                f.write(minidom.parseString(x).toprettyxml())
+            except:
+                f.write(x)
