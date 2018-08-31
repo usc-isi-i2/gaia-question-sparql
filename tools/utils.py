@@ -1,5 +1,8 @@
 from SPARQLWrapper import SPARQLWrapper
 import json
+import os
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 ENDPOINT = 'http://gaiadev01.isi.edu:3030/latest_rpi_en/'
 PREFIX = '''
@@ -8,12 +11,13 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#>
 '''
+ldcOnt = 'https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#'
 SUBJECT = 'subject'
 PREDICATE = 'predicate'
 OBJECT = 'object'
 ENTTYPE = 'enttype'
 EDGES = 'edges'
-ENTRYPOINTS = 'entripoints'
+ENTRYPOINTS = 'entrypoints'
 STRING_DESCRIPTOR = 'string_descriptor'
 TEXT_DESCRIPTOR = 'text_descriptor'
 VEDIO_DESCRIPTOR = 'video_descriptor'
@@ -46,6 +50,22 @@ def get_all_event_uri():
     return [x['event']['value'] for x in select_query(q)]
 
 
+def get_all_edge():
+    res = {}
+    for _type in ('Event', 'Relation'):
+        q = '''
+        SELECT DISTINCT ?role WHERE {
+          ?sub a aida:%s .
+          ?ent a aida:Entity .
+          ?r rdf:subject ?sub ;
+             rdf:predicate ?role ;
+             rdf:object ?ent.
+        }
+        ''' % _type
+        res[_type] = [x['role']['value'] for x in select_query(q)]
+    return res
+
+
 def get_edges_event(event_uri):
     # event_uri = "http://www.isi.edu/gaia/events/f2ca779a-0b83-4da2-92d4-4c332940949c"
     q = '''
@@ -72,13 +92,13 @@ def get_edges_event(event_uri):
 
 def filter_exclude(var_name, exclude_list):
     var_name = var_name if var_name[0] == '?' else '?' + var_name
-    exclude_vars = ['<%s>' % ex.lstrip('<').rstrip('>') for ex in exclude_list]
+    exclude_vars = ['<%s>' % (ex if ex.startswith('http') else ldcOnt + ex) for ex in exclude_list]
+
     return 'FILTER(%s not in (%s))' % (var_name, ', '.join(exclude_vars)) if exclude_list else ''
 
 
-def construct_edge(id, sub, pred, obj):
+def construct_edge(sub, pred, obj):
     return {
-        '@id': id,
         SUBJECT: sub,
         PREDICATE: pred.rsplit('#', 1)[-1],
         OBJECT: obj
@@ -90,8 +110,8 @@ def construct_ep(node, enttype, descriptors):
         NODE: node,
         ENTTYPE: enttype.rsplit('#', 1)[-1],
     }
-    for descriptor in descriptors:
-        ret[descriptor] = descriptors[descriptor][:1]
+    for descriptor, obj in descriptors.items():
+        ret[descriptor] = descriptors[descriptor][:max(1, len(descriptors[descriptor])//4, 3)]
     # ret.update(descriptors)
     return ret
 
@@ -105,7 +125,7 @@ def construct_graph(edges, entrypoints):
     }
 
 
-def get_edges_from_subject(event_or_relation_uri, exclude_predicate=[], exclude_object=[]):
+def get_edges_from_subject(event_or_relation_uri, exclude_predicate=set(), exclude_object=set()):
     # event_uri = "http://www.isi.edu/gaia/events/f2ca779a-0b83-4da2-92d4-4c332940949c"
     # relation_uri = "http://www.isi.edu/gaia/assertions/a4172e65-64f0-4dcc-8588-5c66a196e34e"
     q = '''
@@ -131,7 +151,7 @@ def get_edges_from_subject(event_or_relation_uri, exclude_predicate=[], exclude_
     return ret
 
 
-def get_edges_from_object(entity_uri, exclude_predicate=[], exclude_subject=[]):
+def get_edges_from_object(entity_uri, exclude_predicate=set(), exclude_subject=set()):
     # entity_uri = "http://www.isi.edu/gaia/entities/df905740-b62e-485e-813a-7a14826b31a2"
     q = '''
     SELECT DISTINCT ?s ?p
@@ -250,6 +270,28 @@ def get_entrypints(uri):
     return ret
 
 
+def convert_query_json2xml(json_query, question_id):
+    import xml.etree.ElementTree as ET
+    root = ET.Element('query', attrib={'id': question_id})
+    edges = ET.SubElement(ET.SubElement(root, 'graph'), EDGES)
+    for idx, edge in enumerate(json_query['graph'][EDGES]):
+        edge_tag = ET.SubElement(edges, 'edge', id='%s_%d' % (question_id, idx))
+        for k, v in edge.items():
+            ET.SubElement(edge_tag, k).text = v
+    entrypoints = ET.SubElement(root, ENTRYPOINTS)
+    for entrypoint in json_query[ENTRYPOINTS]:
+        ep_tag = ET.SubElement(entrypoints, ENTRYPOINTS)
+        for k, v in entrypoint.items():
+            if isinstance(v, str):
+                ET.SubElement(ep_tag, k).text = v
+            else:
+                for single_descriptor in v:
+                    cur_descriptor = ET.SubElement(ep_tag, k)
+                    for k_, v_ in single_descriptor.items():
+                        ET.SubElement(cur_descriptor, k_).text = v_
+    return ET.ElementTree(root)
+
+
 def pprint(x):
     if not x:
         print('Empty')
@@ -258,25 +300,32 @@ def pprint(x):
     elif isinstance(x, list):
         for ele in x:
             pprint(ele)
+    elif isinstance(x, ET.ElementTree):
+        print(minidom.parseString(ET.tostring(x.getroot())).toprettyxml())
     else:
         if isinstance(x, bytes):
             x = x.decode('utf-8')
         try:
-            from xml.dom import minidom
             print(minidom.parseString(x).toprettyxml())
         except:
             print(x)
 
 
 def write_file(x, output):
+    dirpath, filename = output.rsplit('/', 1)
+    if dirpath and dirpath != '.':
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
     with open(output, 'w') as f:
         if isinstance(x, dict) or isinstance(x, list):
             json.dump(x, f, indent=2)
+        elif isinstance(x, ET.ElementTree):
+            str_xml = ET.tostring(x.getroot())
+            f.write(minidom.parseString(str_xml).toprettyxml())
         else:
             if isinstance(x, bytes):
                 x = x.decode('utf-8')
             try:
-                from xml.dom import minidom
                 f.write(minidom.parseString(x).toprettyxml())
             except:
                 f.write(x)
