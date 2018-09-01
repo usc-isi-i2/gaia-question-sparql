@@ -1,0 +1,25 @@
+<zerohop_queries>
+<!--
+	<zerohop_query ID="Q123">
+		<entrypoint> 
+			<node> ?crash_target </node>
+			<enttype> Vehicle </enttype>
+			<string_descriptor>
+				<name_string> MH-17 </name_string>
+			</string_descriptor>
+		</entrypoint> 
+	</zerohop_query>
+-->
+	<zerohop_query ID="Q124">
+		<entrypoint> 
+			<node> ?crash_place </node>
+			<enttype> GeopoliticalEntity </enttype>
+			<video_descriptor>
+				<doceid> IC0019NAK </doceid>
+				<keyframeid> IC0019NAK_101 </keyframeid>
+				<topleft> 20,20 </topleft>
+				<bottomright> 50,50 </bottomright>
+			</video_descriptor>
+		</entrypoint> 
+	</zerohop_query>
+</zerohop_queries>

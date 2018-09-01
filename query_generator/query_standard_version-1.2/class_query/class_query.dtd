@@ -1,0 +1,4 @@
+<!ELEMENT class_queries (class_query+)> 
+<!ELEMENT class_query (enttype)>
+<!ELEMENT enttype (#PCDATA)>
+<!ATTLIST class_query ID CDATA #REQUIRED>

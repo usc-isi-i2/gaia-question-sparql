@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<graphquery_responses id="AIDA_M09_TA2_Q2">
+	<response>
+		<edge id="AIDA_M09_TA2_Q2_1">
+			<justifications>
+				<justification docid="SOME_DOCID_1">
+					<subject_justification>
+						<system_nodeid> Some_team_internal_ID_1 </system_nodeid>
+						<video_span>
+							<doceid> ... </doceid>
+							<keyframeid> .... </keyframeid>
+							<topleft> ... </topleft>
+							<bottomright> ... </bottomright>
+							<enttype> ... </enttype>
+						</video_span>
+						<confidence> 0.8 </confidence>
+					</subject_justification>
+					<object_justification>
+						<system_nodeid> Some_team_internal_ID_2 </system_nodeid>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</object_justification>
+					<edge_justification>
+						<video_span>
+							<doceid> ... </doceid>
+							<keyframeid> .... </keyframeid>
+							<topleft> ... </topleft>
+							<bottomright> ... </bottomright>
+							<enttype> ... </enttype>
+						</video_span>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</edge_justification>
+				</justification>
+				<justification docid="SOME_DOCID_2">
+					<subject_justification>
+						<system_nodeid> Some_team_internal_ID_1 </system_nodeid>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</subject_justification>
+					<object_justification>
+						<system_nodeid> Some_team_internal_ID_2 </system_nodeid>
+						<video_span>
+							<doceid> ... </doceid>
+							<keyframeid> .... </keyframeid>
+							<topleft> ... </topleft>
+							<bottomright> ... </bottomright>
+							<enttype> ... </enttype>
+						</video_span>
+						<confidence> 0.8 </confidence>
+					</object_justification>
+					<edge_justification>
+						<video_span>
+							<doceid> ... </doceid>
+							<keyframeid> .... </keyframeid>
+							<topleft> ... </topleft>
+							<bottomright> ... </bottomright>
+							<enttype> ... </enttype>
+						</video_span>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</edge_justification>
+				</justification>
+			</justifications>
+		</edge>
+		<edge id="AIDA_M09_TA2_Q2_2">
+			<justifications>
+				<justification docid="SOME_DOCID_1">
+					<subject_justification>
+						<system_nodeid> Some_team_internal_ID_1 </system_nodeid>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</subject_justification>
+					<object_justification>
+						<system_nodeid> Some_team_internal_ID_4 </system_nodeid>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</object_justification>
+					<edge_justification>
+						<video_span>
+							<doceid> ... </doceid>
+							<keyframeid> .... </keyframeid>
+							<topleft> ... </topleft>
+							<bottomright> ... </bottomright>
+							<enttype> ... </enttype>
+						</video_span>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</edge_justification>
+				</justification>
+				<justification docid="SOME_DOCID_2">
+					<subject_justification>
+						<system_nodeid> Some_team_internal_ID_1 </system_nodeid>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</subject_justification>
+					<object_justification>
+						<system_nodeid> Some_team_internal_ID_4 </system_nodeid>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</object_justification>
+					<edge_justification>
+						<video_span>
+							<doceid> ... </doceid>
+							<keyframeid> .... </keyframeid>
+							<topleft> ... </topleft>
+							<bottomright> ... </bottomright>
+							<enttype> ... </enttype>
+						</video_span>
+						<text_span>
+							<doceid> ... </doceid>
+							<start> ... </start>
+							<end> ... </end>
+							<enttype> ... </enttype>
+						</text_span>
+						<confidence> 0.8 </confidence>
+					</edge_justification>
+				</justification>
+			</justifications>
+		</edge>	
+	</response>
+</graphquery_responses>

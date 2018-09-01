@@ -1,0 +1,21 @@
+<classquery_responses>
+	<classquery_response QUERY_ID="Q123">
+		<justifications> 
+			<text_justification>
+				<doceid> ... </doceid>
+				<start> ... </start>
+				<end> ... </end>
+				<enttype> ... </enttype>
+				<confidence> ... </confidence>
+			</text_justification>
+			<video_justification>
+				<doceid> ... </doceid>
+				<keyframeid> .... </keyframeid>
+				<topleft> ... </topleft>
+				<bottomright> ... </bottomright>
+				<enttype> ... </enttype>
+				<confidence> ... </confidence>
+			</video_justification>
+		</justifications> 
+	</classquery_response>
+</classquery_responses>

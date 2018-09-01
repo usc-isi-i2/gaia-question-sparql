@@ -5,19 +5,20 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 ENDPOINT = 'http://gaiadev01.isi.edu:3030/latest_rpi_en/'
-PREFIX = '''
-PREFIX aida: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#>
-PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX ldcOnt: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#>
-'''
-ldcOnt = 'https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#'
+PREFIX_MAPPING = {
+    'aida': 'https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#',
+    'ldcOnt': 'https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#',
+    'skos': 'http://www.w3.org/2004/02/skos/core#',
+    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+}
+PREFIX = '\n'.join(['PREFIX %s: <%s>' % (k, v) for k, v in PREFIX_MAPPING.items()])
 SUBJECT = 'subject'
 PREDICATE = 'predicate'
 OBJECT = 'object'
 ENTTYPE = 'enttype'
 EDGES = 'edges'
 ENTRYPOINTS = 'entrypoints'
+ENTRYPOINT = 'entrypoint'
 STRING_DESCRIPTOR = 'string_descriptor'
 TEXT_DESCRIPTOR = 'text_descriptor'
 VEDIO_DESCRIPTOR = 'video_descriptor'
@@ -92,7 +93,7 @@ def get_edges_event(event_uri):
 
 def filter_exclude(var_name, exclude_list):
     var_name = var_name if var_name[0] == '?' else '?' + var_name
-    exclude_vars = ['<%s>' % (ex if ex.startswith('http') else ldcOnt + ex) for ex in exclude_list]
+    exclude_vars = ['<%s>' % (ex if ex.startswith('http') else PREFIX_MAPPING['ldcOnt'] + ex) for ex in exclude_list]
 
     return 'FILTER(%s not in (%s))' % (var_name, ', '.join(exclude_vars)) if exclude_list else ''
 
@@ -272,7 +273,7 @@ def get_entrypints(uri):
 
 def convert_query_json2xml(json_query, question_id):
     import xml.etree.ElementTree as ET
-    root = ET.Element('query', attrib={'id': question_id})
+    root = ET.Element('graph_query', attrib={'id': question_id})
     edges = ET.SubElement(ET.SubElement(root, 'graph'), EDGES)
     for idx, edge in enumerate(json_query['graph'][EDGES]):
         edge_tag = ET.SubElement(edges, 'edge', id='%s_%d' % (question_id, idx))
@@ -280,7 +281,7 @@ def convert_query_json2xml(json_query, question_id):
             ET.SubElement(edge_tag, k).text = v
     entrypoints = ET.SubElement(root, ENTRYPOINTS)
     for entrypoint in json_query[ENTRYPOINTS]:
-        ep_tag = ET.SubElement(entrypoints, ENTRYPOINTS)
+        ep_tag = ET.SubElement(entrypoints, ENTRYPOINT)
         for k, v in entrypoint.items():
             if isinstance(v, str):
                 ET.SubElement(ep_tag, k).text = v
@@ -289,7 +290,9 @@ def convert_query_json2xml(json_query, question_id):
                     cur_descriptor = ET.SubElement(ep_tag, k)
                     for k_, v_ in single_descriptor.items():
                         ET.SubElement(cur_descriptor, k_).text = v_
-    return ET.ElementTree(root)
+    super_root = ET.Element('graph_queries')
+    super_root.append(root)
+    return ET.ElementTree(super_root)
 
 
 def pprint(x):
