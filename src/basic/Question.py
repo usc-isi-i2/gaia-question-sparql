@@ -102,7 +102,9 @@ class Question(object):
             descriptor_list.append(res)
 
     def serialize_strict_sparql(self):
-        return Serializer(self).serialize_select_query()
+        query_string = Serializer(self).serialize_select_query()
+        # print(query_string)
+        return query_string
 
     @staticmethod
     def quote(x):
@@ -110,7 +112,7 @@ class Question(object):
 
 
 class Serializer(object):
-    def __init__(self, question:Question):
+    def __init__(self, question: Question):
         self.question = question
 
     def serialize_select_query(self):
