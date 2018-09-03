@@ -315,10 +315,12 @@ def pprint(x):
 
 
 def write_file(x, output):
-    dirpath, filename = output.rsplit('/', 1)
-    if dirpath and dirpath != '.':
-        if not os.path.exists(dirpath):
-            os.makedirs(dirpath)
+    filename = output
+    if len(output.rsplit('/', 1)) == 2:
+        dirpath, filename = output.rsplit('/', 1)
+        if dirpath and dirpath != '.':
+            if not os.path.exists(dirpath):
+                os.makedirs(dirpath)
     with open(output, 'w') as f:
         if isinstance(x, dict) or isinstance(x, list):
             json.dump(x, f, indent=2)
