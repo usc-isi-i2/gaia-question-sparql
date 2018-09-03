@@ -24,12 +24,13 @@ class Question(object):
         # print(json.dumps(self.entrypoints, indent=2))
         # print(self.nodes)
 
-    def parse_an_edge(self, edge):
+    def parse_an_edge(self, edge: list or dict):
         if isinstance(edge, list):
             for an_edge in edge:
                 self.parse_an_edge(an_edge)
         else:
             self.nodes.add(edge[SUBJECT])
+            self.nodes.add('?' + edge['@id'])
             self.nodes.add(edge[OBJECT])
             self.edges.append({
                 '?' + edge['@id']: [
@@ -40,7 +41,7 @@ class Question(object):
                 ]
             })
 
-    def parse_a_entrypoint(self, entrypoint):
+    def parse_a_entrypoint(self, entrypoint: list or dict):
         if isinstance(entrypoint, list):
             for a_entrypoint in entrypoint:
                 self.parse_a_entrypoint(a_entrypoint)
@@ -139,6 +140,13 @@ class Serializer(object):
 
     @staticmethod
     def serialize_triples(triples: dict):
+        '''
+        :param triples: {SUBJECT_1 : [(PREDICATE_1_1, OBJECT_1_1), (PREDICATE_1_2, OBJECT_1_2)], SUBJECT_2: [(PREDICATE_2, OBJECT_2)]}
+        :return: SPARQL string :
+                SUBJECT_1 PREDIACTE_1_1 OBJECT_1_1 ;
+                          PREDICATE_1_2 OBJECT_1_2 .
+                SUBJECT_2 PREDICATE_1 OBJECT_2 .
+        '''
         if not triples:
             return ''
         return '\t' + ('\n\t'.join(['\n'.join(

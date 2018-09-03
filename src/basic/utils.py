@@ -1,5 +1,8 @@
 from SPARQLWrapper import SPARQLWrapper
-
+import json
+import os
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 prefix = {
     "aida": "https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#",
@@ -18,6 +21,90 @@ def select_query(query_string):
     sw.setQuery(PREFIX + query_string)
     sw.setReturnFormat('json')
     return sw.query().convert()['results']['bindings']
+
+
+def aug_dict_list(target_dict, key1, key2, value_to_append):
+    if key1 in target_dict:
+        if key2 in target_dict[key1]:
+            target_dict[key1][key2].append(value_to_append)
+        else:
+            target_dict[key1][key2] = [value_to_append]
+    else:
+        target_dict[key1] = {key2: [value_to_append]}
+
+
+# TODO: where to put confidence, in the sample response, confidence is of a node not of a single justification span
+
+def query_text_justification(uri, res):
+    q = '''
+    SELECT DISTINCT ?doceid ?start ?end ?confidence 
+    WHERE {
+        <%s> aida:justifiedBy ?j .
+        ?j a aida:TextJustification ;
+            aida:source ?doceid ;
+            aida:startOffset ?start ;
+            aida:endOffsetInclusive ?end ;
+            aida:confidence ?conf .
+        ?conf aida:confidenceValue ?confidence .
+    }
+    ''' % uri
+    justi = select_query(q)
+    for j in justi:
+        cur = {START: j[START]['value'], END: j[END]['value']}
+        doceid = j[DOCEID]['value']
+        aug_dict_list(res, doceid, TEXT_SPAN, cur)
+
+
+def query_video_justification(uri, res):
+    q = '''
+    SELECT DISTINCT ?doceid ?keyframeid ?topleftX ?topleftY ?bottomrightX ?bottomrightY ?confidence 
+    WHERE {
+        <%s> aida:justifiedBy ?j .
+        ?j a aida:KeyframeVideoJustification ;
+            aida:keyFrame ?keyframeid ;
+            aida:boundingBox ?b;
+            aida:confidence ?conf .
+        ?conf aida:confidenceValue ?confidence .
+        ?b aida:boundingBoxUpperLeftX ?topleftX ;
+           aida:boundingBoxUpperLeftX ?topleftY ;
+           aida:boundingBoxLowerRightX ?bottomrightX ;
+           aida:boundingBoxLowerRightX ?bottomrightY .
+    }
+    ''' % uri
+    justi = select_query(q)
+    for j in justi:
+        cur = {
+            KEYFRAMEID: j[KEYFRAMEID]['value'],
+            TOPLEFT: '%s,%s' % (j[TOPLEFT+'X']['value'], j[TOPLEFT+'Y']['value']),
+            BOTTOMRIGHT: '%s,%s' % (j[BOTTOMRIGHT+'X']['value'], j[BOTTOMRIGHT+'Y']['value'])
+        }
+        doceid = j[DOCEID]['value']
+        aug_dict_list(res, doceid, VIDEO_SPAN, cur)
+
+
+def query_image_justification(uri, res):
+    q = '''
+    SELECT DISTINCT ?doceid ?topleftX ?topleftY ?bottomrightX ?bottomrightY ?confidence 
+    WHERE {
+        <%s> aida:justifiedBy ?j .
+        ?j a aida:ImageJustification ;
+            aida:boundingBox ?b ;
+            aida:confidence ?conf .
+        ?conf aida:confidenceValue ?confidence .
+        ?b aida:boundingBoxUpperLeftX ?topleftX ;
+           aida:boundingBoxUpperLeftX ?topleftY ;
+           aida:boundingBoxLowerRightX ?bottomrightX ;
+           aida:boundingBoxLowerRightX ?bottomrightY .
+    }
+    ''' % uri
+    justi = select_query(q)
+    for j in justi:
+        cur = {
+            TOPLEFT: '%s,%s' % (j[TOPLEFT+'X']['value'], j[TOPLEFT+'Y']['value']),
+            BOTTOMRIGHT: '%s,%s' % (j[BOTTOMRIGHT+'X']['value'], j[BOTTOMRIGHT+'Y']['value'])
+        }
+        doceid = j[DOCEID]['value']
+        aug_dict_list(res, doceid, IMAGE_SPAN, cur)
 
 
 SUBJECT = 'subject'
@@ -69,3 +156,47 @@ AIDA_BOUNDINGBOXUPPERLEFTX = 'aida:boundingBoxUpperLeftX'
 AIDA_BOUNDINGBOXUPPERLEFTY = 'aida:boundingBoxUpperLeftY'
 AIDA_BOUNDINGBOXLOWERRIGHTX = 'aida:boundingBoxLowerRightX'
 AIDA_BOUNDINGBOXLOWERRIGHTY = 'aida:boundingBoxLowerRightY'
+
+
+TEXT_SPAN = 'text_span'
+VIDEO_SPAN = 'video_span'
+IMAGE_SPAN = 'image_span'
+
+
+def pprint(x):
+    if not x:
+        print('Empty')
+    if isinstance(x, dict):
+        print(json.dumps(x, indent=2))
+    elif isinstance(x, list):
+        for ele in x:
+            pprint(ele)
+    elif isinstance(x, ET.ElementTree):
+        print(minidom.parseString(ET.tostring(x.getroot())).toprettyxml())
+    else:
+        if isinstance(x, bytes):
+            x = x.decode('utf-8')
+        try:
+            print(minidom.parseString(x).toprettyxml())
+        except:
+            print(x)
+
+
+def write_file(x, output):
+    dirpath, filename = output.rsplit('/', 1)
+    if dirpath and dirpath != '.':
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+    with open(output, 'w') as f:
+        if isinstance(x, dict) or isinstance(x, list):
+            json.dump(x, f, indent=2)
+        elif isinstance(x, ET.ElementTree):
+            str_xml = ET.tostring(x.getroot())
+            f.write(minidom.parseString(str_xml).toprettyxml())
+        else:
+            if isinstance(x, bytes):
+                x = x.decode('utf-8')
+            try:
+                f.write(minidom.parseString(x).toprettyxml())
+            except:
+                f.write(x)

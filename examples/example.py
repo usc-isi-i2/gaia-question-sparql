@@ -15,9 +15,5 @@ with open(xml_query) as f:
 q = Question(xml).serialize_strict_sparql()
 
 ans = Answer(Question(xml))
-ans.ask_uri()
 
-import json
-def pprint(x):
-    print(json.dumps(x, indent=2))
-pprint(ans.node_uri)
+print(ans.ask())
