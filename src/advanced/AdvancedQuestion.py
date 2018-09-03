@@ -59,7 +59,7 @@ class AdvancedSerializer(Serializer):
         if is_enttype and self.relax_strategy.get('ignore_enttype'):
             updated_triples = {}
             for k in triples:
-                updated_triples[k] = [('a', 'aida:Entity')]
+                updated_triples[k] = [(RDF_TYPE, AIDA_ENTITY)]
             return self.serialize_triples(updated_triples)
 
         # TODO: relax on a single descriptors:

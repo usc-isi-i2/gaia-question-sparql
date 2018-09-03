@@ -315,9 +315,8 @@ def pprint(x):
 
 
 def write_file(x, output):
-    filename = output
     if len(output.rsplit('/', 1)) == 2:
-        dirpath, filename = output.rsplit('/', 1)
+        dirpath = output.rsplit('/', 1)[0]
         if dirpath and dirpath != '.':
             if not os.path.exists(dirpath):
                 os.makedirs(dirpath)
