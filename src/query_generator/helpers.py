@@ -1,36 +1,7 @@
 from SPARQLWrapper import SPARQLWrapper
-import json
-import os
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
+from src.basic.utils import *
 
 ENDPOINT = 'http://gaiadev01.isi.edu:3030/latest_rpi_en/'
-PREFIX_MAPPING = {
-    'aida': 'https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#',
-    'ldcOnt': 'https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#',
-    'skos': 'http://www.w3.org/2004/02/skos/core#',
-    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-}
-PREFIX = '\n'.join(['PREFIX %s: <%s>' % (k, v) for k, v in PREFIX_MAPPING.items()])
-SUBJECT = 'subject'
-PREDICATE = 'predicate'
-OBJECT = 'object'
-ENTTYPE = 'enttype'
-EDGES = 'edges'
-ENTRYPOINTS = 'entrypoints'
-ENTRYPOINT = 'entrypoint'
-STRING_DESCRIPTOR = 'string_descriptor'
-TEXT_DESCRIPTOR = 'text_descriptor'
-VEDIO_DESCRIPTOR = 'video_descriptor'
-IMAGE_DESCRIPTOR = 'image_descriptor'
-NAME_STRING = 'name_string'
-START = 'start'
-END = 'end'
-DOCEID = 'doceid'
-KEYFRAMEID = 'keyframeid'
-TOPLEFT = 'topleft'
-BOTTOMRIGHT = 'bottomright'
-NODE = 'node'
 
 query_wrapper = SPARQLWrapper(ENDPOINT+'query')
 update_wrapper = SPARQLWrapper(ENDPOINT+'update')
@@ -93,7 +64,7 @@ def get_edges_event(event_uri):
 
 def filter_exclude(var_name, exclude_list):
     var_name = var_name if var_name[0] == '?' else '?' + var_name
-    exclude_vars = ['<%s>' % (ex if ex.startswith('http') else PREFIX_MAPPING['ldcOnt'] + ex) for ex in exclude_list]
+    exclude_vars = ['<%s>' % (ex if ex.startswith('http') else prefix['ldcOnt'] + ex) for ex in exclude_list]
 
     return 'FILTER(%s not in (%s))' % (var_name, ', '.join(exclude_vars)) if exclude_list else ''
 
@@ -272,7 +243,6 @@ def get_entrypints(uri):
 
 
 def convert_query_json2xml(json_query, question_id):
-    import xml.etree.ElementTree as ET
     root = ET.Element('graph_query', attrib={'id': question_id})
     edges = ET.SubElement(ET.SubElement(root, 'graph'), EDGES)
     for idx, edge in enumerate(json_query['graph'][EDGES]):
@@ -294,42 +264,3 @@ def convert_query_json2xml(json_query, question_id):
     super_root.append(root)
     return ET.ElementTree(super_root)
 
-
-def pprint(x):
-    if not x:
-        print('Empty')
-    if isinstance(x, dict):
-        print(json.dumps(x, indent=2))
-    elif isinstance(x, list):
-        for ele in x:
-            pprint(ele)
-    elif isinstance(x, ET.ElementTree):
-        print(minidom.parseString(ET.tostring(x.getroot())).toprettyxml())
-    else:
-        if isinstance(x, bytes):
-            x = x.decode('utf-8')
-        try:
-            print(minidom.parseString(x).toprettyxml())
-        except:
-            print(x)
-
-
-def write_file(x, output):
-    if len(output.rsplit('/', 1)) == 2:
-        dirpath = output.rsplit('/', 1)[0]
-        if dirpath and dirpath != '.':
-            if not os.path.exists(dirpath):
-                os.makedirs(dirpath)
-    with open(output, 'w') as f:
-        if isinstance(x, dict) or isinstance(x, list):
-            json.dump(x, f, indent=2)
-        elif isinstance(x, ET.ElementTree):
-            str_xml = ET.tostring(x.getroot())
-            f.write(minidom.parseString(str_xml).toprettyxml())
-        else:
-            if isinstance(x, bytes):
-                x = x.decode('utf-8')
-            try:
-                f.write(minidom.parseString(x).toprettyxml())
-            except:
-                f.write(x)

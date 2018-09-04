@@ -1,5 +1,5 @@
 from SPARQLWrapper import SPARQLWrapper
-from .utils import *
+from src.basic.utils import *
 
 
 class QueryWrapper(object):

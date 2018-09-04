@@ -1,11 +1,10 @@
-import sys
-sys.path.append('..')
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-
-from src.basic.Question import Question
 from src.basic.Answer import Answer
 
 ENDPOINT = 'http://gaiadev01.isi.edu:3030/latest_rpi_en/query'
+
 
 def run(xml_query):
     with open(xml_query) as f:
@@ -13,7 +12,7 @@ def run(xml_query):
 
     ans = Answer(xml, ENDPOINT).ask()
 
-    print(ans)
+    print(ans['response'])
 
 # example query provided by NIST
 # run('graph_query.xml')

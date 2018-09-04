@@ -1,5 +1,5 @@
 import xmltodict
-from .utils import *
+from src.basic.utils import *
 
 
 class Question(object):

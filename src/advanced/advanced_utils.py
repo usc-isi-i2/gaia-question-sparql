@@ -1,0 +1,16 @@
+
+from src.basic.utils import *
+
+FILTER_OPERATOR = {
+    AIDA_STARTOFFSET: '<=',
+    AIDA_ENDOFFSETINCLUSIVE: '>=',
+    AIDA_BOUNDINGBOXUPPERLEFTX: '<=',
+    AIDA_BOUNDINGBOXUPPERLEFTY: '<=',
+    AIDA_BOUNDINGBOXLOWERRIGHTX: '>=',
+    AIDA_BOUNDINGBOXLOWERRIGHTY: '>='
+}
+
+WIDER_RANGE = 'wider_range'
+LARGER_BOUND = 'larger_bound'
+IGNORE_ENTTYPE = 'ignore_enttype'
+AT_LEAST_N = 'at_least_n'

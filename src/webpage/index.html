@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+    <style type="text/css">
+        div#left, div#right {
+            display: inline-block;
+            vertical-align: top;
+        }
+        div#left {
+            width: 33%;
+        }
+        div#right {
+            width: 65%;
+        }
+        h4, p {
+            margin-top: 5px;
+            margin-bottom: 0;
+            margin-left: 0;
+        }
+        textarea {
+            width: calc(100% - 10px);
+            font-size: 12px;
+            padding: 3px;
+        }
+        #send_question {
+            border: 1px solid #2500ff;
+            padding: 5px 5px;
+            font-weight: bold;
+            font-color: #2500ff;
+        }
+        #endpoint {
+            width: 100%;
+        }
+        #endpoint > *, div#radios {
+            vertical-align: text-top;
+            display: inline-block;
+        }
+        #endpoint textarea {
+            width: calc(100% - 180px);
+        }
+        table.result_table {
+            border: 1px solid #e0e0e0;
+            max-height: 40vh;
+            overflow-y: scroll;
+            display: block;
+            margin: 0;
+        }
+        table.result_table td, table.result_table th {
+            border: 1px solid #e0e0e0;
+            text-align: left;
+            font-size: 14px;
+            padding: 5px;
+            margin: 0;
+        }
+
+        ol#strategies {
+            display: inline-flex;
+            flex-wrap: wrap;
+            padding: 0;
+        }
+
+        ol#strategies textarea {
+            width: 350px;
+            height: 300px;
+            display: block;
+        }
+
+        ol#strategies li {
+            list-style-position: inside;
+        }
+
+        .small-text {
+            font-size: 12px;
+        }
+
+
+    </style>
+    <head>
+        <title>Question Answering Playground</title>
+    </head>
+    <body>
+        <div id="top">
+            <div id="left">
+                <form action="/example" method="post">
+                    <span>Example Questions</span>
+                    <select name="example" id="example">
+                        {{option_examples|safe}}
+                    </select>
+                    <input type="submit" value="Apply Example">
+                </form>
+                <br>
+
+                <form action="/query" method="post">
+                    <div id="endpoint">
+                        <h4>Endpoint</h4>
+                        <textarea name="endpoint" rows="1">{{ endpoint }}</textarea>
+                        <input type="submit" value="Send Question" id="send_question">
+                    </div>
+                    <br>
+                    <div><strong>Relax Strategy: <br></strong>{{ check_strategies|safe }}</div>
+                    <div><strong class="small-text">* Uncheck all strategies to auto try all combination of strategies</strong></div>
+
+                    <h4 class="inlineblock">XML Question</h4>
+                    <textarea name="xml_question" rows="40">{{ xml_question }}</textarea>
+                </form>
+            </div>
+            <div id="right">
+                <h4>Results:</h4>
+                <!--<table class="result_table">{{ query_result|safe }}</table>-->
+                <textarea disabled rows="30">{{ query_result }}</textarea>
+
+                <br>
+
+                <h4>{{ manually }}</h4>
+                <ol id="strategies">
+                    {{ textarea_strategies|safe }}
+                </ol>
+            </div>
+        </div>
+
+        <div id="bottom">
+
+        </div>
+
+
+    </body>
+</html>

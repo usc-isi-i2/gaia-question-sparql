@@ -1,4 +1,4 @@
-run `generate_graph_query.py` to get 100 randomly generated graph queries under a folder `outputs`
+run `../../examples/example_generate_graph_query.py` to get 10 randomly generated graph queries under a folder `../../examples/outputs`
 
 update - 20180831
 1. for now the other end node of an edge will be randomly selected from possible node

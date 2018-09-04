@@ -1,9 +1,7 @@
 
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
-from .Question import Question
-from .QueryWrapper import QueryWrapper
-from .utils import *
+from src.basic.Question import Question
+from src.basic.QueryWrapper import QueryWrapper
+from src.basic.utils import *
 
 
 class Answer(object):
@@ -14,30 +12,31 @@ class Answer(object):
             self.question = Question(question)
         self.node_uri = []
         # {'?attackt_event': ['http://example.com/event/111']}
-        self.asked_uri = False
         self.node_justification = {}
         self.qw = QueryWrapper(endpoint)
 
     def ask(self):
-        self.ask_uri()
+        strict_sparql = self.question.serialize_strict_sparql()
+        self.ask_uri(strict_sparql)
         self.ask_justifications()
-        return self.construct_xml_response()
+        return {
+            'sparql': strict_sparql,
+            'response': self.construct_xml_response()
+        }
 
-    def ask_uri(self):
-        bindings = self.qw.select_query(self.question.serialize_strict_sparql())
+    def ask_uri(self, strict_sparql):
+        bindings = self.qw.select_query(strict_sparql)
         for raw in bindings:
             cur = {}
             for var_name, cell in raw.items():
                 cur['?' + var_name] = cell['value']
             self.node_uri.append(cur)
-        self.asked_uri = True
 
     def ask_justifications(self):
-        if not self.asked_uri:
-            self.ask_uri()
-
         # TODO: there can be multiple results, return each as a response?
         # Now only return the first result
+        if not self.node_uri:
+            return
         for node, uri in self.node_uri[0].items():
             justi = {}
             self.qw.query_text_justification(uri, justi)
@@ -54,11 +53,19 @@ class Answer(object):
                 for node_key, justi_key in ((pairs[1][1], 'subject_justification'),
                                             (pairs[3][1], 'object_justification'),
                                             (k, 'edge_justification')):
+                    if node_key not in self.node_justification:
+                        continue
                     for doceid, spans in self.node_justification[node_key].items():
                         if doceid not in docs:
                             docs[doceid] = {}
                         if justi_key not in docs[doceid]:
                             # TODO: what to put in system_nodeid and confidence
+                            # TODO: decrease spans ?:
+                            # 'Evaluation Plan v0.7':
+                            # (7)	The justification for an edge must contain three elements:
+                            # a.	subject_justification, containing exactly one span that is a mention of the subject (entity/filler, relation, or event)
+                            # b.	object_justification containing exactly one span that is a mention of the object (entity/filler, relation, or event)
+                            # c.	edge_justification containing up to two spans, connecting the subject to the object via the predicate
                             docs[doceid][justi_key] = {'system_nodeid': self.node_uri[0][node_key], 'confidence': '1.0'}
 
                         docs[doceid][justi_key].update(spans)

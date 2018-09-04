@@ -1,4 +1,4 @@
-from SPARQLWrapper import SPARQLWrapper
+
 import json
 import os
 import xml.etree.ElementTree as ET
