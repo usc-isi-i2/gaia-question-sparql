@@ -7,7 +7,7 @@ from src.advanced.AdvancedAnswer import AdvancedAnswer
 
 app = Flask(__name__, template_folder='./')
 
-ENDPOINT = 'http://gaiadev01.isi.edu:3030/latest_rpi_en/sparql'
+ENDPOINT = 'http://gaiadev01.isi.edu:3030/rpi0901aida9979/sparql'
 STRATEGY = ['wider_range', 'larger_bound', 'ignore_enttype']
 # RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 # XIJ = 'http://gaiadev01.isi.edu:5005/cluster/'

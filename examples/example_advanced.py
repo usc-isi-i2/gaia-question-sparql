@@ -3,7 +3,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from src.advanced.AdvancedAnswer import AdvancedAnswer
 
-ENDPOINT = 'http://gaiadev01.isi.edu:3030/latest_rpi_en/query'
+ENDPOINT = 'http://gaiadev01.isi.edu:3030/rpi0901aida9979/query'
 
 
 def run(xml_query):
