@@ -10,7 +10,3 @@ FILTER_OPERATOR = {
     AIDA_BOUNDINGBOXLOWERRIGHTY: '>='
 }
 
-WIDER_RANGE = 'wider_range'
-LARGER_BOUND = 'larger_bound'
-IGNORE_ENTTYPE = 'ignore_enttype'
-AT_LEAST_N = 'at_least_n'

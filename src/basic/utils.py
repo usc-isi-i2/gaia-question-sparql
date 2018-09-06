@@ -76,6 +76,12 @@ TEXT_SPAN = 'text_span'
 VIDEO_SPAN = 'video_span'
 IMAGE_SPAN = 'image_span'
 
+AIDA_PROTOTYPE = 'aida:prototype'
+
+ENTTYPE_MAPPINT = {
+    'Place': ldcOnt + ':' + 'Location'
+}
+
 
 def pprint(x):
     if not x:

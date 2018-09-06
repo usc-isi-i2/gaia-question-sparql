@@ -74,7 +74,7 @@
 					<keyframeid> IC0019NAK_101 </keyframeid>
 					<topleft> 20,20 </topleft>
 					<bottomright> 50,50 </bottomright>
-				</video_descriptor>			
+				</video_descriptor>
 			</entrypoint>
 		</entrypoints>
 	</graph_query>

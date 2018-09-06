@@ -53,7 +53,7 @@ class Question(object):
                     node + '_type': [
                         (RDF_SUBJECT, node),
                         (RDF_PREDICATE, RDF_TYPE),
-                        (RDF_OBJECT, ldcOnt + ':' + entrypoint[ENTTYPE])
+                        (RDF_OBJECT, ENTTYPE_MAPPINT.get(entrypoint[ENTTYPE], ldcOnt + ':' + entrypoint[ENTTYPE]))
                 ]}
             ep[DESCRIPTORS] = []
             if STRING_DESCRIPTOR in entrypoint:
@@ -124,8 +124,29 @@ class Serializer(object):
     def serialize_vars(self):\
         return ' '.join(self.question.nodes)
 
-    def serialize_edges(self):
-        return self.serialize_list_of_triples(self.question.edges)
+    def serialize_edges(self, match_prototype=-1):
+        # TODO: match prototypes?
+        """
+
+        :param match_prototype: enums of [-1, 0, 1]
+          -1 means filter out the prototypes
+          0 means ignore wether a node is prototypes(match both prototypes and non-prototypes)
+          1 means only return the prototypes(only when query on super graph)
+        :return:
+        """
+        if not match_prototype:
+            return self.serialize_list_of_triples(self.question.edges)
+
+        # Filter out prototypes:
+        prototypes = {''}
+        for edge in self.question.edges:
+            for k, v in edge.items():
+                for sub_or_obj in (v[1][1], v[3][1]):
+                    prop_triple = self.serialize_triples({sub_or_obj + '_cluster': [(AIDA_PROTOTYPE, sub_or_obj)]})
+                    if match_prototype < 0:
+                        prop_triple = 'FILTER NOT EXISTS { %s }' % prop_triple
+                    prototypes.add(prop_triple)
+        return self.serialize_list_of_triples(self.question.edges) + '\n'.join(prototypes)
 
     def serialize_entrypoints(self):
         return '\n'.join([self.serialize_a_node(node)for node in self.question.entrypoints])

@@ -7,8 +7,8 @@ from src.advanced.AdvancedAnswer import AdvancedAnswer
 
 app = Flask(__name__, template_folder='./')
 
-ENDPOINT = 'http://gaiadev01.isi.edu:3030/rpi0901aida9979/sparql'
-STRATEGY = ['wider_range', 'larger_bound', 'ignore_enttype']
+ENDPOINT = 'http://gaiadev01.isi.edu:3030/rpi0901aif80d2/sparql'
+STRATEGY = ['wider_range', 'larger_bound', 'ignore_enttype', 'on_supergraph']
 # RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 # XIJ = 'http://gaiadev01.isi.edu:5005/cluster/'
 
@@ -22,7 +22,7 @@ for qf in os.listdir('../../examples/'):
 # var in html:
 endpoint = ENDPOINT
 xml_question = '<?xml version="1.0"?>\n'
-textarea_strategies = query_result = ''
+textarea_strategies = query_result = at_least_n = ''
 select_example = len(qs)
 strategies_tried = []
 manually = False
@@ -54,11 +54,17 @@ def tried_strategies(kvs):
 
 
 def update_forms(forms):
-    global endpoint, xml_question
+    print(forms)
+    global endpoint, xml_question, at_least_n, checked_strategies
+    checked_strategies = set([x for x in STRATEGY if 'strategy_%s' % x in forms])
+
     if 'endpoint' in forms:
         endpoint = forms['endpoint']
     if 'xml_question' in forms:
         xml_question = forms['xml_question']
+    if 'at_least_n' in forms:
+        at_least_n = forms['at_least_n']
+
 
 #
 # def wrap_td(k, uri):
@@ -96,17 +102,20 @@ def query():
     try:
         global query_result, strategies_tried, manually, checked_strategies
         checked_strategies = set([x for x in STRATEGY if 'strategy_%s' % x in request.form])
+        at_least_n = request.form['at_least_n']
         answer = AdvancedAnswer(question=request.form['xml_question'], endpoint=request.form['endpoint'])
-        if not checked_strategies:
+        if not checked_strategies and not at_least_n:
             # TODO: try strategies automatically
             ans = answer.ask()
             strategies_tried = [('strict', ans['sparql'])]
             manually = False
         else:
             relax = {}
+            if at_least_n.isdigit() and int(at_least_n) > 0:
+                relax['at_least_n'] = int(at_least_n)
             for x in checked_strategies:
                 relax[x] = True
-            ans = answer.ask_with_specified_relaxation(relax)
+            ans = answer.ask(relax)
             strategies_tried = strategies_tried + [('+'.join(checked_strategies), ans['sparql'])] # if manually else list(ans['strategies'].items())
             manually = True
         query_result = ans['response']

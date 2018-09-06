@@ -17,12 +17,15 @@ class Answer(object):
 
     def ask(self):
         strict_sparql = self.question.serialize_strict_sparql()
-        self.ask_uri(strict_sparql)
-        self.ask_justifications()
-        return {
-            'sparql': strict_sparql,
-            'response': self.construct_xml_response()
-        }
+        return self.send_query(strict_sparql)
+
+    def send_query(self, sparql_query):
+        try:
+            self.ask_uri(sparql_query)
+            self.ask_justifications()
+            return self.wrap_result(sparql_query, self.construct_xml_response())
+        except Exception as e:
+            return self.wrap_result(sparql_query, str(e))
 
     def ask_uri(self, strict_sparql):
         bindings = self.qw.select_query(strict_sparql)
@@ -84,3 +87,10 @@ class Answer(object):
                         self.update_xml(ET.SubElement(root, k), v_)
                 else:
                     self.update_xml(ET.SubElement(root, k), v)
+
+    @staticmethod
+    def wrap_result(sparql, response):
+        return {
+            'sparql': sparql,
+            'response': response
+        }

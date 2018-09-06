@@ -1,7 +1,7 @@
 from SPARQLWrapper import SPARQLWrapper
 from src.basic.utils import *
 
-ENDPOINT = 'http://gaiadev01.isi.edu:3030/rpi0901aida9979/'
+ENDPOINT = 'http://gaiadev01.isi.edu:3030/rpi0901aif80d2/'
 
 query_wrapper = SPARQLWrapper(ENDPOINT+'query')
 update_wrapper = SPARQLWrapper(ENDPOINT+'update')

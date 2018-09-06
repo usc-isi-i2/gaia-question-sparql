@@ -1,5 +1,6 @@
 
 from src.basic.Question import Question, Serializer
+from src.advanced.Relaxation import Relaxation
 from src.advanced.advanced_utils import *
 
 
@@ -23,15 +24,12 @@ class AdvancedQuestion(Question):
 
 
 class AdvancedSerializer(Serializer):
-    def __init__(self, question: Question, relax_strategy=None):
+    def __init__(self, question: Question, relax_strategy: Relaxation=None):
         Serializer.__init__(self, question)
-        self.relax_strategy = relax_strategy
-        # self.relax_strategy = {
-        #     WIDER_RANGE: True,
-        #     IGNORE_ENTTYPE: True,
-        #     LARGER_BOUND: True,
-        #     AT_LEAST_N: 1
-        # }
+        self.rlx = relax_strategy
+
+    def serialize_edges(self):
+        return super(AdvancedSerializer, self).serialize_edges(1 if self.rlx.on_supergraph else -1)
 
     def serialize_a_node(self, node_obj: dict):
         top_level = self.serialize_triples_with_relaxation(node_obj.get(ENTTYPE), is_enttype=True)
@@ -39,10 +37,10 @@ class AdvancedSerializer(Serializer):
         return '{\n%s\n%s\n}' % (top_level, union_descriptors)
 
     def relax_descriptors(self, descriptors, node):
-        if not self.relax_strategy or not descriptors:
+        if not self.rlx or not descriptors:
             return self.serialize_list_of_triples(descriptors)
 
-        at_least_n = self.relax_strategy.get(AT_LEAST_N)
+        at_least_n = self.rlx.at_least_n
         if not at_least_n or at_least_n >= len(descriptors):
             return '\n'.join([self.serialize_triples_with_relaxation(descriptor) for descriptor in descriptors])
 
@@ -74,14 +72,14 @@ class AdvancedSerializer(Serializer):
         if not triples:
             return ''
 
-        if is_enttype and self.relax_strategy.get(IGNORE_ENTTYPE):
+        if is_enttype and self.rlx.ignore_enttype:
             updated_triples = {}
             for k in triples:
                 updated_triples[k] = [(RDF_TYPE, AIDA_ENTITY)]
             return self.serialize_triples(updated_triples)
 
         # relax on a single descriptors - wider_range and larger_bound
-        if self.relax_strategy.get(WIDER_RANGE) or self.relax_strategy.get(LARGER_BOUND):
+        if self.rlx.wider_range or self.rlx.larger_bound:
             # TODO: calc overlap ratio to order results
             ret = []
             filters = []
@@ -89,8 +87,8 @@ class AdvancedSerializer(Serializer):
                 cur = []
                 for i in range(len(pairs)):
                     pred, obj = pairs[i]
-                    if (self.relax_strategy.get(WIDER_RANGE) and pred in {AIDA_STARTOFFSET, AIDA_ENDOFFSETINCLUSIVE}) \
-                            or (self.relax_strategy.get(LARGER_BOUND) and
+                    if (self.rlx.wider_range and pred in {AIDA_STARTOFFSET, AIDA_ENDOFFSETINCLUSIVE}) \
+                            or (self.rlx.larger_bound and
                                 pred in {AIDA_BOUNDINGBOXUPPERLEFTX, AIDA_BOUNDINGBOXUPPERLEFTY,
                                          AIDA_BOUNDINGBOXLOWERRIGHTX, AIDA_BOUNDINGBOXLOWERRIGHTY}):
                         obj = '%s_%s' % (k, pred[-5:])
