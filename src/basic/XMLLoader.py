@@ -5,6 +5,7 @@ from src.basic.Questions.GraphQuestion import GraphQuestion
 from src.basic.Answer import Answer
 from src.basic.utils import *
 
+
 class XMLLoader(object):
     def __init__(self, xml_file_or_string):
         if xml_file_or_string.endswith('.xml'):
@@ -21,7 +22,7 @@ class XMLLoader(object):
 
         self.question_list = []
         root = xmltodict.parse(self.xml)
-        pprint(root)
+        # pprint(root)
         for k, v in root.items():
             content = v[mappings[k][0]]
             initializer = mappings[k][1]
@@ -31,25 +32,16 @@ class XMLLoader(object):
             else:
                 self.question_list.append(initializer(content))
 
-        for x in self.question_list:
-            print(x.serialize_sparql())
+        # for x in self.question_list:
+        #     print(x.serialize_sparql())
 
     def answer_all(self, endpoint):
         res = []
-        cnt = 1
+        # cnt = 1
         for q in self.question_list:
-            print(cnt)
-            cnt += 1
+            # print(cnt)
+            # cnt += 1
             ans = Answer(q, endpoint).ask()
-            pprint(ans)
             res.append(ans)
         return res
 
-
-
-
-# XMLLoader('../../examples/xml_queries/class_query.xml')
-loader = XMLLoader('../../examples/xml_queries/zerohop_query.xml')
-# XMLLoader('../../examples/xml_queries/graph_query.xml')
-
-pprint(loader.answer_all('http://gaiadev01.isi.edu:3030/rpi0901aif80d2/query'))

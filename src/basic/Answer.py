@@ -1,4 +1,6 @@
-
+from src.basic.Questions.ClassQuestion import ClassQuestion
+from src.basic.Questions.ZerohopQuestion import ZerohopQuestion
+from src.basic.Questions.GraphQuestion import GraphQuestion
 from src.basic.Questions.Question import Question
 from src.basic.QueryWrapper import QueryWrapper
 from src.basic.utils import *
@@ -49,7 +51,37 @@ class Answer(object):
             self.node_justification[node] = justi
 
     def construct_xml_response(self):
-        root = ET.Element('graphquery_responses', attrib={'id': self.question.query_id})
+        root = None
+        if isinstance(self.question, ClassQuestion):
+            root = self.construct_xml_response_class()
+        elif isinstance(self.question, ZerohopQuestion):
+            root = self.construct_xml_response_zerohop()
+        elif isinstance(self.question, GraphQuestion):
+            root = self.construct_xml_response_graph()
+        return minidom.parseString(ET.tostring(root)).toprettyxml()
+
+    def construct_xml_response_class(self):
+        root = ET.Element('classquery_response', attrib={'id': self.question.query_id})
+        self.flatten_justifications_to_xml(root)
+        return root
+
+    def construct_xml_response_zerohop(self):
+        root = ET.Element('zerohopquery_response', attrib={'id': self.question.query_id})
+        self.flatten_justifications_to_xml(root)
+        return root
+
+    def flatten_justifications_to_xml(self, root):
+        justifications = ET.SubElement(root, 'justifications')
+        for node_key in self.node_justification:
+            self.update_xml(justifications, {'system_nodeid': self.node_uri[0][node_key]})
+            for doceid, spans in self.node_justification[node_key].items():
+                for span_key, list_spans in spans.items():
+                    for span in list_spans:
+                        updated_span = {'doceid': doceid, **span}
+                        self.update_xml(justifications, {span_key: updated_span})
+
+    def construct_xml_response_graph(self):
+        root = ET.Element('graphquery_response', attrib={'id': self.question.query_id})
         for edge in self.question.edges:
             for k, pairs in edge.items():
                 justifications = ET.SubElement(ET.SubElement(root, 'edge', id=k.lstrip('?')), 'justifications')
@@ -76,7 +108,7 @@ class Answer(object):
 
                 for doc, justi in docs.items():
                     self.update_xml(ET.SubElement(justifications, 'justification', docid=doc), justi)
-        return minidom.parseString(ET.tostring(root)).toprettyxml()
+        return root
 
     def update_xml(self, root, obj):
         if isinstance(obj, str):
