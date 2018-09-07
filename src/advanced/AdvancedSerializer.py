@@ -1,32 +1,30 @@
 
-from src.basic.Question import Question, Serializer
+from src.basic.Serializer import *
 from src.advanced.Relaxation import Relaxation
 from src.advanced.advanced_utils import *
 
 
-class AdvancedQuestion(Question):
-    def test(self):
-        # print(self.query_id)
-        print(self.serialize_relax_sparql())
-
-        # TODO: now no relax on graph, only relax entrypoints.
-        # In 'Evaluation Plan v0.7' 7.3 note(4):
-        # "(4)	A response may or may not contain all edges."
-        # may need to relax on graph in the future
-
-        # TODO: query on super graph
-
-        # TODO: auto try relaxation strategies
-
-    def serialize_relax_sparql(self, relaxation):
-        relax_query = AdvancedSerializer(self, relaxation).serialize_select_query()
-        return relax_query
-
-
 class AdvancedSerializer(Serializer):
-    def __init__(self, question: Question, relax_strategy: Relaxation=None):
+    def __init__(self, question):
         Serializer.__init__(self, question)
-        self.rlx = relax_strategy
+        self.rlx = None
+
+    def serialize_select_query(self, relax_strategy: Relaxation=None):
+        where_statements = []
+        if isinstance(self.question, ClassQuestion):
+            where_statements = [self.serialize_triples(self.question.enttype)]
+        elif isinstance(self.question, ZerohopQuestion):
+            where_statements = [self.serialize_entrypoints()]
+        elif isinstance(self.question, GraphQuestion):
+            self.rlx = relax_strategy
+            where_statements = [self.serialize_edges(),
+                                self.serialize_entrypoints()]
+        return self.select + self.wrap_where(where_statements)
+
+    def serialize_a_node(self, node_obj: dict):
+        top_level = self.serialize_triples_with_relaxation(node_obj.get(ENTTYPE), is_enttype=True)
+        union_descriptors = self.relax_descriptors(node_obj.get(DESCRIPTORS), node_obj.get(NODE))
+        return '{\n%s\n%s\n}' % (top_level, union_descriptors)
 
     def serialize_edges(self):
         if self.rlx.on_supergraph:
@@ -38,11 +36,6 @@ class AdvancedSerializer(Serializer):
                         prototypes.add(prop_triple)
             return self.serialize_list_of_triples(self.question.edges) + '\n'.join(prototypes)
         return super(AdvancedSerializer, self).serialize_edges()
-
-    def serialize_a_node(self, node_obj: dict):
-        top_level = self.serialize_triples_with_relaxation(node_obj.get(ENTTYPE), is_enttype=True)
-        union_descriptors = self.relax_descriptors(node_obj.get(DESCRIPTORS), node_obj.get(NODE))
-        return '{\n%s\n%s\n}' % (top_level, union_descriptors)
 
     def relax_descriptors(self, descriptors, node):
         if not self.rlx or not descriptors:
@@ -111,4 +104,3 @@ class AdvancedSerializer(Serializer):
         return '\t' + ('\n\t'.join(['\n'.join(
             [' '.join(('\t\t' if i else k, v[i][0], v[i][1], ';' if i < len(v)-1 else '.')) for i in range(len(v))]
             ) if not k.startswith('@') else v for k, v in triples.items()]))
-

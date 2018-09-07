@@ -1,13 +1,80 @@
 
-from src.basic.Questions.Serializer import *
+from src.basic.utils import *
+
 
 class Question(object):
-    def __init__(self, question):
+    def __init__(self, question: dict) -> None:
+        """
+        init a Question with a dict converted from a single xml query by xmltodict module
+        :param question: single xml query in dict
+        """
         self.query_id = question['@id']
-        self.entrypoints = []
-        self.nodes = set()
+        self.nodes = set()  # to store all the node vars(will be in the sparql select query)
+        self.entrypoints = []   # to store the parsed internal representation of entrypoints
+        self.edges = []
 
-    def parse_a_entrypoint(self, entrypoint: list or dict):
+    def parse_a_entrypoint(self, entrypoint: dict or list) -> None:
+        """
+        :param entrypoint: a entrypoint is justifications of a node
+            e.g. = {  # list of such objects or an single object
+                'node': '?attact_target',
+                'enttype': 'Person',
+                'string_descriptor': {  # list of such objects or an single object
+                    'name_string': 'Putin',
+                },
+                'text_descriptor': {  # list of such objects or an single object
+                    'docied': 'HC000ZUW7',
+                    'start': '308',
+                    'end': '310'
+                },
+                'image_descriptor': [  # list of such objects or an single object
+                    {
+                        'doceid': 'HC000ZUW7',
+                        'topleft': '10,20',
+                        'bottomright": '50,60'
+                    },
+                    {
+                        'doceid': 'HC000ZUW8',
+                        'topleft': '20,20',
+                        'bottomright": '60,60'
+                    }
+                ]
+            }
+        :return: None. just append the parsed result(a dict) to self.entrypoints
+            parse an entrypoint to internal dict format for easier serialization to sparql query
+            e.g. = {
+                      "node": "?attact_target",
+                      "enttype": {  # a 'triples' in Serializer, with dict-key is the subject,
+                                    # dict-value a list of (predicate, object) tuples
+                        "?attact_target_type": [
+                          ("rdf:subject", "?attact_target"),
+                          ("rdf:predicate", "rdf:type"),
+                          ("rdf:object", "ldcOnt:Weapon"
+                        ]
+                      },
+                      "descriptors": [  # a list of "'triples' in Serializer"s
+                        {
+                          "?crash_target": [
+                            [
+                              "aida:hasName",
+                              "\"MH-17\""
+                            ]
+                          ]
+                        },
+                        {
+                          "?attact_target": [
+                            ("aida:justifiedBy", "?attact_target_text_0")
+                          ],
+                          "?attact_target_text_0": [
+                            ("rdf:type", "aida:TextJustification"   ),
+                            ("aida:source", "\"IC0014C4F\""),
+                            ("aida:startOffset", "2826"),
+                            ("aida:endOffsetInclusive", "2841")
+                          ]
+                        }
+                      ]
+                    }
+        """
         if isinstance(entrypoint, list):
             for a_entrypoint in entrypoint:
                 self.parse_a_entrypoint(a_entrypoint)
@@ -19,9 +86,11 @@ class Question(object):
             ep[DESCRIPTORS] = []
             if STRING_DESCRIPTOR in entrypoint:
                 if isinstance(entrypoint[STRING_DESCRIPTOR], dict):
-                    ep[DESCRIPTORS].append({node: [(AIDA_HASNAME, self.quote(entrypoint[STRING_DESCRIPTOR][NAME_STRING]))]})
+                    ep[DESCRIPTORS].append({node: [(AIDA_HASNAME, self.wrap_data(
+                        entrypoint[STRING_DESCRIPTOR][NAME_STRING], 'str'))]})
                 else:
-                    ep[DESCRIPTORS] += [{node: [(AIDA_HASNAME, self.quote(x[NAME_STRING]))]} for x in entrypoint[STRING_DESCRIPTOR]]
+                    ep[DESCRIPTORS] += [{node: [(AIDA_HASNAME, self.wrap_data(x[NAME_STRING], 'str'))]}
+                                        for x in entrypoint[STRING_DESCRIPTOR]]
             for name_, type_ in ((TEXT_DESCRIPTOR, AIDA_TEXTJUSTIFICATION),
                                  (IMAGE_DESCRIPTOR, AIDA_IMAGEJUSTIFICATION),
                                  (VEDIO_DESCRIPTOR, AIDA_VIDEOJUSTIFICATION)):
@@ -29,27 +98,54 @@ class Question(object):
                     self.parse_a_descriptor(node, name_.rstrip('descriptor'), type_, 0, entrypoint[name_], ep[DESCRIPTORS])
             self.entrypoints.append(ep)
 
-    def parse_a_descriptor(self, subject, name_, type_, cnt, descriptor_obj, descriptor_list):
+    def parse_a_descriptor(self, subject: str, name_: str, type_: str, cnt: int,
+                           descriptor_obj: dict or list, descriptor_list: list) -> None:
+        """
+
+        :param subject: the subject node of the entrypoint where the descriptor comes from. e.g. "?attact_target"
+        :param name_: one of 'text', 'video', 'image'
+        :param type_: one of 'aida:TextJustification', 'aida:KeyframeVideoJustification', 'aida:ImageJustification'
+        :param cnt: count of justifications, used for generate var name to avoid same var name for different justifications
+        :param descriptor_obj: a dict with info of a single justification span
+               e.g. {
+                        'doceid': 'HC000ZUW8',
+                        'topleft': '20,20',
+                        'bottomright": '60,60'
+                    }
+        :param descriptor_list: the list stores results
+        :return: None. just append the parsed result(a dict) to "descriptor_list"
+               e.g. {
+                      "?attact_target": [
+                        ("aida:justifiedBy", "?attact_target_text_0")
+                      ],
+                      "?attact_target_text_0": [
+                        ("rdf:type", "aida:TextJustification"   ),
+                        ("aida:source", "\"IC0014C4F\""),
+                        ("aida:startOffset", "2826"),
+                        ("aida:endOffsetInclusive", "2841")
+                      ]
+                    }
+
+        """
         if isinstance(descriptor_obj, list):
             for i in range(len(descriptor_obj)):
                 self.parse_a_descriptor(subject, name_, type_, i, descriptor_obj[i], descriptor_list)
         else:
             justi_var = '%s_%s%d' % (subject, name_, cnt)
             res = {
-                subject: [(AIDA_JUSTIFIEDBY, justi_var)],
-                justi_var: [(RDF_TYPE, type_)]
+                subject: [(AIDA_JUSTIFIEDBY, justi_var)],   # ?node aida:justifiedBy ?justi .
+                justi_var: [(RDF_TYPE, type_)]              # ?justi a aida:XxxxJustification
             }
 
-            for tag_, ont_ in ((DOCEID, AIDA_SOURCE),
-                               (KEYFRAMEID, AIDA_KEYFRAME)):
+            # add predicates directly under ?justi:
+            for tag_, ont_, data_type in ((DOCEID, AIDA_SOURCE, 'str'),
+                                          (KEYFRAMEID, AIDA_KEYFRAME, 'str'),
+                                          (START, AIDA_STARTOFFSET, 'int'),
+                                          (END, AIDA_ENDOFFSETINCLUSIVE, 'int')):
                 if tag_ in descriptor_obj:
-                    res[justi_var].append((ont_, self.quote(descriptor_obj[tag_])))
+                    res[justi_var].append((ont_, self.wrap_data(descriptor_obj[tag_], data_type)))
 
-            for tag_, ont_ in ((START, AIDA_STARTOFFSET),
-                               (END, AIDA_ENDOFFSETINCLUSIVE)):
-                if tag_ in descriptor_obj:
-                    res[justi_var].append((ont_, descriptor_obj[tag_]))
-
+            # add predicates under ?bounding_box where ?justi aida:BoundingBox ?bounding_box
             if TOPLEFT in descriptor_obj or BOTTOMRIGHT in descriptor_obj:
                 box_var = '%s_%s%d_box' % (subject, name_, cnt)
                 res[justi_var].append((AIDA_BOUNDINGBOX, box_var))
@@ -62,11 +158,13 @@ class Question(object):
                         res[box_var].append((ont_[1], values[1]))
             descriptor_list.append(res)
 
-    def serialize_sparql(self):
-        pass
-
     @staticmethod
-    def parse_enttype(sub, enttype):
+    def parse_enttype(sub: str, enttype:str):
+        """
+        :param sub: subject node var name from xml, e.g. "?attack_target"
+        :param enttype: enttype from xml, e.g. "Place", "Person", "Weapon" etc.
+        :return: a "triples" object for a rdf:type statement
+        """
         return {
             sub + '_type': [
                 (RDF_SUBJECT, sub),
@@ -75,5 +173,10 @@ class Question(object):
         ]}
 
     @staticmethod
-    def quote(x):
-        return '"%s"' % x
+    def wrap_data(x, data_type):
+        if data_type == 'str':
+            return '"%s"' % x
+        elif data_type == 'int':
+            return x
+        else:
+            return x

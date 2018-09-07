@@ -21,6 +21,7 @@ PREDICATE = 'predicate'
 OBJECT = 'object'
 
 EDGES = 'edges'
+EDGE = 'edge'
 ENTRYPOINTS = 'entrypoints'
 ENTRYPOINT = 'entrypoint'
 

@@ -3,6 +3,7 @@ from src.basic.Questions.ZerohopQuestion import ZerohopQuestion
 from src.basic.Questions.GraphQuestion import GraphQuestion
 from src.basic.Questions.Question import Question
 from src.basic.QueryWrapper import QueryWrapper
+from src.basic.Serializer import Serializer
 from src.basic.utils import *
 
 
@@ -15,7 +16,7 @@ class Answer(object):
         self.qw = QueryWrapper(endpoint)
 
     def ask(self):
-        strict_sparql = self.question.serialize_sparql()
+        strict_sparql = Serializer(self.question).serialize_select_query()
         return self.send_query(strict_sparql)
 
     def send_query(self, sparql_query):
@@ -26,7 +27,6 @@ class Answer(object):
                 return self.wrap_result(sparql_query, self.construct_xml_response())
             except Exception as e:
                 return self.wrap_result(sparql_query, '%s\nCONSTRUCT XML RESPONSE FAILED: \n%s' % (str(self.node_uri), str(e)))
-
         except Exception as e:
             return self.wrap_result(sparql_query, 'SPARQL QUERY FAILED: \n%s' % str(e))
 
