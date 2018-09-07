@@ -29,7 +29,15 @@ class AdvancedSerializer(Serializer):
         self.rlx = relax_strategy
 
     def serialize_edges(self):
-        return super(AdvancedSerializer, self).serialize_edges(1 if self.rlx.on_supergraph else -1)
+        if self.rlx.on_supergraph:
+            prototypes = {''}
+            for edge in self.question.edges:
+                for k, v in edge.items():
+                    for sub_or_obj in (v[1][1], v[3][1]):
+                        prop_triple = self.serialize_triples({sub_or_obj + '_cluster': [(AIDA_PROTOTYPE, sub_or_obj)]})
+                        prototypes.add(prop_triple)
+            return self.serialize_list_of_triples(self.question.edges) + '\n'.join(prototypes)
+        return super(AdvancedSerializer, self).serialize_edges()
 
     def serialize_a_node(self, node_obj: dict):
         top_level = self.serialize_triples_with_relaxation(node_obj.get(ENTTYPE), is_enttype=True)

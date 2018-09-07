@@ -82,6 +82,13 @@ ENTTYPE_MAPPINT = {
     'Place': ldcOnt + ':' + 'Location'
 }
 
+GRAPH_QUERIES = 'graph_queries'
+GRAPH_QUERY = 'graph_query'
+CLASS_QUERIES = 'class_queries'
+CLASS_QUERY = 'class_query'
+ZEROHOP_QUERIES = 'zerohop_queries'
+ZEROHOP_QUERY = 'zerohop_query'
+
 
 def pprint(x):
     if not x:

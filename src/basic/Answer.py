@@ -1,31 +1,32 @@
 
-from src.basic.Question import Question
+from src.basic.Questions.Question import Question
 from src.basic.QueryWrapper import QueryWrapper
 from src.basic.utils import *
 
 
 class Answer(object):
-    def __init__(self, question: Question or str, endpoint: str):
-        if isinstance(question, Question):
-            self.question = question
-        else:
-            self.question = Question(question)
+    def __init__(self, question: Question, endpoint: str):
+        self.question = question
         self.node_uri = []
         # {'?attackt_event': ['http://example.com/event/111']}
         self.node_justification = {}
         self.qw = QueryWrapper(endpoint)
 
     def ask(self):
-        strict_sparql = self.question.serialize_strict_sparql()
+        strict_sparql = self.question.serialize_sparql()
         return self.send_query(strict_sparql)
 
     def send_query(self, sparql_query):
         try:
             self.ask_uri(sparql_query)
             self.ask_justifications()
-            return self.wrap_result(sparql_query, self.construct_xml_response())
+            try:
+                return self.wrap_result(sparql_query, self.construct_xml_response())
+            except Exception as e:
+                return self.wrap_result(sparql_query, '%s\nCONSTRUCT XML RESPONSE FAILED: \n%s' % (str(self.node_uri), str(e)))
+
         except Exception as e:
-            return self.wrap_result(sparql_query, str(e))
+            return self.wrap_result(sparql_query, 'SPARQL QUERY FAILED: \n%s' % str(e))
 
     def ask_uri(self, strict_sparql):
         bindings = self.qw.select_query(strict_sparql)
