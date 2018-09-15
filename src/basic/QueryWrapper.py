@@ -90,3 +90,5 @@ class QueryWrapper(object):
             }
             doceid = j[DOCEID]['value']
             self.aug_dict_list(res, doceid, IMAGE_SPAN, cur)
+
+

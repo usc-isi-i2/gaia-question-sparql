@@ -1,34 +1,34 @@
-
-from src.basic.Question import Question
+from src.basic.Questions.Question import Question
 from src.basic.QueryWrapper import QueryWrapper
+from src.basic.Serializer import Serializer
 from src.basic.utils import *
 
 
 class Answer(object):
-    def __init__(self, question: Question or str, endpoint: str):
-        if isinstance(question, Question):
-            self.question = question
-        else:
-            self.question = Question(question)
+    def __init__(self, question: Question, endpoint: str):
+        self.question = question
         self.node_uri = []
-        # {'?attackt_event': ['http://example.com/event/111']}
+        # {'?attackt_event': 'http://example.com/event/111'}
         self.node_justification = {}
         self.qw = QueryWrapper(endpoint)
 
     def ask(self):
-        strict_sparql = self.question.serialize_strict_sparql()
+        strict_sparql = Serializer(self.question).serialize_select_query()
+        print(strict_sparql)
         return self.send_query(strict_sparql)
 
     def send_query(self, sparql_query):
-        try:
-            self.ask_uri(sparql_query)
+        self.ask_uri(sparql_query)
+        if self.question.query_type == GRAPH_QUERY:
             self.ask_justifications()
-            return self.wrap_result(sparql_query, self.construct_xml_response())
-        except Exception as e:
-            return self.wrap_result(sparql_query, str(e))
+        root = self.construct_xml_response()
+        xml_response = minidom.parseString(ET.tostring(root)).toprettyxml()
+        return self.wrap_result(sparql_query, xml_response)
 
     def ask_uri(self, strict_sparql):
+        # print(strict_sparql)
         bindings = self.qw.select_query(strict_sparql)
+        # print(bindings)
         for raw in bindings:
             cur = {}
             for var_name, cell in raw.items():
@@ -47,8 +47,73 @@ class Answer(object):
             self.qw.query_video_justification(uri, justi)
             self.node_justification[node] = justi
 
+    # def construct_xml_response(self):
+    #     root = None
+    #     if isinstance(self.question, ClassQuestion):
+    #         root = self.construct_xml_response_class()
+    #     elif isinstance(self.question, ZerohopQuestion):
+    #         root = self.construct_xml_response_zerohop()
+    #     elif isinstance(self.question, GraphQuestion):
+    #         root = self.construct_xml_response_graph()
+    #     return minidom.parseString(ET.tostring(root)).toprettyxml()
+
     def construct_xml_response(self):
-        root = ET.Element('graphquery_responses', attrib={'id': self.question.query_id})
+        qtype = self.question.query_type
+        if qtype == GRAPH_QUERY:
+            root = self.construct_xml_response_graph()
+        elif qtype == CLASS_QUERY:
+            root = ET.Element('classquery_response', attrib={'id': self.question.query_id})
+            justifications = ET.SubElement(root, 'justifications')
+            self.construct_justifications(justifications)
+        else:
+            # ?nid_ep ?nid_ot ?doceid ?sid ?kfid ?so ?eo ?ulx ?uly ?brx ?bry ?st ?et ?cm1cv ?cm2cv ?cv
+            root = ET.Element('zerohopquery_response', attrib={'id': self.question.query_id})
+            self.update_xml(root, {'system_nodeid': self.node_uri[0]['?nid_ep']['value']})
+            self.construct_justifications(root)
+        return root
+
+    def construct_justifications(self, justi_root):
+        for row in self.node_uri:
+            # ?doceid ?sid ?kfid ?so ?eo ?ulx ?uly ?brx ?bry ?st ?et ?cv
+            row_ = {'doceid': row['?doceid'], 'enttype': self.question.ori[ENTTYPE], 'confidence': row['?cv']}
+            if '?so' in row:
+                type_ = 'text'
+                row_.update({'start': row['?so'], 'end': row['?eo']})
+            elif '?kfid' in row:
+                type_ = 'video'
+                row_.update({'keyframeid': row['?kfid'],
+                             'topleft': '%s,%s' % (row['?ulx'], row['?uly']),
+                             'bottomright': '%s,%s' % (row['?brx'], row['?bry']),
+                             })
+            elif '?sid' in row:
+                type_ = 'shot'
+                row_.update({'shotid': row['?sid'],
+                             'topleft': '%s,%s' % (row['?ulx'], row['?uly']),
+                             'bottomright': '%s,%s' % (row['?brx'], row['?bry']),
+                             })
+            elif '?st' in row:
+                type_ = 'audio'
+                row_.update({'start': row['?st'], 'end': row['?et']})
+            else:
+                type_ = 'image'
+                row_.update({'topleft': '%s,%s' % (row['?ulx'], row['?uly']),
+                             'bottomright': '%s,%s' % (row['?brx'], row['?bry']),
+                             })
+            justification = ET.SubElement(justi_root, type_ + '_justification')
+            self.update_xml(justification, row_)
+
+    # def flatten_justifications_to_xml(self, root):
+    #     justifications = ET.SubElement(root, 'justifications')
+    #     for node_key in self.node_justification:
+    #         self.update_xml(justifications, {'system_nodeid': self.node_uri[0][node_key]})
+    #         for doceid, spans in self.node_justification[node_key].items():
+    #             for span_key, list_spans in spans.items():
+    #                 for span in list_spans:
+    #                     updated_span = {'doceid': doceid, **span}
+    #                     self.update_xml(justifications, {span_key: updated_span})
+
+    def construct_xml_response_graph(self):
+        root = ET.Element('graphquery_response', attrib={'id': self.question.query_id})
         for edge in self.question.edges:
             for k, pairs in edge.items():
                 justifications = ET.SubElement(ET.SubElement(root, 'edge', id=k.lstrip('?')), 'justifications')
@@ -75,7 +140,7 @@ class Answer(object):
 
                 for doc, justi in docs.items():
                     self.update_xml(ET.SubElement(justifications, 'justification', docid=doc), justi)
-        return minidom.parseString(ET.tostring(root)).toprettyxml()
+        return root
 
     def update_xml(self, root, obj):
         if isinstance(obj, str):
