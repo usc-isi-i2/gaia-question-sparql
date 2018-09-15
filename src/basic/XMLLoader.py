@@ -38,14 +38,23 @@ class XMLLoader(object):
     def get_question_list(self):
         return self.question_list
 
-    def answer_all(self, endpoint):
+    def answer_all(self, endpoint, log=None):
         res = []
-        # cnt = 1
-        for q in self.question_list:
-            # print(cnt)
-            # cnt += 1
-            ans = self.answer_one(q, endpoint)
-            res.append(ans)
+        if log:
+            with open(log, 'w') as f:
+                for q in self.question_list:
+                    ans = self.answer_one(q, endpoint)
+                    f.write(ans['sparql'])
+                    f.write(ans['response'])
+                    res.append(ans)
+        else:
+            cnt = 1
+            for q in self.question_list:
+                print(cnt)
+                cnt += 1
+                ans = self.answer_one(q, endpoint)
+                res.append(ans)
+                pprint(ans)
         return res
 
     @staticmethod

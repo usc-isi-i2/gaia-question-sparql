@@ -12,7 +12,8 @@ class AdvancedSerializer(Serializer):
     def serialize_select_query(self, relax_strategy: Relaxation=None):
         where_statements = []
         if isinstance(self.question, ClassQuestion):
-            where_statements = [self.serialize_triples(self.question.enttype)]
+            # where_statements = [self.serialize_triples(self.question.enttype)]
+            return class_query(self.question.ori[ENTTYPE])
         elif isinstance(self.question, ZerohopQuestion):
             where_statements = [self.serialize_entrypoints()]
         elif isinstance(self.question, GraphQuestion):

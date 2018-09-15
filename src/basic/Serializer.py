@@ -7,18 +7,18 @@ from src.basic.utils import *
 class Serializer(object):
     def __init__(self, question):
         self.question = question
-        self.select = self.wrap_select(question.nodes)
 
     def serialize_select_query(self):
-        where_statements = []
         if isinstance(self.question, ClassQuestion):
-            where_statements = [self.serialize_triples(self.question.enttype)]
+            # where_statements = [self.serialize_triples(self.question.enttype)]
+            return class_query(self.question.enttype)
         elif isinstance(self.question, ZerohopQuestion):
-            where_statements = [self.serialize_entrypoints()]
+            # where_statements = [self.serialize_entrypoints()]
+            return zerohop_query(self.question.enttype, self.question.descriptor)
         elif isinstance(self.question, GraphQuestion):
             where_statements = [self.serialize_edges(),
                                 self.serialize_entrypoints()]
-        return self.select + self.wrap_where(where_statements)
+            return self.wrap_select(self.question.nodes) + self.wrap_where(where_statements)
 
     def serialize_a_node(self, node_obj: dict):
         top_level = self.serialize_triples(node_obj.get(ENTTYPE))

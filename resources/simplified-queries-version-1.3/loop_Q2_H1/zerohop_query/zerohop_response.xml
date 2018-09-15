@@ -1,0 +1,18 @@
+<zerohopquery_responses>
+	<zerohopquery_response QUERY_ID="Q123"> 
+		<system_nodeid> ... </system_nodeid>
+		<text_justification>
+			<doceid> ... </doceid>
+			<start> ... </start>
+			<end> ... </end>
+			<confidence> ... </confidence>
+		</text_justification>
+		<video_justification>
+			<doceid> ... </doceid>
+			<keyframeid> .... </keyframeid>
+			<topleft> x1,y1 </topleft>
+			<bottomright> x2,y2 </bottomright>
+			<confidence> ... </confidence>
+		</video_justification>
+	</zerohopquery_response> 
+</zerohopquery_responses>

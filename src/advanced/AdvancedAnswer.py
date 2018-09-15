@@ -1,5 +1,8 @@
 
 from src.basic.Answer import Answer
+from src.basic.Questions.ClassQuestion import ClassQuestion
+from src.basic.Questions.ZerohopQuestion import ZerohopQuestion
+from src.basic.Questions.GraphQuestion import GraphQuestion
 from src.advanced.AdvancedSerializer import AdvancedSerializer
 from src.advanced.Relaxation import Relaxation
 
@@ -7,6 +10,11 @@ from src.advanced.Relaxation import Relaxation
 class AdvancedAnswer(Answer):
 
     def ask_auto_try_relaxation(self):
+        if isinstance(self.question, ClassQuestion):
+            return self.ask()
+        else:
+            # auto try
+            return self.ask()
         pass
 
     def ask(self, relaxation=None):

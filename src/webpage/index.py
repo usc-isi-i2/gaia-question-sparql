@@ -2,8 +2,7 @@ import json, os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from flask import Flask, render_template, request, redirect
-
-from src.advanced.AdvancedAnswer import AdvancedAnswer
+from src.advanced.AdvancedXMLLoader import AdvancedXMLLoader
 
 app = Flask(__name__, template_folder='./')
 
@@ -13,10 +12,10 @@ STRATEGY = ['wider_range', 'larger_bound', 'ignore_enttype', 'on_supergraph']
 # XIJ = 'http://gaiadev01.isi.edu:5005/cluster/'
 
 qs = []
-for qf in os.listdir('../../examples/'):
+for qf in os.listdir('../../examples/xml_queries/'):
     if not qf.endswith('.xml') or 'response' in qf:
         continue
-    with open('../../examples/%s' % qf) as f:
+    with open('../../examples/xml_queries/%s' % qf) as f:
         qs.append({'label': qf, 'xml': f.read()})
 
 # var in html:
@@ -54,7 +53,6 @@ def tried_strategies(kvs):
 
 
 def update_forms(forms):
-    print(forms)
     global endpoint, xml_question, at_least_n, checked_strategies
     checked_strategies = set([x for x in STRATEGY if 'strategy_%s' % x in forms])
 
@@ -103,11 +101,11 @@ def query():
         global query_result, strategies_tried, manually, checked_strategies
         checked_strategies = set([x for x in STRATEGY if 'strategy_%s' % x in request.form])
         at_least_n = request.form['at_least_n']
-        answer = AdvancedAnswer(question=request.form['xml_question'], endpoint=request.form['endpoint'])
+        answer = AdvancedXMLLoader(request.form['xml_question'])
         if not checked_strategies and not at_least_n:
             # TODO: try strategies automatically
-            ans = answer.ask()
-            strategies_tried = [('strict', ans['sparql'])]
+            ans = answer.answer_all(endpoint=request.form['endpoint'])
+            strategies_tried = [('strict', x['sparql']) for x in ans]
             manually = False
         else:
             relax = {}
@@ -115,10 +113,10 @@ def query():
                 relax['at_least_n'] = int(at_least_n)
             for x in checked_strategies:
                 relax[x] = True
-            ans = answer.ask(relax)
+            ans = answer.answer_one_specify_relaxation(answer.get_question_list()[0], request.form['endpoint'], relax)
             strategies_tried = strategies_tried + [('+'.join(checked_strategies), ans['sparql'])] # if manually else list(ans['strategies'].items())
             manually = True
-        query_result = ans['response']
+        query_result = '\n'.join([x['response'] for x in ans])
     except Exception as e:
         query_result = 'Failed, please check your inputs and try again. \n %s' % str(e)
     update_forms(request.form)

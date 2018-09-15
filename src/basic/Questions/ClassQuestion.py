@@ -1,13 +1,13 @@
 
 
 from src.basic.Questions.Question import *
+from src.basic.utils import *
 
 
 class ClassQuestion(Question):
     def __init__(self, question):
         super(ClassQuestion, self).__init__(question)
 
-        sub = '?x'
-        self.nodes.add(sub)
-        self.enttype = self.parse_enttype(sub, question[ENTTYPE])
+        self.query_type = CLASS_QUERY
+        self.enttype = question[ENTTYPE]
 
