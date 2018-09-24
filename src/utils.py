@@ -8,6 +8,8 @@ from rdflib.graph import Graph
 from SPARQLWrapper import SPARQLWrapper, CSV
 from src.constants import *
 
+c2p = json.load(open(os.path.dirname(__file__) + '/tools/c2p.json'))
+
 
 def init_graph(ttl_file):
     g = Graph()
@@ -45,10 +47,15 @@ def update_xml(root, obj):
                 update_xml(ET.SubElement(root, k), v)
 
 
-def construct_justifications(justi_root, enttype, rows, suffix='_justification'):
+def construct_justifications(justi_root, enttype, rows, suffix='_justification', merge_conf=False):
+    conf = 0
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
-        row_ = {DOCEID: doceid, CONFIDENCE: cv}
+        if merge_conf:
+            row_ = {DOCEID: doceid}
+            conf += float(cv)
+        else:
+            row_ = {DOCEID: doceid, CONFIDENCE: cv}
         if enttype:
             row_[ENTTYPE] = enttype
         if so:
@@ -57,13 +64,13 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification')
         elif kfid:
             type_ = 'video'
             row_.update({KEYFRAMEID: kfid,
-                         TOPLEFT: '%s,%s' % (ulx, uly),
-                         BOTTOMRIGHT: '%s,%s' % (brx, bry),
+                         TOPLEFT: '%s,%s' % (uly, ulx),
+                         BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
         else:
             type_ = 'image'
-            row_.update({TOPLEFT: '%s,%s' % (ulx, uly),
-                         BOTTOMRIGHT: '%s,%s' % (brx, bry),
+            row_.update({TOPLEFT: '%s,%s' % (uly, ulx),
+                         BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
         # elif sid:
         #     type_ = 'shot'
@@ -76,6 +83,8 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification')
         #     row_.update({START: st, END: et})
         justification = ET.SubElement(justi_root, type_ + suffix)
         update_xml(justification, row_)
+    if merge_conf:
+        update_xml(justi_root, {CONFIDENCE: str(conf/len(rows))})
 
 
 def xml_loader(xml_file_or_string: str, query_key: str) -> list:
@@ -138,3 +147,16 @@ def to_string(x):
             return minidom.parseString(x).toprettyxml()
         except:
             return str(x)
+
+
+def find_keys(key, dictionary):
+    for k, v in dictionary.items():
+        if k == key:
+            yield v
+        elif isinstance(v, dict):
+            for result in find_keys(key, v):
+                yield result
+        elif isinstance(v, list):
+            for d in v:
+                for result in find_keys(key, d):
+                    yield result

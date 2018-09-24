@@ -8,12 +8,13 @@ class ZerohopQuery(object):
         self.root = ET.Element('zerohopquery_responses')
         self.query_list = xml_loader(xml_file_or_string, ZEROHOP_QUERY)
 
-    def ask_all(self, endpoint, start=0, end=None):
+    def ask_all(self, endpoint, start=0, end=None, root_doc=''):
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
-            response = self.ans_one(endpoint, self.query_list[i])
-            self.root.append(response)
+            if c2p[list(find_keys(DOCEID, self.query_list[i][ENTRYPOINT]))[0]] == root_doc:
+                response = self.ans_one(endpoint, self.query_list[i])
+                self.root.append(response)
 
     def ans_one(self, endpoint, q_dict):
         '''

@@ -1,7 +1,8 @@
 from src.utils import *
+from itertools import combinations
 
 
-def get_best_node(descriptors: list, endpoint: str) -> str:
+def get_best_node(descriptors: list, endpoint: str, relax_num_ep=None) -> str:
     '''
     This method is to find a node that best match a list of typed descriptors
     TODO: now only return max(sum(overlap/target for each descriptor)), not ignore type
@@ -22,6 +23,12 @@ def get_best_node(descriptors: list, endpoint: str) -> str:
         }
     ]
     :param endpoint: sparql ep or rdflib graph
+    :param relax: int, at least how many eps have to match
+         BIND(
+            xsd:integer(bound(?opt1)) +
+            xsd:integer(bound(?opt2))
+            AS ?cnt)
+         FILTER(?cnt > relax)
     :return: str: the best node uri
     '''
 
@@ -40,7 +47,6 @@ def get_best_node(descriptors: list, endpoint: str) -> str:
             justi = serialize_image_video_justification(**des)
 
         states.append(serialize_a_types_descriptor(NODE, enttype, justi, str(i)))
-
     sparql_query_strict = '''
     SELECT DISTINCT ?node WHERE {
     %s
@@ -84,7 +90,19 @@ def get_best_node(descriptors: list, endpoint: str) -> str:
     }
     ''' % (' '.join(['?' + x for x in var_list]), '\n'.join(states))
     candidates = select_query(endpoint, sparql_query_relax)
-    return get_best_candidate(candidates, to_compare, descriptors)
+    best_uri = get_best_candidate(candidates, to_compare, descriptors)
+    if best_uri:
+        return best_uri
+
+    # try match some of the descriptors:
+    if relax_num_ep and 0 < relax_num_ep < len(descriptors):
+        for idx_list in combinations(range(len(descriptors)), relax_num_ep):
+            # TODO: check from len-1 to relax_num_ep
+            best_uri = get_best_node([descriptors[i] for i in idx_list], endpoint)
+            if best_uri:
+                return best_uri
+
+    return ''
 
 
 def get_best_candidate(candidates, to_compare, descriptors):
@@ -106,6 +124,9 @@ def get_best_candidate(candidates, to_compare, descriptors):
                 target_brx, target_bry = des[BOTTOMRIGHT].split(',')
                 score = get_overlap_img(*[int(x) for x in cand_bound],
                                         int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
+            # TODO: how much overlapped ?
+            if score < 0.4:
+                return ''
             cur_score += score
         if cur_score > best_score:
             best_score = cur_score

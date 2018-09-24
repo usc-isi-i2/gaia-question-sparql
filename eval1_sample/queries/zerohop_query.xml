@@ -33,6 +33,28 @@
       </text_descriptor>
     </entrypoint>
   </zerohop_query>
+  <zerohop_query id="test4">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <image_descriptor>
+        <doceid> HC000XBIL </doceid>
+        <topleft> 0,232 </topleft>
+        <bottomright> 101,334 </bottomright>
+      </image_descriptor>
+    </entrypoint>
+  </zerohop_query>
+  <zerohop_query id="test5">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <image_descriptor>
+        <doceid> HC000XBIL </doceid>
+        <topleft> 20,230 </topleft>
+        <bottomright> 100,300 </bottomright>
+      </image_descriptor>
+    </entrypoint>
+  </zerohop_query>
   <zerohop_query id="AIDA_ZH_2018_3">
     <entrypoint>
       <node> ?node </node>
