@@ -79,31 +79,84 @@ class SingleGraphQuery(object):
                 self.find_all_ep = False
                 break
 
-        self.select_nodes = []
-        self.strict_sparql = ''
         self.sopid = {}
 
         self.justi = {} # {'http://xxx': rows[[doceid, ...], [doceid, , , ...]]}
         self.enttype = {} # {'http://xxx': 'Person'}
 
     def get_responses(self):
+        has_responses = False
         if self.find_all_ep:
             # parse edges and match edges strictly:
-            self.select_nodes, self.strict_sparql, self.sopid = self.parse_edges(self.edges)
+            select_nodes, strict_sparql, self.sopid = self.parse_edges(self.edges)
             # try strict:
-            rows = select_query(self.endpoint, self.strict_sparql)
-            # print(rows)
-            if rows and rows[0]:
-                for row in rows:
-                    # mapping to self.select_nodes, and construct response
-                    non_ep_nodes = {}
-                    for i in range(len(rows)):
-                        non_ep_nodes[self.select_nodes[i]] = row[i]
-                    self.root_responses.append(self.construct_single_response(non_ep_nodes))
-            # else: cannot find exact matched graph, try relax
+            if self.query_response(select_nodes, strict_sparql):
+                has_responses = True
             else:
-                pass
-        return self.root_responses
+                # cannot find exact matched graph, try relax
+                # 1. try to only match backbone
+                select_nodes, sparql_query = self.relax_backbone_one_of()
+                if self.query_response(select_nodes, sparql_query):
+                    has_responses = True
+                else:
+                    pass
+        return self.root_responses, has_responses
+
+    def query_response(self, select_nodes, sparql_query):
+        rows = select_query(self.endpoint, sparql_query)
+        if rows and rows[0]:
+            for row in rows:
+                # mapping to select_nodes, and construct response
+                non_ep_nodes = {}
+                for i in range(len(row)):
+                    non_ep_nodes[select_nodes[i]] = row[i]
+                # print(non_ep_nodes)
+                self.root_responses.append(self.construct_single_response(non_ep_nodes))
+            return True
+        else:
+            return False
+
+    def relax_backbone_one_of(self, backbone=True, one_of=False):
+        # ?p values (<Conflict_attack…> <…> <…>)
+        select_nodes = set()
+        states = []
+        for s, opid in self.sopid.items():
+            if (not backbone) or len(opid) > 1 or list(opid.keys())[0][0] != '?' or s[0] != '?': # change to ospid ?
+                for o, pid in opid.items():
+                    if one_of:
+                        # ?p values (<Conflict_attack…> <…> <…>)
+                        pass
+                        predicates = ' '.join(['ldcOnt:%s' % p for p in pid])
+                        p_var_name = list(pid.values())[0]
+                        if s.startswith('?'):
+                            select_nodes.add(s)
+                        if o.startswith('?'):
+                            select_nodes.add(o)
+                        # select_nodes.add(p)
+                        # TODO: how to know which predicates are matched
+                        states.append('''
+                        ?{p_var} a rdf:Statement ;
+                            rdf:subject {subject} ;
+                            rdf:predicate ?p_{p_var} ;
+                            rdf:object {object} .
+                        ?p_{p_var} VALUES ({predicates}) .
+                        '''.format(p_var=p_var_name, subject=s, object=o, predicates=predicates))
+                    else:
+                        for p, _id in pid.items():
+                            states.append(self.serialize_edge_statement(_id, s, p, o))
+                            if s[0] == '?':
+                                select_nodes.add(s)
+                            if o[0] == '?':
+                                select_nodes.add(o)
+                            select_nodes.add('?' + _id)
+        select_nodes = list(select_nodes)
+        sparql_query = '''
+        SELECT DISTINCT %s WHERE {
+        %s
+        }
+        ''' % (' '.join(select_nodes), '\n'.join(states))
+        # print(sparql_query)
+        return select_nodes, sparql_query
 
     def construct_single_response(self, non_ep_nodes: dict) -> ET.Element:
         '''
@@ -126,25 +179,29 @@ class SingleGraphQuery(object):
                             <confidence> 0.8 </confidence>
         '''
         root = ET.Element('response')
+        # print('-----construct single query------')
         for e in self.edges:
             _id, s, p, o = e['@id'], e[SUBJECT], e[PREDICATE], e[OBJECT]
             s = self.ep_nodes.get(s) or non_ep_nodes.get(s)
+            assertion = non_ep_nodes.get('?' + _id)
             o = self.ep_nodes.get(o) or non_ep_nodes.get(o)
-            if s and o:
+            # print(e)
+            print(s, assertion, o)
+            if s and o and assertion:
                 edge = ET.SubElement(root, EDGE, attrib={'id': _id})
                 justifications = ET.SubElement(edge, 'justifications')
                 justification = ET.SubElement(justifications, 'justification', attrib={'docid': self.doc_id})
                 # insert subject_justification
                 subject_justi = ET.SubElement(justification, 'subject_justification')
                 update_xml(subject_justi, {'system_nodeid': s, ENTTYPE: self.get_enttype(s)})
-                construct_justifications(subject_justi, None, self.get_justi(s, limit=1))
+                construct_justifications(subject_justi, None, self.get_justi(s, limit=1), '_span')
                 # insert object_justification
                 object_justi = ET.SubElement(justification, 'object_justification')
                 update_xml(object_justi, {'system_nodeid': o, ENTTYPE: self.get_enttype(o)})
-                construct_justifications(object_justi, None, self.get_justi(o, limit=1))
+                construct_justifications(object_justi, None, self.get_justi(o, limit=1), '_span')
                 # insert edge_justification
                 edge_justi = ET.SubElement(justification, 'edge_justification')
-                construct_justifications(edge_justi, None, self.get_justi([s, p, o], limit=2))
+                construct_justifications(edge_justi, None, self.get_justi([s, p, o], limit=2), '_span')
         return root
 
     def get_justi(self, node_uri, limit=None):
@@ -171,7 +228,7 @@ class SingleGraphQuery(object):
         sopid = {}
         for i in range(len(edges)):
             _id, s, p, o = edges[i]['@id'], edges[i][SUBJECT], edges[i][PREDICATE], edges[i][OBJECT]
-            # select_nodes.add('?'+_id)
+            select_nodes.add('?'+_id)
             if s in self.ep_nodes:
                 sub = '<%s>' % self.ep_nodes[s]
             else:
@@ -182,12 +239,7 @@ class SingleGraphQuery(object):
             else:
                 obj = o
                 select_nodes.add(o)
-            states.append('''
-            ?%s a rdf:Statement ;
-                rdf:subject %s ;
-                rdf:predicate ldcOnt:%s ;
-                rdf:object %s .
-            ''' % (_id, sub, p, obj))
+            states.append(self.serialize_edge_statement(_id, sub, p, obj))
             if sub not in sopid:
                 sopid[sub] = {obj: {p: _id}}
             elif obj not in sopid[sub]:
@@ -214,3 +266,12 @@ class SingleGraphQuery(object):
         for node, descriptors in group_by_node.items():
             res[node] = get_best_node(descriptors, self.endpoint)
         return res
+
+    @staticmethod
+    def serialize_edge_statement(_id, s, p, o):
+        return '''
+            ?%s a rdf:Statement ;
+                rdf:subject %s ;
+                rdf:predicate ldcOnt:%s ;
+                rdf:object %s .
+            ''' % (_id, s, p, o)

@@ -645,4 +645,43 @@
       </entrypoint>
     </entrypoints>
   </graph_query>
+  <graph_query id="test3">
+    <graph>
+      <edges>
+        <edge id="1">
+          <subject> ?event1 </subject>
+          <predicate> Existence.DamageDestroy_Place </predicate>
+          <object> ?geo1 </object>
+        </edge>
+        <edge id="2">
+          <subject> ?event2 </subject>
+          <predicate> GeneralAffiliation.APORA_Affiliate </predicate>
+          <object> ?geo1 </object>
+        </edge>
+        <edge id="3">
+          <subject> ?event2 </subject>
+          <predicate> GeneralAffiliation.APORA_Affiliation </predicate>
+          <object> ?ent3 </object>
+        </edge>
+        <edge id="4">
+          <subject> ?event3 </subject>
+          <predicate> Existence.DamageDestroy_Place </predicate>
+          <object> ?ent3 </object>
+        </edge>
+      </edges>
+    </graph>
+    <entrypoints>
+      <entrypoint>
+        <node> ?geo1 </node>
+        <typed_descriptor>
+          <enttype> Facility </enttype>
+          <text_descriptor>
+            <doceid> HC000ZPT1 </doceid>
+            <start> 65 </start>
+            <end> 82 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+    </entrypoints>
+  </graph_query>
 </graph_queries>

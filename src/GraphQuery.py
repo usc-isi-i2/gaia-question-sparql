@@ -13,13 +13,14 @@ class GraphQuery(object):
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
-            responses = self.ans_one(endpoint, self.query_list[i])
-            self.roots.append(responses)
+            responses, has_responses = self.ans_one(endpoint, self.query_list[i])
+            if has_responses:
+                self.roots.append(responses)
 
     def ans_one(self, endpoint, q_dict):
         single = SingleGraphQuery(endpoint, q_dict, self.doc_id)
-        responses = single.get_responses()
-        return responses
+        responses, has_responses = single.get_responses()
+        return responses, has_responses
 
     def dump_responses(self, output_file):
         write_file(self.roots, output_file)

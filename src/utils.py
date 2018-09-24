@@ -45,7 +45,7 @@ def update_xml(root, obj):
                 update_xml(ET.SubElement(root, k), v)
 
 
-def construct_justifications(justi_root, enttype, rows):
+def construct_justifications(justi_root, enttype, rows, suffix='_justification'):
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
         row_ = {DOCEID: doceid, CONFIDENCE: cv}
@@ -74,7 +74,7 @@ def construct_justifications(justi_root, enttype, rows):
         # elif st:
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
-        justification = ET.SubElement(justi_root, type_ + '_justification')
+        justification = ET.SubElement(justi_root, type_ + suffix)
         update_xml(justification, row_)
 
 

@@ -34,7 +34,7 @@ def run_on_each_kb():
         except:
             fail_zerohop.append(KB.name)
 
-        # run graph query:
+        run graph query:
         try:
             gq = GraphQuery(query_path + 'graph_query.xml', KB.stem)
             gq.ask_all(ep)
