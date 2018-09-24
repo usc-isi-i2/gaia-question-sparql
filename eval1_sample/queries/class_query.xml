@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class_queries>
+  <class_query id="AIDA_CL_2018_1">
+    <enttype> Facility </enttype>
+  </class_query>
+  <class_query id="AIDA_CL_2018_2">
+    <enttype> GeopoliticalEntity </enttype>
+  </class_query>
+  <class_query id="AIDA_CL_2018_3">
+    <enttype> Location </enttype>
+  </class_query>
+  <class_query id="AIDA_CL_2018_4">
+    <enttype> Organization </enttype>
+  </class_query>
+  <class_query id="AIDA_CL_2018_5">
+    <enttype> Person </enttype>
+  </class_query>
+  <class_query id="AIDA_CL_2018_6">
+    <enttype> Vehicle </enttype>
+  </class_query>
+  <class_query id="AIDA_CL_2018_7">
+    <enttype> Weapon </enttype>
+  </class_query>
+</class_queries>

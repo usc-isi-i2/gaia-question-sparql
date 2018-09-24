@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph_queries>
+  <graph_query id="AIDA_GR_2018_P103_Q002_H001_1_0">
+    <graph>
+      <edges>
+        <edge id="1">
+          <subject> ?E0660 </subject>
+          <predicate> Conflict.Attack_Place </predicate>
+          <object> ?E0640 </object>
+        </edge>
+        <edge id="2">
+          <subject> ?E0660 </subject>
+          <predicate> Conflict.Attack_Time </predicate>
+          <object> ?E0665 </object>
+        </edge>
+        <edge id="3">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferControl_Place </predicate>
+          <object> ?E0640 </object>
+        </edge>
+        <edge id="4">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferControl_Recipient </predicate>
+          <object> ?E0632 </object>
+        </edge>
+        <edge id="5">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferControl_Territory </predicate>
+          <object> ?E0639 </object>
+        </edge>
+        <edge id="6">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferControl_Territory </predicate>
+          <object> ?OLEG03 </object>
+        </edge>
+        <edge id="7">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferControl_Time </predicate>
+          <object> ?E0665 </object>
+        </edge>
+        <edge id="8">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferOwnership_Place </predicate>
+          <object> ?E0640 </object>
+        </edge>
+        <edge id="9">
+          <subject> ?E0660 </subject>
+          <predicate> Transaction.TransferOwnership_Time </predicate>
+          <object> ?E0665 </object>
+        </edge>
+        <edge id="10">
+          <subject> ?E0680 </subject>
+          <predicate> GeneralAffiliation.APORA_Affiliate </predicate>
+          <object> ?OLEG02 </object>
+        </edge>
+        <edge id="11">
+          <subject> ?E0680 </subject>
+          <predicate> GeneralAffiliation.APORA_Affiliation </predicate>
+          <object> ?E0635 </object>
+        </edge>
+        <edge id="12">
+          <subject> ?E0680 </subject>
+          <predicate> GeneralAffiliation.Sponsorship_Entity </predicate>
+          <object> ?E0632 </object>
+        </edge>
+        <edge id="13">
+          <subject> ?E0680 </subject>
+          <predicate> GeneralAffiliation.Sponsorship_Sponsor </predicate>
+          <object> ?E0653 </object>
+        </edge>
+        <edge id="14">
+          <subject> ?OLEG01 </subject>
+          <predicate> Transaction.TransferOwnership_Giver </predicate>
+          <object> ?E0635 </object>
+        </edge>
+        <edge id="15">
+          <subject> ?OLEG01 </subject>
+          <predicate> Transaction.TransferOwnership_Giver </predicate>
+          <object> ?E0653 </object>
+        </edge>
+        <edge id="16">
+          <subject> ?OLEG01 </subject>
+          <predicate> Transaction.TransferOwnership_Recipient </predicate>
+          <object> ?E0623 </object>
+        </edge>
+        <edge id="17">
+          <subject> ?OLEG01 </subject>
+          <predicate> Transaction.TransferOwnership_Recipient </predicate>
+          <object> ?E0632 </object>
+        </edge>
+        <edge id="18">
+          <subject> ?OLEG01 </subject>
+          <predicate> Transaction.TransferOwnership_Thing </predicate>
+          <object> ?OLEG02 </object>
+        </edge>
+      </edges>
+    </graph>
+    <entrypoints>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> IC001L4MY </doceid>
+            <start> 398 </start>
+            <end> 414 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½ÑÐµ Ð¾ÐºÐºÑÐ¿Ð°Ð½ÑÑ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000Q828 </doceid>
+            <start> 234 </start>
+            <end> 250 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½ÑÐµ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ¸ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> HC00001FQ </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 640,360 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> HC00001FL </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 640,360 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZXSM </doceid>
+            <start> 971 </start>
+            <end> 986 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Little green men </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZXSR </doceid>
+            <start> 664 </start>
+            <end> 676 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> the green men </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <text_descriptor>
+            <doceid> IC001L4PA </doceid>
+            <start> 1341 </start>
+            <end> 1356 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½Ñ ÑÐ¾Ð»Ð¾Ð²ÑÑÐºÐ¸ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC00038S4 </doceid>
+            <start> 826 </start>
+            <end> 834 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> green men </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> IC00167BW </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 1484,1267 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> IC001L4OD </doceid>
+            <start> 1663 </start>
+            <end> 1680 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½ÑÑ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ¾Ð² </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZXME </doceid>
+            <start> 310 </start>
+            <end> 327 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½Ð¸Ñ ÑÐ¾Ð»Ð¾Ð²ÑÑÐºÑÐ² </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <text_descriptor>
+            <doceid> HC000ZXML </doceid>
+            <start> 805 </start>
+            <end> 820 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000T6IT </doceid>
+            <start> 1767 </start>
+            <end> 1783 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000T6CI </doceid>
+            <start> 666 </start>
+            <end> 678 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <text_descriptor>
+            <doceid> HC000Q7NP </doceid>
+            <start> 51 </start>
+            <end> 70 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <string_descriptor>
+            <name_string> Â«Ð·ÐµÐ»ÐµÐ½ÑÑ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ¾Ð²Â» </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <image_descriptor>
+            <doceid> IC0015Q45 </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 570,428 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000T65W </doceid>
+            <start> 476 </start>
+            <end> 493 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÑÐ½ÑÐ¼ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ°Ð¼ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZXMV </doceid>
+            <start> 2 </start>
+            <end> 17 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> ÐÐµÐ»ÐµÐ½Ñ ÑÐ¾Ð»Ð¾Ð²ÑÑÐºÐ¸ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> IC001L4O1 </doceid>
+            <start> 132 </start>
+            <end> 151 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> ÑÐ¾ÑÑÐ¸Ð¹ÑÐºÐ¸Ðµ Ð¾ÐºÐºÑÐ¿Ð°Ð½ÑÑ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZXN3 </doceid>
+            <start> 314 </start>
+            <end> 333 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½Ð¸Ð¼Ð¸ ÑÐ¾Ð»Ð¾Ð²ÑÑÐºÐ°Ð¼Ð¸ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> IC0015O8C </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 650,393 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <text_descriptor>
+            <doceid> HC000Q829 </doceid>
+            <start> 954 </start>
+            <end> 972 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <string_descriptor>
+            <name_string> "Ð·ÐµÐ»ÐµÐ½ÑÐµ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ¸" </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <text_descriptor>
+            <doceid> IC0015O8J </doceid>
+            <start> 73 </start>
+            <end> 89 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Organization </enttype>
+          <string_descriptor>
+            <name_string> Ð·ÐµÐ»ÐµÐ½ÑÐµ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ¸ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> HC000ZNVV </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 4256,2864 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> HC000ZNVS </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 665,442 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> HC000ZNVT </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 3500,2370 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> IC0015OAC </doceid>
+            <start> 1 </start>
+            <end> 17 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <string_descriptor>
+            <name_string> ÐÐµÐ»ÐµÐ½ÑÐµ ÑÐµÐ»Ð¾Ð²ÐµÑÐºÐ¸ </name_string>
+          </string_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000T6A1 </doceid>
+            <start> 30 </start>
+            <end> 46 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000T69I </doceid>
+            <start> 191 </start>
+            <end> 208 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+      <entrypoint>
+        <node> ?E0623 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <image_descriptor>
+            <doceid> HC000SUP8 </doceid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 600,600 </bottomright>
+          </image_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+    </entrypoints>
+  </graph_query>
+  <graph_query id="AIDA_EG_2018_P103_Q002_H001_16_40">
+    <graph>
+      <edges>
+        <edge id="1">
+          <subject> ?OLEG01 </subject>
+          <predicate> Transaction.TransferOwnership_Recipient </predicate>
+          <object> ?E0632 </object>
+        </edge>
+      </edges>
+    </graph>
+    <entrypoints>
+      <entrypoint>
+        <node> ?E0632 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <video_descriptor>
+            <doceid> HC000SYGU </doceid>
+            <keyframeid> HC000SYGU_71 </keyframeid>
+            <topleft> 0,0 </topleft>
+            <bottomright> 640,360 </bottomright>
+          </video_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+    </entrypoints>
+  </graph_query>
+  <graph_query id="test1">
+    <graph>
+      <edges>
+        <edge id="1">
+          <subject> ?OLEG01 </subject>
+          <predicate> Contact.Broadcast_Broadcaster </predicate>
+          <object> ?E0632 </object>
+        </edge>
+      </edges>
+    </graph>
+    <entrypoints>
+      <entrypoint>
+        <node> ?E0632 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZPT1 </doceid>
+            <start> 3941 </start>
+            <end> 3947 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+    </entrypoints>
+  </graph_query>
+  <graph_query id="test2">
+    <graph>
+      <edges>
+        <edge id="1">
+          <subject> ?OLEG01 </subject>
+          <predicate> Contact.Broadcast_Broadcaster </predicate>
+          <object> ?E0632 </object>
+        </edge>
+      </edges>
+    </graph>
+    <entrypoints>
+      <entrypoint>
+        <node> ?E0632 </node>
+        <typed_descriptor>
+          <enttype> Person </enttype>
+          <text_descriptor>
+            <doceid> HC000ZPT1 </doceid>
+            <start> 3945 </start>
+            <end> 3948 </end>
+          </text_descriptor>
+        </typed_descriptor>
+      </entrypoint>
+    </entrypoints>
+  </graph_query>
+</graph_queries>

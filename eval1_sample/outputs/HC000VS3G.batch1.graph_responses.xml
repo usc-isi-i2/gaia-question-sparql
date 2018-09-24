@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<graphquery_responses id="AIDA_GR_2018_P103_Q002_H001_1_0"/>
+
+<?xml version="1.0" ?>
+<graphquery_responses id="AIDA_EG_2018_P103_Q002_H001_16_40"/>
+
+<?xml version="1.0" ?>
+<graphquery_responses id="test1">
+	<response>
+		<edge id="1">
+			<justifications>
+				<justification docid="HC000VS3G">
+					<subject_justification>
+						<system_nodeid>http://www.isi.edu/gaia/events/207d2f0b-f17c-46a4-b057-61e6100dcdee</system_nodeid>
+						<enttype>Contact.Broadcast</enttype>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>0.463</confidence>
+							<start>4102</start>
+							<end>4110</end>
+						</text_justification>
+					</subject_justification>
+					<object_justification>
+						<system_nodeid>http://www.isi.edu/gaia/entities/7f9de5c3-14d5-43f2-a603-feee69d2aebe</system_nodeid>
+						<enttype>Person</enttype>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>1.0</confidence>
+							<start>3941</start>
+							<end>3947</end>
+						</text_justification>
+					</object_justification>
+					<edge_justification>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>0.04924751</confidence>
+							<start>4116</start>
+							<end>4122</end>
+						</text_justification>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>0.08986507</confidence>
+							<start>4127</start>
+							<end>4130</end>
+						</text_justification>
+					</edge_justification>
+				</justification>
+			</justifications>
+		</edge>
+	</response>
+</graphquery_responses>
+
+<?xml version="1.0" ?>
+<graphquery_responses id="test2">
+	<response>
+		<edge id="1">
+			<justifications>
+				<justification docid="HC000VS3G">
+					<subject_justification>
+						<system_nodeid>http://www.isi.edu/gaia/events/207d2f0b-f17c-46a4-b057-61e6100dcdee</system_nodeid>
+						<enttype>Contact.Broadcast</enttype>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>0.463</confidence>
+							<start>4102</start>
+							<end>4110</end>
+						</text_justification>
+					</subject_justification>
+					<object_justification>
+						<system_nodeid>http://www.isi.edu/gaia/entities/7f9de5c3-14d5-43f2-a603-feee69d2aebe</system_nodeid>
+						<enttype>Person</enttype>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>1.0</confidence>
+							<start>3941</start>
+							<end>3947</end>
+						</text_justification>
+					</object_justification>
+					<edge_justification>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>0.04924751</confidence>
+							<start>4116</start>
+							<end>4122</end>
+						</text_justification>
+						<text_justification>
+							<doceid>HC000ZPT1</doceid>
+							<confidence>0.08986507</confidence>
+							<start>4127</start>
+							<end>4130</end>
+						</text_justification>
+					</edge_justification>
+				</justification>
+			</justifications>
+		</edge>
+	</response>
+</graphquery_responses>

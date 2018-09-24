@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zerohop_queries>
+  <zerohop_query id="test1">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <text_descriptor>
+        <doceid> HC000ZPT1 </doceid>
+        <start> 1582 </start>
+        <end> 1608 </end>
+      </text_descriptor>
+    </entrypoint>
+  </zerohop_query>
+  <zerohop_query id="test2">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <text_descriptor>
+        <doceid> HC000ZPT1 </doceid>
+        <start> 1583 </start>
+        <end> 1609 </end>
+      </text_descriptor>
+    </entrypoint>
+  </zerohop_query>
+  <zerohop_query id="test3">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <text_descriptor>
+        <doceid> HC000ZPT1 </doceid>
+        <start> 1575 </start>
+        <end> 1610 </end>
+      </text_descriptor>
+    </entrypoint>
+  </zerohop_query>
+  <zerohop_query id="AIDA_ZH_2018_3">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <image_descriptor>
+        <doceid> HC000ZPT1 </doceid>
+        <topleft> 0,0 </topleft>
+        <bottomright> 640,360 </bottomright>
+      </image_descriptor>
+    </entrypoint>
+  </zerohop_query>
+  <zerohop_query id="AIDA_ZH_2018_4">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <image_descriptor>
+        <doceid> HC00001FL </doceid>
+        <topleft> 0,0 </topleft>
+        <bottomright> 640,360 </bottomright>
+      </image_descriptor>
+    </entrypoint>
+  </zerohop_query>
+  <zerohop_query id="AIDA_ZH_2018_5">
+    <entrypoint>
+      <node> ?node </node>
+      <enttype> Person </enttype>
+      <text_descriptor>
+        <doceid> HC000ZXSM </doceid>
+        <start> 971 </start>
+        <end> 986 </end>
+      </text_descriptor>
+    </entrypoint>
+  </zerohop_query>
+</zerohop_queries>
