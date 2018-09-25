@@ -53,7 +53,11 @@ class ZerohopQuery(object):
         return root
 
     def dump_responses(self, output_file):
-        write_file(self.root, output_file)
+        if len(self.root):
+            write_file(self.root, output_file)
+            return True
+        return False
+
 
 
 

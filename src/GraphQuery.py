@@ -23,7 +23,10 @@ class GraphQuery(object):
         return responses
 
     def dump_responses(self, output_file):
-        write_file(self.roots, output_file)
+        if self.roots:
+            write_file(self.roots, output_file)
+            return True
+        return False
 
 
 

@@ -19,6 +19,10 @@ graph_query_path = '../resources/ta1_batch1_v1/P103_Q002_H001_graph_queries.xml'
 output_path = sys.argv[2]
 
 
+def wrap_error(_type, _doc, _err):
+    return '%s query failed on %s . err: %s' % (_type, _doc, str(_err))
+
+
 def run_on_each_kb():
     print('start - ', str(datetime.now()))
 
@@ -39,22 +43,22 @@ def run_on_each_kb():
             try:
                 cq.ask_all(ep)
                 cq.dump_responses(output_path + KB.stem + '.batch1.class_responses.xml')
-            except:
-                ff.write('Class Fail: %s \n' % KB.stem)
+            except Exception as e:
+                ff.write(wrap_error('class', KB.stem, e))
 
             # run zerohop query:
             try:
                 zq.ask_all(ep, root_doc=KB.stem)
                 zq.dump_responses(output_path + KB.stem + '.batch1.zerohop_responses.xml')
-            except:
-                ff.write('Zerohop Fail: %s \n' % KB.stem)
+            except Exception as e:
+                ff.write(wrap_error('zerohop', KB.stem, e))
 
             # run graph query:
             try:
                 gq.ask_all(ep, root_doc=KB.stem)
                 gq.dump_responses(output_path + KB.stem + '.batch1.graph_responses.xml')
-            except:
-                ff.write('Graph Fail: %s \n' % KB.stem)
+            except Exception as e:
+                ff.write(wrap_error('graph', KB.stem, e))
 
     print(' log statistics - ', str(datetime.now()))
     print(' done - ', str(datetime.now()))
