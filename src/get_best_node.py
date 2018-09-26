@@ -152,21 +152,19 @@ def get_overlap_img(left, top, bottom, right, target_left, target_top, target_bo
 def serialize_a_types_descriptor(node_var, enttype, justi_sparql, suffix=''):
     if justi_sparql[-1] == '.':
         # string descriptor
-        return '''
-        ?state_%s a rdf:Statement ;
-                  rdf:subject ?%s ;
-                  rdf:predicate rdf:type ;
-                  rdf:object ldcOnt:%s .
-        %s
-        ''' % (suffix, node_var, enttype, justi_sparql)
+        justi_sparql = '''.
+        %s ''' % justi_sparql
     else:
-        return '''
-        ?state_%s a rdf:Statement ;
-                  rdf:subject ?%s ;
-                  rdf:predicate rdf:type ;
-                  rdf:object ldcOnt:%s ;
-                  aida:justifiedBy %s .
-        ''' % (suffix, node_var, enttype, justi_sparql)
+        justi_sparql = ''';
+                aida:justifiedBy %s ''' % justi_sparql
+    return '''
+    ?mem_state_{suffix} aida:cluster ?{node_var} ;
+                aida:clusterMember ?mem_{suffix} .
+    ?state_{suffix} a rdf:Statement ;
+              rdf:subject ?mem_{suffix} ;
+              rdf:predicate rdf:type ;
+              rdf:object ldcOnt:{enttype} {justi_sparql} .
+    '''.format(suffix=suffix, node_var=node_var, enttype=enttype, justi_sparql=justi_sparql)
 
 
 def serialize_text_justification(doceid, start, end):

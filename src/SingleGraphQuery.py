@@ -236,27 +236,29 @@ class SingleGraphQuery(object):
         else:
             obj = o
             select_nodes.add(o)
+        extra = ''
         if isinstance(p, list):
             # one of, p is a var name: ?{s}_{o}
             p_var = s + '_' + o.lstrip('?')
+            extra = 'VALUES %s { %s }' % (p_var, ' '.join(['ldcOnt:%s' % _ for _ in p]))
+            p = p_var
+            _id = p.lstrip('?') + '_id'
             # select p var rather than the assertion var
-            select_nodes.add(p_var)
-            predicates = ' '.join(['ldcOnt:%s' % _ for _ in p])
-            state = '''
-                %s_id a rdf:Statement ;
-                    rdf:subject %s ;
-                    rdf:predicate %s ;
-                    rdf:object %s .
-                VALUES %s { %s }
-                ''' % (p_var, sub, p_var, obj, p_var, predicates)
+            select_nodes.add(p)
         else:
             select_nodes.add('?'+_id)
-            state = '''
-            ?%s a rdf:Statement ;
-                rdf:subject %s ;
-                rdf:predicate ldcOnt:%s ;
-                rdf:object %s .
-            ''' % (_id, sub, p, obj)
+            p = 'ldcOnt:' + p
+        state = '''
+        ?{edge_id}_ss aida:cluster {sub} ;
+               aida:clusterMember ?{edge_id}_s .
+        ?{edge_id}_os aida:cluster {obj} ;
+               aida:clusterMember ?{edge_id}_o .
+        ?{edge_id} a rdf:Statement ;
+            rdf:subject ?{edge_id}_s ;
+            rdf:predicate {p} ;
+            rdf:object ?{edge_id}_o .
+        {extra}
+        '''.format(edge_id=_id, sub=sub, obj=obj, p=p, extra=extra)
         statements.append(state)
 
     def get_ep_nodes(self, eps: list):
