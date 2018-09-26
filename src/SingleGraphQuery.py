@@ -94,7 +94,10 @@ class SingleGraphQuery(object):
                 # 1. try to only match backbone
                 select_nodes, sparql_query = self.relax_backbone_one_of()
                 if not self.query_response(select_nodes, sparql_query):
-                    pass
+                    select_nodes, sparql_query = self.relax_backbone_one_of(True, True)
+                    if not self.query_response(select_nodes, sparql_query):
+                        pass
+
         return self.root_responses
 
     def query_response(self, select_nodes, sparql_query):
@@ -114,27 +117,12 @@ class SingleGraphQuery(object):
     def relax_backbone_one_of(self, backbone=True, one_of=False):
         select_nodes = set()
         states = []
+        # print(self.sopid)
         for s, opid in self.sopid.items():
             if (not backbone) or len(opid) > 1 or list(opid.keys())[0] in self.ep_nodes or s in self.ep_nodes: # change to ospid ?
                 for o, pid in opid.items():
-                    if one_of:
-                        # ?p values (<Conflict_attack…> <…> <…>)
-                        pass
-                        # predicates = ' '.join(['ldcOnt:%s' % p for p in pid])
-                        # p_var_name =
-                        # if s.startswith('?'):
-                        #     select_nodes.add(s)
-                        # if o.startswith('?'):
-                        #     select_nodes.add(o)
-                        # # select_nodes.add(p)
-                        # # TODO: how to know which predicates are matched
-                        # states.append('''
-                        # ?{p_var} a rdf:Statement ;
-                        #     rdf:subject {subject} ;
-                        #     rdf:predicate ?p_{p_var} ;
-                        #     rdf:object {object} .
-                        # ?p_{p_var} VALUES ({predicates}) .
-                        # '''.format(p_var=p_var_name, subject=s, object=o, predicates=predicates))
+                    if one_of and len(pid) > 1:
+                        self.aug_a_statement('', s, list(pid.keys()), o, select_nodes, states)
                     else:
                         for p, _id in pid.items():
                             self.aug_a_statement(_id, s, p, o, select_nodes, states)
@@ -144,7 +132,9 @@ class SingleGraphQuery(object):
         %s
         }
         ''' % (' '.join(select_nodes), '\n'.join(states))
-        # print(sparql_query)
+        # if one_of:
+        #     print(sparql_query)
+        #     exit()
         return select_nodes, sparql_query
 
     def construct_single_response(self, non_ep_nodes: dict) -> ET.Element:
@@ -171,8 +161,11 @@ class SingleGraphQuery(object):
         # print('-----construct single query------')
         for e in self.edges:
             _id, s, p, o = e['@id'], e[SUBJECT], e[PREDICATE], e[OBJECT]
-            s = self.ep_nodes.get(s) or non_ep_nodes.get(s)
+            p_var_name = s + '_' + o.lstrip('?')
             assertion = non_ep_nodes.get('?' + _id)
+            if not assertion:
+                assertion = non_ep_nodes.get(p_var_name, '').endswith(p)
+            s = self.ep_nodes.get(s) or non_ep_nodes.get(s)
             o = self.ep_nodes.get(o) or non_ep_nodes.get(o)
             # print(e)
             # print(s, assertion, o)
@@ -233,7 +226,6 @@ class SingleGraphQuery(object):
         return select_nodes, strict_sparql, sopid
 
     def aug_a_statement(self, _id, s, p, o, select_nodes: set, statements: list):
-        select_nodes.add('?'+_id)
         if s in self.ep_nodes:
             sub = '<%s>' % self.ep_nodes[s]
         else:
@@ -244,7 +236,28 @@ class SingleGraphQuery(object):
         else:
             obj = o
             select_nodes.add(o)
-        statements.append(self.serialize_edge_statement(_id, sub, p, obj))
+        if isinstance(p, list):
+            # one of, p is a var name: ?{s}_{o}
+            p_var = s + '_' + o.lstrip('?')
+            # select p var rather than the assertion var
+            select_nodes.add(p_var)
+            predicates = ' '.join(['ldcOnt:%s' % _ for _ in p])
+            state = '''
+                %s_id a rdf:Statement ;
+                    rdf:subject %s ;
+                    rdf:predicate %s ;
+                    rdf:object %s .
+                VALUES %s { %s }
+                ''' % (p_var, sub, p_var, obj, p_var, predicates)
+        else:
+            select_nodes.add('?'+_id)
+            state = '''
+            ?%s a rdf:Statement ;
+                rdf:subject %s ;
+                rdf:predicate ldcOnt:%s ;
+                rdf:object %s .
+            ''' % (_id, sub, p, obj)
+        statements.append(state)
 
     def get_ep_nodes(self, eps: list):
         group_by_node = {}
@@ -259,11 +272,4 @@ class SingleGraphQuery(object):
             res[node] = get_best_node(descriptors, self.endpoint, relax_num_ep=1)
         return res
 
-    @staticmethod
-    def serialize_edge_statement(_id, s, p, o):
-        return '''
-            ?%s a rdf:Statement ;
-                rdf:subject %s ;
-                rdf:predicate ldcOnt:%s ;
-                rdf:object %s .
-            ''' % (_id, s, p, o)
+

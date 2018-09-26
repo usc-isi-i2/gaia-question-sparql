@@ -11,7 +11,8 @@ class ClassQuery(object):
             end = len(self.query_list)
         for i in range(start, end):
             response = self.ans_one(endpoint, self.query_list[i])
-            self.root.append(response)
+            if len(response):
+                self.root.append(response)
 
     def ans_one(self, endpoint, q_dict):
         '''

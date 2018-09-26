@@ -125,8 +125,8 @@ def get_best_candidate(candidates, to_compare, descriptors):
                 score = get_overlap_img(*[int(x) for x in cand_bound],
                                         int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
             # TODO: how much overlapped ?
-            if score < 0.4:
-                return ''
+            if score < 0.3:
+                continue
             cur_score += score
         if cur_score > best_score:
             best_score = cur_score
@@ -136,13 +136,16 @@ def get_best_candidate(candidates, to_compare, descriptors):
 
 def get_overlap_text(start, end, target_start, target_end):
     # TODO: how to define 'best match'?
-    return (min(end, target_end) - max(start, target_start)) / (target_end - target_start)
+    overlap = min(end, target_end) - max(start, target_start) + 1
+    if overlap < 2:
+        return 0
+    return overlap / (target_end - target_start) + 1
 
 
 def get_overlap_img(left, top, bottom, right, target_left, target_top, target_bottom, target_right):
     # TODO: how to define 'best match'?
-    w = min(right, target_right) - max(left, target_left)
-    h = min(bottom, target_bottom) - max(top, target_top)
+    w = min(right, target_right) - max(left, target_left) + 1
+    h = min(bottom, target_bottom) - max(top, target_top) + 1
     return w * h / ((target_right - target_left) * (target_bottom - target_top))
 
 

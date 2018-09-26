@@ -15,7 +15,8 @@ class GraphQuery(object):
             target_docs = set([c2p[c_id] for c_id in list(find_keys(DOCEID, self.query_list[i][ENTRYPOINTS]))])
             if root_doc in target_docs:
                 responses = self.ans_one(endpoint, self.query_list[i], root_doc)
-                self.root.append(responses)
+                if len(responses):
+                    self.root.append(responses)
 
     def ans_one(self, endpoint, q_dict, root_doc):
         single = SingleGraphQuery(endpoint, q_dict, root_doc)

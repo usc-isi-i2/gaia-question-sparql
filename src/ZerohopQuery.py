@@ -14,7 +14,8 @@ class ZerohopQuery(object):
         for i in range(start, end):
             if c2p[list(find_keys(DOCEID, self.query_list[i][ENTRYPOINT]))[0]] == root_doc:
                 response = self.ans_one(endpoint, self.query_list[i])
-                self.root.append(response)
+                if len(response):
+                    self.root.append(response)
 
     def ans_one(self, endpoint, q_dict):
         '''
@@ -45,7 +46,7 @@ class ZerohopQuery(object):
         # TODO: take cluster member in ta1?? as NIST's sparql sample?
         # TODO: seems CU use clusters for cross doc linkings, RPI has no clusters
         # TODO: now find justi on node_uri, NIST sparql is to find on type_statement uri, mjr said we'll argue on it
-        sparql_justi = serialize_get_justi(node_uri, True)
+        sparql_justi = serialize_get_justi(node_uri, include_cluster_members=True)
         rows = select_query(endpoint, sparql_justi)
         update_xml(root, {'system_nodeid': node_uri})
         construct_justifications(root, None, rows)
