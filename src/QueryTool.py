@@ -21,9 +21,9 @@ class Selector(object):
             self.sw = SPARQLWrapper(endpoint)
             self.sw.setReturnFormat(CSV)
             if '7200' in endpoint:
-                self.run = self.select_query_graphdb
+                self.run = self.select_query_url
             else:
-                self.run = self.select_query_fuseki
+                self.run = self.select_query_url
 
     def select_query_rdflib(self, q):
         # print(q)
@@ -31,16 +31,9 @@ class Selector(object):
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
         return list(csv.reader(rows))
 
-    def select_query_graphdb(self, q):
-        sparql_query = 'query=' + PREFIX + q
-        return self.select_query_url(sparql_query)
-
-    def select_query_fuseki(self, q):
+    def select_query_url(self, q):
         sparql_query = PREFIX + q
-        return self.select_query_url(sparql_query)
-
-    def select_query_url(self, full_q):
-        self.sw.setQuery(full_q)
+        self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
         return list(csv.reader(rows))
 
