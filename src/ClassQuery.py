@@ -6,15 +6,15 @@ class ClassQuery(object):
         self.root = ET.Element('classquery_responses')
         self.query_list = xml_loader(xml_file_or_string, CLASS_QUERY)
 
-    def ask_all(self, endpoint, start=0, end=None):
+    def ask_all(self, query_tool, start=0, end=None):
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
-            response = self.ans_one(endpoint, self.query_list[i])
+            response = self.ans_one(query_tool, self.query_list[i])
             if len(response):
                 self.root.append(response)
 
-    def ans_one(self, endpoint, q_dict):
+    def ans_one(self, query_tool, q_dict):
         '''
         :param endpoint: sparql endpoint or rdflib graph
         :param q_dict: {
@@ -25,7 +25,7 @@ class ClassQuery(object):
         '''
         enttype = q_dict[ENTTYPE]
         sparql_query = self.to_sparql(enttype)
-        rows = select_query(endpoint, sparql_query)
+        rows = query_tool.select(sparql_query)
 
         root = ET.Element('classquery_response', attrib={'id':  q_dict['@id']})
         justifications = ET.SubElement(root, 'justifications')

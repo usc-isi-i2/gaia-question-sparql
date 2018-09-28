@@ -1,10 +1,9 @@
 from src.utils import *
-from src.sparql_utils import *
-from src.get_best_node import get_best_node
+from src.QueryTool import QueryTool, Mode
 
 
 class SingleGraphQuery(object):
-    def __init__(self, endpoint, q_dict, doc_id):
+    def __init__(self, query_tool: QueryTool, q_dict: dict, doc_id: str):
         '''
         :param endpoint: sparql endpoint or rdflib graph
         :param q_dict: {
@@ -58,7 +57,7 @@ class SingleGraphQuery(object):
         }
         '''
         self.doc_id = doc_id
-        self.endpoint = endpoint
+        self.query_tool = query_tool
         self.root_responses = ET.Element('graphquery_responses', attrib={'id':  q_dict['@id']})
         self.eps = q_dict[ENTRYPOINTS][ENTRYPOINT]
         if isinstance(self.eps, dict):
@@ -101,7 +100,7 @@ class SingleGraphQuery(object):
         return self.root_responses
 
     def query_response(self, select_nodes, sparql_query):
-        rows = select_query(self.endpoint, sparql_query)
+        rows = self.query_tool.select(sparql_query)
         if rows and rows[0]:
             for row in rows:
                 # mapping to select_nodes, and construct response
@@ -189,9 +188,7 @@ class SingleGraphQuery(object):
     def get_justi(self, node_uri, limit=None):
         cache_key = ' '.join(node_uri) if isinstance(node_uri, list) else node_uri
         if cache_key not in self.justi:
-            sparql_justi = serialize_get_justi(node_uri, limit=limit)
-            # print(sparql_justi)
-            rows = select_query(self.endpoint, sparql_justi)
+            rows = self.query_tool.get_justi(node_uri, limit=limit)
             self.justi[cache_key] = rows
         return self.justi[cache_key]
         # update_xml(root, {'system_nodeid': node_uri})
@@ -199,8 +196,14 @@ class SingleGraphQuery(object):
 
     def get_enttype(self, node_uri):
         if node_uri not in self.enttype:
-            q = 'SELECT ?type WHERE {?r rdf:subject <%s>; rdf:predicate rdf:type; rdf:object ?type .}' % node_uri
-            rows = select_query(self.endpoint, q)
+            if self.query_tool.mode == Mode.CLUSTER:
+                q = '''SELECT ?type WHERE {
+                <%s> aida:prototype ?p .
+                ?r rdf:subject ?p; rdf:predicate rdf:type; rdf:object ?type .}
+                ''' % node_uri
+            else:
+                q = 'SELECT ?type WHERE {?r rdf:subject <%s>; rdf:predicate rdf:type; rdf:object ?type .}' % node_uri
+            rows = self.query_tool.select(q)
             self.enttype[node_uri] = rows[0][0].rsplit('#', 1)[-1]
         return self.enttype[node_uri]
 
@@ -248,17 +251,26 @@ class SingleGraphQuery(object):
         else:
             select_nodes.add('?'+_id)
             p = 'ldcOnt:' + p
-        state = '''
-        ?{edge_id}_ss aida:cluster {sub} ;
-               aida:clusterMember ?{edge_id}_s .
-        ?{edge_id}_os aida:cluster {obj} ;
-               aida:clusterMember ?{edge_id}_o .
-        ?{edge_id} a rdf:Statement ;
-            rdf:subject ?{edge_id}_s ;
-            rdf:predicate {p} ;
-            rdf:object ?{edge_id}_o .
-        {extra}
-        '''.format(edge_id=_id, sub=sub, obj=obj, p=p, extra=extra)
+        if self.query_tool.mode == Mode.CLUSTER:
+            state = '''
+            ?{edge_id}_ss aida:cluster {sub} ;
+                   aida:clusterMember ?{edge_id}_s .
+            ?{edge_id}_os aida:cluster {obj} ;
+                   aida:clusterMember ?{edge_id}_o .
+            ?{edge_id} a rdf:Statement ;
+                rdf:subject ?{edge_id}_s ;
+                rdf:predicate {p} ;
+                rdf:object ?{edge_id}_o .
+            {extra}
+            '''.format(edge_id=_id, sub=sub, obj=obj, p=p, extra=extra)
+        else:
+            state = '''
+            ?{edge_id} a rdf:Statement ;
+                rdf:subject {sub} ;
+                rdf:predicate {p} ;
+                rdf:object {obj} .
+            {extra}
+            '''.format(edge_id=_id, sub=sub, obj=obj, p=p, extra=extra)
         statements.append(state)
 
     def get_ep_nodes(self, eps: list):
@@ -271,7 +283,7 @@ class SingleGraphQuery(object):
             group_by_node[node].append(ep[TYPED_DESCRIPTOR])
         res = {}
         for node, descriptors in group_by_node.items():
-            res[node] = get_best_node(descriptors, self.endpoint, relax_num_ep=1)
+            res[node] = self.query_tool.get_best_node(descriptors)
         return res
 
 

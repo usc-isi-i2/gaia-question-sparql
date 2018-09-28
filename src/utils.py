@@ -1,38 +1,11 @@
 import json
 import os
-import csv
 import xmltodict
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
-from rdflib.graph import Graph
-from SPARQLWrapper import SPARQLWrapper, CSV
 from src.constants import *
 
 c2p = json.load(open(os.path.dirname(__file__) + '/tools/c2p.json'))
-
-
-def init_graph(ttl_file):
-    g = Graph()
-    # print(ttl_file)
-    g.parse(ttl_file, format='n3')
-    return g
-
-
-def select_query(endpoint, q):
-    # print(q)
-    sparql_query = PREFIX + q
-    if isinstance(endpoint, Graph):
-        # print(sparql_query)
-        csv_res = endpoint.query(sparql_query).serialize(format='csv')
-        rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
-    else:
-        sw = SPARQLWrapper(endpoint)
-        sw.setQuery(sparql_query)
-        sw.setReturnFormat(CSV)
-        rows = sw.query().convert().splitlines()[1:]
-    res = list(csv.reader(rows))
-    # print(res)
-    return res
 
 
 def update_xml(root, obj):
@@ -160,3 +133,18 @@ def find_keys(key, dictionary):
             for d in v:
                 for result in find_keys(key, d):
                     yield result
+
+
+def get_overlap_text(start, end, target_start, target_end):
+    # TODO: how to define 'best match'?
+    overlap = min(end, target_end) - max(start, target_start) + 1
+    if overlap < 2:
+        return 0
+    return overlap / (target_end - target_start) + 1
+
+
+def get_overlap_img(left, top, bottom, right, target_left, target_top, target_bottom, target_right):
+    # TODO: how to define 'best match'?
+    w = min(right, target_right) - max(left, target_left) + 1
+    h = min(bottom, target_bottom) - max(top, target_top) + 1
+    return w * h / ((target_right - target_left) * (target_bottom - target_top))
