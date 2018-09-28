@@ -13,12 +13,19 @@ ttl_path = Path(sys.argv[1])
 # ttl_path = Path('..')
 ttls = list(ttl_path.glob('*.ttl'))
 
-class_query_path = '../resources/ta1_batch1_v1/P103_Q002_H001_class_queries.xml'
-zerohop_query_path = '../resources/ta1_batch1_v1/P103_Q002_H001_zerohop_queries.xml'
-graph_query_path = '../resources/ta1_batch1_v1/P103_Q002_H001_graph_queries.xml'
+query_path = sys.argv[2]
 
-output_path = sys.argv[2]
+class_query_path = query_path + 'P103_Q002_H001_class_queries.xml'
+zerohop_query_path = query_path + 'P103_Q002_H001_zerohop_queries.xml'
+graph_query_path = query_path + 'P103_Q002_H001_graph_queries.xml'
 
+output_path = sys.argv[3]
+if not os.path.exists(output_path + 'class'):
+    os.makedirs(output_path + 'class')
+if not os.path.exists(output_path + 'zerohop'):
+    os.makedirs(output_path + 'zerohop')
+if not os.path.exists(output_path + 'graph'):
+    os.makedirs(output_path + 'graph')
 # output_path = './'
 
 
@@ -43,23 +50,23 @@ def run_on_each_kb():
             cnt += 1
             qt = QueryTool(str(KB), Mode.SINGLETON)
             # run class query:
-            try:
-                cq.ask_all(qt)
-                cq.dump_responses(output_path + KB.stem + '.batch1.class_responses.xml')
-            except Exception as e:
-                ff.write(wrap_error('class', KB.stem, e))
+            # try:
+            #     cq.ask_all(qt)
+            #     cq.dump_responses(output_path + 'class/' + KB.stem + '.batch1.class_responses.xml')
+            # except Exception as e:
+            #     ff.write(wrap_error('class', KB.stem, e))
 
             # run zerohop query:
             try:
                 zq.ask_all(qt, root_doc=KB.stem)
-                zq.dump_responses(output_path + KB.stem + '.batch1.zerohop_responses.xml')
+                zq.dump_responses(output_path + 'zerohop/' + KB.stem + '.batch1.zerohop_responses.xml')
             except Exception as e:
                 ff.write(wrap_error('zerohop', KB.stem, e))
 
             # run graph query:
             try:
                 gq.ask_all(qt, root_doc=KB.stem)
-                gq.dump_responses(output_path + KB.stem + '.batch1.graph_responses.xml')
+                gq.dump_responses(output_path + 'graph/' + KB.stem + '.batch1.graph_responses.xml')
             except Exception as e:
                 ff.write(wrap_error('graph', KB.stem, e))
 
