@@ -179,7 +179,7 @@ def serialize_text_descriptor_relax(doceid, start, end, var_suffix=''):
          aida:startOffset          ?{svar} ;
          aida:endOffsetInclusive   ?{evar} 
     ] 
-    FILTER ( (?{evar} >= {end} && ?{svar} <= {end}) || (?{svar} <= {start} && ?{evar} >= {start}) )
+    FILTER ( (?{evar} >= {start} && ?{svar} <= {end}) || (?{svar} <= {end} && ?{evar} >= {start}) )
     '''.format(docied=doceid, svar=EPSO + var_suffix, evar=EPEO + var_suffix, start=start, end=end)
 
 
@@ -200,8 +200,8 @@ def serialize_image_video_descriptor_relax(doceid, topleft, bottomright, keyfram
             ] 
         ] 
         FILTER (
-            ((?{lvar} <= {left} && ?{rvar} >= {left}) || (?{rvar} >= {right} && ?{lvar} <= {right})) &&
-            ((?{tvar} <= {top} && ?{bvar} >= {top}) || (?{bvar} >= {bottom} && ?{tvar} <= {bottom}))
+            ((?{lvar} <= {right} && ?{rvar} >= {left}) || (?{rvar} >= {left} && ?{lvar} <= {right})) &&
+            ((?{tvar} <= {bottom} && ?{bvar} >= {top}) || (?{bvar} >= {top} && ?{tvar} <= {bottom}))
         )
     '''.format(justification_type=justification_type, doceid=doceid, keyframe_triple=keyframe_triple,
                lvar=EPULX + var_suffix, tvar=EPULY + var_suffix,

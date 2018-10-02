@@ -28,11 +28,9 @@ class Selector(object):
             self.run = self.select_query_url
 
     def select_query_rdflib(self, q):
-        # print(q)
         csv_res = self.graph.query(PREFIX + q).serialize(format='csv')
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
         res = list(csv.reader(rows))
-        # print(res)
         return res
 
     def select_query_url(self, q):

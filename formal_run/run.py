@@ -35,13 +35,19 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     print('start - ', str(datetime.now()))
     cq, zq, gq = load_query(query_folder)
     ttls = list(Path(ttls_folder).glob('*.ttl'))
-    loggers = {
+    err_loggers = {
         'class':  open(log_folder + 'class_error.csv', 'w'),
         'zerohop':  open(log_folder + 'zerohop_error.csv', 'w'),
         'graph':  open(log_folder + 'graph_error.csv', 'w'),
     }
-    related_graph = open(log_folder + 'related_graph.csv', 'w')
-    has_res_graph = open(log_folder + 'has_res_graph.csv', 'w')
+    related_loggers = {
+        'zerohop': open(log_folder + 'related_zerohop.csv', 'w'),
+        'graph': open(log_folder + 'related_graph.csv', 'w')
+    }
+    has_res_loggers = {
+        'zerohop': open(log_folder + 'has_res_zerohop.csv', 'w'),
+        'graph': open(log_folder + 'has_res_graph.csv', 'w')
+    }
 
     cnt = 0
     total = len(ttls)
@@ -67,16 +73,18 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
                 write_file(response, wrap_output_filename(KB.stem, _type))
             if len(stat['errors']):
                 # each error: doc_id,query_id,query_idx,error_str
-                loggers[_type].write(stat['errors'])
-                loggers[_type].write('\n')
+                err_loggers[_type].write(stat['errors'])
+                err_loggers[_type].write('\n')
             if stat.get('related') and stat.get('has_res'):
-                related_graph.write(','.join(stat.get('related')))
-                related_graph.write('\n')
-                has_res_graph.write(','.join(stat.get('has_res')))
-                has_res_graph.write('\n')
+                related_loggers[_type].write('%s %s\n' % (KB.stem, ' '.join(stat.get('related'))))
+                has_res_loggers[_type].write('%s %s\n' % (KB.stem, ' '.join(stat.get('has_res'))))
 
-    for v in loggers.values():
-        v.close()
+    for logger in err_loggers.values():
+        logger.close()
+    for logger in related_loggers.values():
+        logger.close()
+    for logger in has_res_loggers.values():
+        logger.close()
     print(' done - ', str(datetime.now()))
 
 

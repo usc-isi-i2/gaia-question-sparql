@@ -12,8 +12,8 @@ class GraphQuery(object):
     def ask_all(self, query_tool, start=0, end=None, root_doc=''):
         root = ET.Element('graphqueries_responses')
         errors = []
-        related = [0 for _ in range(len(self.query_list))]
-        has_res = [0 for _ in range(len(self.query_list))]
+        related = ['0' for _ in range(len(self.query_list))]
+        has_res = ['0' for _ in range(len(self.query_list))]
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
@@ -24,12 +24,12 @@ class GraphQuery(object):
                     if not self.query_names[i].intersection(doc_names):
                         continue
                 # ans one:
-                related[i] = 1
+                related[i] = '1'
                 single = SingleGraphQuery(query_tool, self.query_list[i], root_doc)
                 responses = single.get_responses()
                 if len(responses):
                     root.append(responses)
-                    has_res[i] = 1
+                    has_res[i] = '1'
             except Exception as e:
                 errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
         return root, {'errors': errors, 'related': related, 'has_res': has_res}
@@ -76,4 +76,3 @@ class GraphQuery(object):
                         desp.append(v)
                 break
         return ', '.join(desp)
-
