@@ -1,22 +1,22 @@
 {
   "ta1": {
-    "run": true,
+    "run": false,
     "params":{
-      "ttls_folder": "/Users/dongyuli/isi/data/related_docs/",
-      "query_folder": "/Users/dongyuli/isi/repos/gaia-question-sparql/resources/ta1_batch1_v1/",
-      "output_folder": "/Users/dongyuli/isi/data/qa_outputs_related/",
-      "log_folder": "/Users/dongyuli/isi/data/qa_outputs_related/",
+      "ttls_folder": "/nas/home/dongyul/0923r1aug/",
+      "query_folder": "/nas/home/dongyul/queries_v3/data/",
+      "output_folder": "/nas/home/dongyul/qa_0923r1aug/outputs/",
+      "log_folder": "/nas/home/dongyul/qa_0923r1aug/logs/",
       "batch_num": "1",
       "fuseki": "http://localhost:3030/test"
     }
   },
   "ta2": {
-    "run": false,
+    "run": true,
     "params":{
-      "select_endpoint": "/Users/dongyuli/isi/data/dis_r0nl/dir_0/",
-      "query_folder": "query_folder",
-      "output_folder": "",
-      "log_folder": "",
+      "select_endpoint": "http://localhost:7200/repositories/0923r1aug",
+      "query_folder": "/nas/home/dongyul/queries_v3/data/",
+      "output_folder": "/nas/home/dongyul/qa_0923r1aug/ta2outputs/",
+      "log_folder": "/nas/home/dongyul/qa_0923r1aug/ta2logs/",
       "batch_num": "1"
     }
   },

@@ -12,8 +12,7 @@ class GraphQuery(object):
     def ask_all(self, query_tool, start=0, end=None, root_doc=''):
         root = ET.Element('graphqueries_responses')
         errors = []
-        related = ['0' for _ in range(len(self.query_list))]
-        has_res = ['0' for _ in range(len(self.query_list))]
+        diff = []
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
@@ -24,15 +23,16 @@ class GraphQuery(object):
                     if not self.query_names[i].intersection(doc_names):
                         continue
                 # ans one:
-                related[i] = '1'
+
                 single = SingleGraphQuery(query_tool, self.query_list[i], root_doc)
                 responses = single.get_responses()
                 if len(responses):
                     root.append(responses)
-                    has_res[i] = '1'
+                elif root_doc:
+                    diff.append(self.query_list[i])
             except Exception as e:
                 errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
-        return root, {'errors': errors, 'related': related, 'has_res': has_res}
+        return root, {'errors': errors, 'diff': diff}
 
     def summarize(self, output_file):
         # TODO: get names of each ttl, the related docs are not enough

@@ -12,11 +12,11 @@ def load_query(query_folder):
     query_path = Path(query_folder)
     cq, zq, gq = None, None, None
     for q in query_path.glob('*.xml'):
-        if q.stem.endswith('class_queries'):
+        if q.stem.endswith(CLASS_QUERIES):
             cq = ClassQuery(str(q))
-        if q.stem.endswith('zerohop_queries'):
+        if q.stem.endswith(ZEROHOP_QUERIES):
             zq = ZerohopQuery(str(q))
-        if q.stem.endswith('graph_queries'):
+        if q.stem.endswith(GRAPH_QUERIES):
             gq = GraphQuery(str(q))
     return cq, zq, gq
 
@@ -36,22 +36,15 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     cq, zq, gq = load_query(query_folder)
     ttls = list(Path(ttls_folder).glob('*.ttl'))
     err_loggers = {
-        'class':  open(log_folder + 'class_error.csv', 'w'),
-        'zerohop':  open(log_folder + 'zerohop_error.csv', 'w'),
-        'graph':  open(log_folder + 'graph_error.csv', 'w'),
+        CLASS:  open(log_folder + 'class_error.csv', 'w'),
+        ZEROHOP:  open(log_folder + 'zerohop_error.csv', 'w'),
+        GRAPH:  open(log_folder + 'graph_error.csv', 'w'),
     }
-    related_loggers = {
-        'zerohop': open(log_folder + 'related_zerohop.csv', 'w'),
-        'graph': open(log_folder + 'related_graph.csv', 'w')
-    }
-    has_res_loggers = {
-        'zerohop': open(log_folder + 'has_res_zerohop.csv', 'w'),
-        'graph': open(log_folder + 'has_res_graph.csv', 'w')
-    }
+    diffs = {ZEROHOP: {}, GRAPH: {}}
 
     cnt = 0
     total = len(ttls)
-    per = min(total // 100, 1)
+    per = 50
 
     for KB in ttls:
         if cnt % per == 0:
@@ -60,9 +53,9 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '')
 
         for query, _type in [
-            # (cq, 'class'),
-            (zq, 'zerohop'),
-            (gq, 'graph')
+            (cq, CLASS),
+            (zq, ZEROHOP),
+            (gq, GRAPH)
         ]:
             # print('doc_id: %s, query type: %s' % (KB.stem, _type))
             if ta3:
@@ -75,16 +68,13 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
                 # each error: doc_id,query_id,query_idx,error_str
                 err_loggers[_type].write(stat['errors'])
                 err_loggers[_type].write('\n')
-            if stat.get('related') and stat.get('has_res'):
-                related_loggers[_type].write('%s %s\n' % (KB.stem, ' '.join(stat.get('related'))))
-                has_res_loggers[_type].write('%s %s\n' % (KB.stem, ' '.join(stat.get('has_res'))))
+            if stat.get('diff'):
+                diffs[_type][KB.stem] = stat.get('diff')
 
     for logger in err_loggers.values():
         logger.close()
-    for logger in related_loggers.values():
-        logger.close()
-    for logger in has_res_loggers.values():
-        logger.close()
+    write_file(diffs[ZEROHOP], log_folder + 'zerohop_diff.json')
+    write_file(diffs[GRAPH], log_folder + 'graph_diff.json')
     print(' done - ', str(datetime.now()))
 
 
@@ -100,17 +90,12 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
 
     print('start - ', str(datetime.now()))
     cq, zq, gq = load_query(query_folder)
-    loggers = {
-        'class':  open(log_folder + 'class_error.csv', 'w'),
-        'zerohop':  open(log_folder + 'zerohop_error.csv', 'w'),
-        'graph':  open(log_folder + 'graph_error.csv', 'w'),
-    }
     qt = QueryTool(select_endpoint, Mode.PROTOTYPE)
 
     for query, _type in [
-        (cq, 'class'),
-        (zq, 'zerohop'),
-        (gq, 'graph')
+        # (cq, CLASS),
+        # (zq, ZEROHOP),
+        (gq, GRAPH)
     ]:
         # print('doc_id: %s, query type: %s' % (KB.stem, _type))
         response, error = query.ask_all(qt)
@@ -118,11 +103,8 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
             write_file(response, wrap_output_filename(_type))
         if len(error):
             # each error: doc_id,query_id,query_idx,error_str
-            loggers[_type].write(error)
-            loggers[_type].write('\n')
+            write_file(log_folder + _type + '_error.csv', error)
 
-    for v in loggers.values():
-        v.close()
     print(' done - ', str(datetime.now()))
 
 

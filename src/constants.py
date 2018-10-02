@@ -87,6 +87,8 @@ CLASS_QUERIES = 'class_queries'
 CLASS_QUERY = 'class_query'
 ZEROHOP_QUERIES = 'zerohop_queries'
 ZEROHOP_QUERY = 'zerohop_query'
+CLASS = 'class'
+ZEROHOP = 'zerohop'
 
 
 EPSO = 'epso'
