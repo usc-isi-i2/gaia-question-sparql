@@ -103,7 +103,7 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
             write_file(response, wrap_output_filename(_type))
         if len(error):
             # each error: doc_id,query_id,query_idx,error_str
-            write_file(log_folder + _type + '_error.csv', error)
+            write_file(error, log_folder + _type + '_error.csv')
 
     print(' done - ', str(datetime.now()))
 
