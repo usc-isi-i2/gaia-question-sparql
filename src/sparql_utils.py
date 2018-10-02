@@ -1,4 +1,4 @@
-from src.constants import *
+from src.utils import *
 
 
 def serialize_get_justi(node_uri, limit=None):
@@ -135,7 +135,7 @@ def serialize_get_justi_cluster(node_uri, mode, limit=None):
 
 
 def serialize_string_descriptor(name_string):
-    return '?%s aida:hasName "%s" .' % (NODE, name_string.strip('"').encode('latin1').decode('utf-8'))
+    return '?%s aida:hasName "%s" .' % (NODE, decode_name(name_string.strip('"')))
 
 
 def serialize_text_descriptor(doceid, start, end):
@@ -169,7 +169,7 @@ def serialize_image_video_descriptor(doceid, topleft, bottomright, keyframeid=''
 
 
 def serialize_string_descriptor_relax(name_string):
-    return '?%s aida:hasName "%s" .' % (NODE, name_string.strip('"').encode('latin1').decode('utf-8'))
+    return '?%s aida:hasName "%s" .' % (NODE, decode_name(name_string.strip('"')))
 
 
 def serialize_text_descriptor_relax(doceid, start, end, var_suffix=''):

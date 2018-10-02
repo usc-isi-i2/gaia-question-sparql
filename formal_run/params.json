@@ -1,0 +1,34 @@
+{
+  "ta1": {
+    "run": true,
+    "params":{
+      "ttls_folder": "/Users/dongyuli/isi/data/related_docs/",
+      "query_folder": "/Users/dongyuli/isi/repos/gaia-question-sparql/resources/ta1_batch1_v1/",
+      "output_folder": "/Users/dongyuli/isi/data/qa_outputs_related/",
+      "log_folder": "/Users/dongyuli/isi/data/qa_outputs_related/",
+      "batch_num": "1",
+      "fuseki": "http://localhost:3030/test"
+    }
+  },
+  "ta2": {
+    "run": false,
+    "params":{
+      "select_endpoint": "/Users/dongyuli/isi/data/dis_r0nl/dir_0/",
+      "query_folder": "query_folder",
+      "output_folder": "",
+      "log_folder": "",
+      "batch_num": "1"
+    }
+  },
+  "ta3": {
+    "run": false,
+    "params":{
+      "ttls_folder": "/Users/dongyuli/isi/data/dis_r0nl/dir_0/",
+      "query_folder": "query_folder",
+      "output_folder": "",
+      "log_folder": "",
+      "batch_num": "1",
+      "fuseki": ""
+    }
+  }
+}

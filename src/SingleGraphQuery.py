@@ -91,9 +91,9 @@ class SingleGraphQuery(object):
             if not self.query_response(select_nodes, strict_sparql):
                 # cannot find exact matched graph, try relax
                 # 1. try to only match backbone
-                select_nodes, sparql_query = self.relax_backbone_one_of()
+                select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=False)
                 if not self.query_response(select_nodes, sparql_query):
-                    select_nodes, sparql_query = self.relax_backbone_one_of(True, True)
+                    select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=True)
                     if not self.query_response(select_nodes, sparql_query):
                         pass
 
@@ -116,8 +116,8 @@ class SingleGraphQuery(object):
     def relax_backbone_one_of(self, backbone=True, one_of=False):
         select_nodes = set()
         states = []
-        # print(self.sopid)
         for s, opid in self.sopid.items():
+            # TODO:backbone - prune all leaves, no only object-leaves are prune
             if (not backbone) or len(opid) > 1 or list(opid.keys())[0] in self.ep_nodes or s in self.ep_nodes: # change to ospid ?
                 for o, pid in opid.items():
                     if one_of and len(pid) > 1:

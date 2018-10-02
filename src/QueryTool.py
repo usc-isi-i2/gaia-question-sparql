@@ -1,41 +1,46 @@
-
+from requests import put
 from SPARQLWrapper import SPARQLWrapper, CSV
 from rdflib.graph import Graph
 import csv
 from enum import Enum
 from itertools import combinations
 
-from src.utils import *
 from src.sparql_utils import *
 from src.constants import *
 
 
 class Selector(object):
-    def __init__(self, endpoint: str):
+    def __init__(self, endpoint: str, use_fuseki=''):
         if endpoint.endswith('.ttl'):
-            g = Graph()
-            g.parse(endpoint, format='n3')
-            self.graph = g
-            self.run = self.select_query_rdflib
+            if use_fuseki:
+                put(use_fuseki + '/data', data=open(endpoint).read().encode('utf-8'), headers={'Content-Type': 'text/turtle'})
+                self.sw = SPARQLWrapper(use_fuseki + '/sparql')
+                self.sw.setReturnFormat(CSV)
+                self.run = self.select_query_url
+            else:
+                g = Graph()
+                g.parse(endpoint, format='n3')
+                self.graph = g
+                self.run = self.select_query_rdflib
         else:
             self.sw = SPARQLWrapper(endpoint)
             self.sw.setReturnFormat(CSV)
-            if '7200' in endpoint:
-                self.run = self.select_query_url
-            else:
-                self.run = self.select_query_url
+            self.run = self.select_query_url
 
     def select_query_rdflib(self, q):
         # print(q)
         csv_res = self.graph.query(PREFIX + q).serialize(format='csv')
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
-        return list(csv.reader(rows))
+        res = list(csv.reader(rows))
+        # print(res)
+        return res
 
     def select_query_url(self, q):
         sparql_query = PREFIX + q
         self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
-        return list(csv.reader(rows))
+        res = list(csv.reader(rows))
+        return res
 
 
 class Mode(Enum):
@@ -45,13 +50,13 @@ class Mode(Enum):
 
 
 class QueryTool(object):
-    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None):
+    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki=''):
         """
         :param selector: a Selector instance, for run select query and get results in list(list)
         :param mode:
         :param relax_num_ep:
         """
-        self.select = Selector(endpoint).run
+        self.select = Selector(endpoint, use_fuseki).run
         self.mode = mode
         self.at_least = relax_num_ep
 

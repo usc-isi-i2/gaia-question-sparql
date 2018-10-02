@@ -3,20 +3,25 @@ from src.utils import *
 
 class ClassQuery(object):
     def __init__(self, xml_file_or_string):
-        self.root = ET.Element('classquery_responses')
         self.query_list = xml_loader(xml_file_or_string, CLASS_QUERY)
 
-    def ask_all(self, query_tool, start=0, end=None):
+    def ask_all(self, query_tool, start=0, end=None, root_doc=''):
+        root = ET.Element('classquery_responses')
+        errors = []
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
-            response = self.ans_one(query_tool, self.query_list[i])
-            if len(response):
-                self.root.append(response)
+            try:
+                response = self.ans_one(query_tool, self.query_list[i])
+                if len(response):
+                    root.append(response)
+            except Exception as e:
+                errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
+        return root, {'errors': errors}
 
     def ans_one(self, query_tool, q_dict):
         '''
-        :param endpoint: sparql endpoint or rdflib graph
+        :param query_tool
         :param q_dict: {
             '@id': 'CLASS_QUERY_1',
             'enttype': 'PERSON'
@@ -26,18 +31,10 @@ class ClassQuery(object):
         enttype = q_dict[ENTTYPE]
         sparql_query = self.to_sparql(enttype)
         rows = query_tool.select(sparql_query)
-
-        root = ET.Element('classquery_response', attrib={'id':  q_dict['@id']})
-        justifications = ET.SubElement(root, 'justifications')
+        single_root = ET.Element('classquery_response', attrib={'id':  q_dict['@id']})
+        justifications = ET.SubElement(single_root, 'justifications')
         construct_justifications(justifications, enttype, rows)
-
-        return root
-
-    def dump_responses(self, output_file):
-        if len(self.root):
-            write_file(self.root, output_file)
-            return True
-        return False
+        return single_root
 
     @staticmethod
     def to_sparql(enttype):
