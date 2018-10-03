@@ -33,7 +33,7 @@ class GraphQuery(object):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i),
-                                        exc_type, fname, exc_tb.tb_lineno)))
+                                        str(exc_type), str(fname), str(exc_tb.tb_lineno))))
         return root, {'errors': errors, 'diff': diff}
 
     @property
