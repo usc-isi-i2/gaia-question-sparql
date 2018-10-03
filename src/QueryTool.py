@@ -205,8 +205,8 @@ class QueryTool(object):
                     target_brx, target_bry = des[BOTTOMRIGHT].split(',')
                     score = get_overlap_img(*[int(x) for x in cand_bound],
                                             int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
-                # TODO: how much overlapped ?
-                if score < 0.3:
+                # TODO: how much overlapped? consider FP? consider centroid distance?
+                if score < 0.2:
                     continue
                 cur_score += score
             if cur_score > best_score:
@@ -215,9 +215,11 @@ class QueryTool(object):
         return best_uri
 
     def get_justi(self, node_uri, limit=None):
-        return self.select(self.serialize_get_justi_cluster(node_uri, limit))
+        sparql = self.serialize_get_justi(node_uri, limit)
+        # print(sparql)
+        return self.select(sparql)
 
-    def serialize_get_justi_cluster(self, node_uri, limit):
+    def serialize_get_justi(self, node_uri, limit):
         if self.mode == Mode.CLUSTER:
             # now that all nodes will be a cluster rather than an entity/event/relation:
             if isinstance(node_uri, list):
@@ -300,5 +302,8 @@ class QueryTool(object):
                 #     ?justification aida:startTimestamp         ?st .
                 #     ?justification aida:endTimestamp           ?et 
                 # }
+                
+                %s
+                
             } %s
-        ''' % (justi_lines, ' LIMIT %d' % limit if limit else '')
+        ''' % (justi_lines, block_ocr_sparql, ' LIMIT %d' % limit if limit else '')

@@ -6,6 +6,13 @@ from xml.dom import minidom
 from src.constants import *
 
 c2p = json.load(open(os.path.dirname(__file__) + '/tools/c2p.json'))
+p2c = json.load(open(os.path.dirname(__file__) + '/tools/p2c.json'))
+n2p = json.load(open(os.path.dirname(__file__) + '/tools/n2p.json'))
+for k, v in n2p.items():
+    n2p[k] = set(v)
+
+ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
+block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
 
 
 def update_xml(root, obj):

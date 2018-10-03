@@ -79,23 +79,29 @@ class SingleGraphQuery(object):
                 break
 
         self.sopid = {}
+        self.ospid = {}
 
         self.justi = {} # {'http://xxx': rows[[doceid, ...], [doceid, , , ...]]}
         self.enttype = {} # {'http://xxx': 'Person'}
 
+        self.fail_on_justi = False
+
     def get_responses(self):
         if self.find_all_ep:
             # parse edges and match edges strictly:
-            select_nodes, strict_sparql, self.sopid = self.parse_edges(self.edges)
+            select_nodes, strict_sparql, self.sopid, self.ospid = self.parse_edges(self.edges)
             # try strict:
             if not self.query_response(select_nodes, strict_sparql):
                 # cannot find exact matched graph, try relax
                 # 1. try to only match backbone
                 select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=False)
-                if not self.query_response(select_nodes, sparql_query):
-                    select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=True)
-                    if not self.query_response(select_nodes, sparql_query):
-                        pass
+                if not (select_nodes and self.query_response(select_nodes, sparql_query)):
+                    select_nodes, sparql_query = self.relax_backbone_one_of(backbone=False, one_of=True)
+                    if not (select_nodes and self.query_response(select_nodes, sparql_query)):
+                        select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=True)
+                        if not (select_nodes and self.query_response(select_nodes, sparql_query)):
+                            # no results
+                            pass
 
         return self.root_responses
 
@@ -116,15 +122,15 @@ class SingleGraphQuery(object):
     def relax_backbone_one_of(self, backbone=True, one_of=False):
         select_nodes = set()
         states = []
-        for s, opid in self.sopid.items():
-            # TODO:backbone - prune all leaves, no only object-leaves are prune
-            if (not backbone) or len(opid) > 1 or list(opid.keys())[0] in self.ep_nodes or s in self.ep_nodes: # change to ospid ?
-                for o, pid in opid.items():
-                    if one_of and len(pid) > 1:
-                        self.aug_a_statement('', s, list(pid.keys()), o, select_nodes, states)
-                    else:
-                        for p, _id in pid.items():
-                            self.aug_a_statement(_id, s, p, o, select_nodes, states)
+        for o, spid in self.ospid.items():
+            if (not backbone) or len(spid) > 1 or o in self.ep_nodes:
+                for s, pid in spid.items():
+                    if (not backbone) or len(self.sopid[s]) > 1:
+                        if one_of and len(pid) > 1:
+                            self.aug_a_statement('', s, list(pid.keys()), o, select_nodes, states)
+                        else:
+                            for p, _id in pid.items():
+                                self.aug_a_statement(_id, s, p, o, select_nodes, states)
         select_nodes = list(select_nodes)
         sparql_query = '''
         SELECT DISTINCT %s WHERE {
@@ -134,6 +140,7 @@ class SingleGraphQuery(object):
         # if one_of:
         #     print(sparql_query)
         #     exit()
+        # print(sparql_query)
         return select_nodes, sparql_query
 
     def construct_single_response(self, non_ep_nodes: dict) -> ET.Element:
@@ -172,17 +179,21 @@ class SingleGraphQuery(object):
                 edge = ET.SubElement(root, EDGE, attrib={'id': _id})
                 justifications = ET.SubElement(edge, 'justifications')
                 justification = ET.SubElement(justifications, 'justification', attrib={'docid': self.doc_id})
-                # insert subject_justification
-                subject_justi = ET.SubElement(justification, 'subject_justification')
-                update_xml(subject_justi, {'system_nodeid': s, ENTTYPE: self.get_enttype(s)})
-                construct_justifications(subject_justi, None, self.get_justi(s, limit=1), '_span', True)
-                # insert object_justification
-                object_justi = ET.SubElement(justification, 'object_justification')
-                update_xml(object_justi, {'system_nodeid': o, ENTTYPE: self.get_enttype(o)})
-                construct_justifications(object_justi, None, self.get_justi(o, limit=1), '_span', True)
-                # insert edge_justification
-                edge_justi = ET.SubElement(justification, 'edge_justification')
-                construct_justifications(edge_justi, None, self.get_justi([s, p, o], limit=2), '_span', True)
+
+                for node_to_just, limit, label in [
+                    [s, 1, 'subject'],
+                    [o, 1, 'object'],
+                    [[s, p, o], 2, 'edge']
+                ]:
+                    node_justi = self.get_justi(node_to_just, limit)
+                    if not (node_justi and node_justi[0]):
+                        self.fail_on_justi = True
+                        return ET.Element('response')
+
+                    cur_element = ET.SubElement(justification, label + '_justification')
+                    if label != 'edge':
+                        update_xml(cur_element, {'system_nodeid': node_to_just, ENTTYPE: self.get_enttype(node_to_just)})
+                    construct_justifications(cur_element, None, node_justi, '_span', True)
         return root
 
     def get_justi(self, node_uri, limit=None):
@@ -191,8 +202,6 @@ class SingleGraphQuery(object):
             rows = self.query_tool.get_justi(node_uri, limit=limit)
             self.justi[cache_key] = rows
         return self.justi[cache_key]
-        # update_xml(root, {'system_nodeid': node_uri})
-        # construct_justifications(root, None, rows)
 
     def get_enttype(self, node_uri):
         if node_uri not in self.enttype:
@@ -211,6 +220,7 @@ class SingleGraphQuery(object):
         select_nodes = set()
         states = []
         sopid = {}
+        ospid = {}
         for i in range(len(edges)):
             _id, s, p, o = edges[i]['@id'], edges[i][SUBJECT], edges[i][PREDICATE], edges[i][OBJECT]
             self.aug_a_statement(_id, s, p, o, select_nodes, states)
@@ -220,13 +230,19 @@ class SingleGraphQuery(object):
                 sopid[s][o] = {p: _id}
             elif p not in sopid[s][o]:
                 sopid[s][o][p] = _id
+            if o not in ospid:
+                ospid[o] = {s: {p: _id}}
+            elif s not in ospid[o]:
+                ospid[o][s] = {p: _id}
+            elif p not in ospid[o][s]:
+                ospid[o][s][p] = _id
         select_nodes = list(select_nodes)
         strict_sparql = '''
         SELECT DISTINCT %s WHERE {
         %s
         }
         ''' % (' '.join(select_nodes), '\n'.join(states))
-        return select_nodes, strict_sparql, sopid
+        return select_nodes, strict_sparql, sopid, ospid
 
     def aug_a_statement(self, _id, s, p, o, select_nodes: set, statements: list):
         if s in self.ep_nodes:
@@ -285,5 +301,3 @@ class SingleGraphQuery(object):
         for node, descriptors in group_by_node.items():
             res[node] = self.query_tool.get_best_node(descriptors)
         return res
-
-

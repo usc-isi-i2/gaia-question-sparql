@@ -6,7 +6,7 @@ from src.QueryTool import QueryTool
 class ZerohopQuery(object):
     def __init__(self, xml_file_or_string: str):
         self.query_list = xml_loader(xml_file_or_string, ZEROHOP_QUERY)
-        self.query_docs = [c2p.get(list(find_keys(DOCEID, q[ENTRYPOINT]))[0]) for q in self.query_list]
+        self.related_doc = [c2p.get(list(find_keys(DOCEID, q[ENTRYPOINT]))[0]) for q in self.query_list]
 
     def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc=''):
         root = ET.Element('zerohopquery_responses')
@@ -16,7 +16,7 @@ class ZerohopQuery(object):
             end = len(self.query_list)
         for i in range(start, end):
             try:
-                if root_doc and self.query_docs[i] != root_doc:
+                if root_doc in p2c and self.related_doc[i] != root_doc:
                     continue
                 response = self.ans_one(quert_tool, self.query_list[i])
                 if len(response):
@@ -58,3 +58,7 @@ class ZerohopQuery(object):
         update_xml(single_root, {'system_nodeid': node_uri})
         construct_justifications(single_root, None, rows)
         return single_root
+
+    @property
+    def all_related_docs(self):
+        return set().union(self.related_docs)
