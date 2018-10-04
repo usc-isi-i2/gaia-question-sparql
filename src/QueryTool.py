@@ -1,5 +1,5 @@
 from requests import put
-from SPARQLWrapper import SPARQLWrapper, CSV
+from SPARQLWrapper import SPARQLWrapper, CSV, POST
 from rdflib.graph import Graph
 import csv
 from enum import Enum
@@ -11,20 +11,22 @@ from src.constants import *
 
 class Selector(object):
     def __init__(self, endpoint: str, use_fuseki=''):
+        sparql_ep = ''
         if endpoint.endswith('.ttl'):
             if use_fuseki:
                 put(use_fuseki + '/data', data=open(endpoint).read().encode('utf-8'), headers={'Content-Type': 'text/turtle'})
-                self.sw = SPARQLWrapper(use_fuseki + '/sparql')
-                self.sw.setReturnFormat(CSV)
-                self.run = self.select_query_url
+                sparql_ep = use_fuseki + '/sparql'
             else:
                 g = Graph()
                 g.parse(endpoint, format='n3')
                 self.graph = g
                 self.run = self.select_query_rdflib
         else:
-            self.sw = SPARQLWrapper(endpoint)
+            sparql_ep = endpoint
+        if sparql_ep:
+            self.sw = SPARQLWrapper(sparql_ep)
             self.sw.setReturnFormat(CSV)
+            self.sw.setMethod(POST)
             self.run = self.select_query_url
 
     def select_query_rdflib(self, q):
@@ -35,6 +37,7 @@ class Selector(object):
 
     def select_query_url(self, q):
         sparql_query = PREFIX + q
+        # print(sparql_query)
         self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
         res = list(csv.reader(rows))
@@ -48,7 +51,7 @@ class Mode(Enum):
 
 
 class QueryTool(object):
-    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki=''):
+    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki='', block_ocrs=False):
         """
         :param selector: a Selector instance, for run select query and get results in list(list)
         :param mode:
@@ -57,6 +60,7 @@ class QueryTool(object):
         self.select = Selector(endpoint, use_fuseki).run
         self.mode = mode
         self.at_least = relax_num_ep
+        self.block_ocrs = block_ocrs
 
     def get_best_node(self, descriptors) -> str:
         '''
@@ -216,10 +220,9 @@ class QueryTool(object):
 
     def get_justi(self, node_uri, limit=None):
         sparql = self.serialize_get_justi(node_uri, limit)
-        # print(sparql)
         return self.select(sparql)
 
-    def serialize_get_justi(self, node_uri, limit):
+    def serialize_get_justi(self, node_uri, limit=None):
         if self.mode == Mode.CLUSTER:
             # now that all nodes will be a cluster rather than an entity/event/relation:
             if isinstance(node_uri, list):
@@ -306,4 +309,6 @@ class QueryTool(object):
                 %s
                 
             } %s
-        ''' % (justi_lines, block_ocr_sparql, ' LIMIT %d' % limit if limit else '')
+        ''' % (justi_lines,
+               block_ocr_sparql if self.block_ocrs else '',
+               ' LIMIT %d' % limit if limit else '')

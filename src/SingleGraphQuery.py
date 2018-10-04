@@ -73,8 +73,8 @@ class SingleGraphQuery(object):
 
         # TODO: assume need to find all ep nodes
         self.find_all_ep = True
-        for v in self.ep_nodes.values():
-            if not v:
+        for ep_node_uri in self.ep_nodes.values():
+            if not ep_node_uri:
                 self.find_all_ep = False
                 break
 
@@ -92,17 +92,11 @@ class SingleGraphQuery(object):
             select_nodes, strict_sparql, self.sopid, self.ospid = self.parse_edges(self.edges)
             # try strict:
             if not self.query_response(select_nodes, strict_sparql):
-                # cannot find exact matched graph, try relax
-                # 1. try to only match backbone
-                select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=False)
-                if not (select_nodes and self.query_response(select_nodes, sparql_query)):
-                    select_nodes, sparql_query = self.relax_backbone_one_of(backbone=False, one_of=True)
-                    if not (select_nodes and self.query_response(select_nodes, sparql_query)):
-                        select_nodes, sparql_query = self.relax_backbone_one_of(backbone=True, one_of=True)
-                        if not (select_nodes and self.query_response(select_nodes, sparql_query)):
-                            # no results
-                            pass
-
+                # if no strict responses, try relax:
+                for backbone, one_of in ((True, False), (False, True), (True, True)):
+                    select_nodes, sparql_query = self.relax_backbone_one_of(backbone=backbone, one_of=one_of)
+                    if select_nodes and self.query_response(select_nodes, sparql_query):
+                        break
         return self.root_responses
 
     def query_response(self, select_nodes, sparql_query):
@@ -113,7 +107,6 @@ class SingleGraphQuery(object):
                 non_ep_nodes = {}
                 for i in range(len(row)):
                     non_ep_nodes[select_nodes[i]] = row[i]
-                # print(non_ep_nodes)
                 self.root_responses.append(self.construct_single_response(non_ep_nodes))
             return True
         else:
@@ -137,10 +130,6 @@ class SingleGraphQuery(object):
         %s
         }
         ''' % (' '.join(select_nodes), '\n'.join(states))
-        # if one_of:
-        #     print(sparql_query)
-        #     exit()
-        # print(sparql_query)
         return select_nodes, sparql_query
 
     def construct_single_response(self, non_ep_nodes: dict) -> ET.Element:
@@ -178,23 +167,67 @@ class SingleGraphQuery(object):
             if s and o and assertion:
                 edge = ET.SubElement(root, EDGE, attrib={'id': _id})
                 justifications = ET.SubElement(edge, 'justifications')
-                justification = ET.SubElement(justifications, 'justification', attrib={'docid': self.doc_id})
-
-                for node_to_just, limit, label in [
-                    [s, 1, 'subject'],
-                    [o, 1, 'object'],
-                    [[s, p, o], 2, 'edge']
-                ]:
-                    node_justi = self.get_justi(node_to_just, limit)
-                    if not (node_justi and node_justi[0]):
-                        self.fail_on_justi = True
-                        return ET.Element('response')
-
-                    cur_element = ET.SubElement(justification, label + '_justification')
-                    if label != 'edge':
-                        update_xml(cur_element, {'system_nodeid': node_to_just, ENTTYPE: self.get_enttype(node_to_just)})
-                    construct_justifications(cur_element, None, node_justi, '_span', True)
+                self.fail_on_justi = self.add_justi_for_an_edge(justifications, s, p, o)
+                if self.fail_on_justi:
+                    return ET.Element('response')
         return root
+
+    def add_justi_for_an_edge(self, justifications_root, s, p, o):
+        # limit = 1 if self.doc_id else 0
+        # sub_rows = self.get_justi(s, limit)
+        # obj_rows = self.get_justi(o, limit)
+        # edge_rows = self.get_justi([s, p, o], limit*2)
+
+        if self.doc_id:
+            justification = ET.SubElement(justifications_root, 'justification', attrib={'docid': self.doc_id})
+
+            for node_to_just, limit, label in [
+                [s, 1, SUBJECT],
+                [o, 1, OBJECT],
+                [[s, p, o], 2, EDGE]
+            ]:
+                node_justi = self.get_justi(node_to_just, limit)
+                if not (node_justi and node_justi[0]):
+                    return True
+                self.update_s_o_e_justi(justification, node_to_just, node_justi, label)
+        else:
+            doc_id = ''
+            sub_rows = self.get_justi(s)
+            obj_rows = self.get_justi(o)
+            edge_rows = self.get_justi([s, p, o])
+            if sub_rows and sub_rows[0] and obj_rows and obj_rows[0] and edge_rows and edge_rows[0]:
+                sub_docs = set([c2p[line[0]] for line in sub_rows])
+                intersect_so = set([c2p[line[0]] for line in obj_rows if c2p[line[0]] in sub_docs])
+                for line in edge_rows:
+                    if c2p[line[0]] in intersect_so:
+                        doc_id = c2p[line[0]]
+                        edge_rows = [line]
+                        break
+                if doc_id:
+                    justification = ET.SubElement(justifications_root, 'justification', attrib={'docid': doc_id})
+                    sub_rows = [self.get_justi_of_a_doc(sub_rows, doc_id)]
+                    obj_rows = [self.get_justi_of_a_doc(obj_rows, doc_id)]
+                    for node_to_just, node_justi, label in [
+                        [s, sub_rows, SUBJECT],
+                        [o, obj_rows, OBJECT],
+                        [[s, p, o], edge_rows, EDGE]
+                    ]:
+                        self.update_s_o_e_justi(justification, node_to_just, node_justi, label)
+                    return
+            return True
+
+    def update_s_o_e_justi(self, justification, node_to_just, node_justi, label):
+        cur_element = ET.SubElement(justification, label + '_justification')
+        if label != EDGE:
+            update_xml(cur_element, {'system_nodeid': node_to_just,
+                                     ENTTYPE: self.get_enttype(node_to_just)})
+        construct_justifications(cur_element, None, node_justi, '_span', True)
+
+    @staticmethod
+    def get_justi_of_a_doc(rows, doc_id):
+        for row in rows:
+            if c2p[row[0]] == doc_id:
+                return row
 
     def get_justi(self, node_uri, limit=None):
         cache_key = ' '.join(node_uri) if isinstance(node_uri, list) else node_uri
