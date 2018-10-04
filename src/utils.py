@@ -14,6 +14,8 @@ for k, v in n2p.items():
 ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
 block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
 
+coredocs = set(open(os.path.dirname(__file__) + '/tools/coredocs.txt').readlines())
+
 
 def update_xml(root, obj):
     if isinstance(obj, str):
@@ -166,3 +168,5 @@ def decode_name(x):
         return x.encode('latin-1').decode('utf-8', errors='ignore')
     except UnicodeEncodeError:
         return x
+
+

@@ -47,6 +47,8 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     per = 50
 
     for KB in ttls:
+        if KB.stem not in coredocs:
+            continue
         if cnt % per == 0:
             print('\t run %d of %d - ' % (cnt, total), str(datetime.now()))
         cnt += 1
