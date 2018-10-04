@@ -61,4 +61,4 @@ class ZerohopQuery(object):
 
     @property
     def all_related_docs(self):
-        return set().union(self.related_docs)
+        return set(self.related_doc)

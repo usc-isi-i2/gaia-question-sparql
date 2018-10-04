@@ -16,6 +16,7 @@ class GraphQuery(object):
         root = ET.Element('graphqueries_responses')
         errors = []
         diff = []
+        failed_on_justi = []
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
@@ -27,15 +28,19 @@ class GraphQuery(object):
                 responses = single.get_responses()
                 if len(responses):
                     root.append(responses)
-                elif root_doc:
-                    diff.append(self.query_list[i])
+                else:
+                    if root_doc:
+                        diff.append(self.query_list[i])
+                    if single.fail_on_justi:
+                        failed_on_justi.append(i)
             except Exception:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i),
-                                        exc_type, fname, exc_tb.tb_lineno)))
-        return root, {'errors': errors, 'diff': diff}
+                                        str(exc_type), str(fname), str(exc_tb.tb_lineno))))
+        return root, {'errors': errors, 'diff': diff, 'failed_on_justi': failed_on_justi}
 
     @property
     def all_related_docs(self):
-        return set().union(self.related_docs)
+        return set().union(*self.related_docs)
+

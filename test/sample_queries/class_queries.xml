@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class_queries>
+  <class_query id="test_class_1">
+    <enttype> Facility </enttype>
+  </class_query>
+  <class_query id="test_class_2">
+    <enttype> Person </enttype>
+  </class_query>
+  <class_query id="test_class_3">
+    <enttype> Location </enttype>
+  </class_query>
+</class_queries>

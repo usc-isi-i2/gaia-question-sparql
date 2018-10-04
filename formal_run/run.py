@@ -50,7 +50,7 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         if cnt % per == 0:
             print('\t run %d of %d - ' % (cnt, total), str(datetime.now()))
         cnt += 1
-        qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '')
+        qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '', block_ocrs=False)
 
         for query, _type in [
             (cq, CLASS),
@@ -90,7 +90,7 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
 
     print('start - ', str(datetime.now()))
     cq, zq, gq = load_query(query_folder)
-    qt = QueryTool(select_endpoint, Mode.PROTOTYPE)
+    qt = QueryTool(select_endpoint, Mode.PROTOTYPE, relax_num_ep=1, block_ocrs=False)
 
     for query, _type in [
         # (cq, CLASS),
