@@ -66,7 +66,7 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
                 write_file(response, wrap_output_filename(KB.stem, _type))
             if len(stat['errors']):
                 # each error: doc_id,query_id,query_idx,error_str
-                err_loggers[_type].write(stat['errors'])
+                err_loggers[_type].write(to_string(stat['errors']))
                 err_loggers[_type].write('\n')
             if stat.get('diff'):
                 diffs[_type][KB.stem] = stat.get('diff')
