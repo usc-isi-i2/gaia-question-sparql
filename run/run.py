@@ -31,8 +31,8 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         (e.g.,  “IC0015PZ4.batch1.class_responses.xml”)
         """
         return '%s%s.batch%s.%s_responses.xml' % (output_folder, _doc, batch_num, _type)
-
-    print('start - ', str(datetime.now()))
+    start = datetime.now()
+    print('start - ', str(start))
     cq, zq, gq = load_query(query_folder)
     ttls = list(Path(ttls_folder).glob('*.ttl'))
     err_loggers = {
@@ -43,14 +43,12 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     diffs = {ZEROHOP: {}, GRAPH: {}}
 
     cnt = 0
-    total = len(ttls)
-    per = 50
+    total = len(coredocs)
 
     for KB in ttls:
         if KB.stem not in coredocs:
             continue
-        if cnt % per == 0:
-            print('\t run %d of %d - ' % (cnt, total), str(datetime.now()))
+        print('\t run %s %d of %d - ' % (KB.stem, cnt, total), str(datetime.now()))
         cnt += 1
         qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '', block_ocrs=False)
 
@@ -78,6 +76,7 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     write_file(diffs[ZEROHOP], log_folder + 'zerohop_diff.json')
     write_file(diffs[GRAPH], log_folder + 'graph_diff.json')
     print(' done - ', str(datetime.now()))
+    print(' time used: ', datetime.now()-start)
 
 
 def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num):
@@ -90,16 +89,17 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
         """
         return '%sTA2.batch%s.%s_responses.xml' % (output_folder, batch_num, _type)
 
-    print('start - ', str(datetime.now()))
+    start = datetime.now()
+    print('start - ', str(start))
     cq, zq, gq = load_query(query_folder)
     qt = QueryTool(select_endpoint, Mode.PROTOTYPE, relax_num_ep=1, block_ocrs=False)
 
     for query, _type in [
-        # (cq, CLASS),
-        # (zq, ZEROHOP),
+        (cq, CLASS),
+        (zq, ZEROHOP),
         (gq, GRAPH)
     ]:
-        # print('doc_id: %s, query type: %s' % (KB.stem, _type))
+        print('   query type: %s' % _type, str(datetime.now()))
         response, error = query.ask_all(qt)
         if len(response):
             write_file(response, wrap_output_filename(_type))
@@ -108,6 +108,7 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
             write_file(error, log_folder + _type + '_error.csv')
 
     print(' done - ', str(datetime.now()))
+    print(' time used: ', datetime.now()-start)
 
 
 def run_ta3(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki):

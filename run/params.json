@@ -13,10 +13,10 @@
   "ta2": {
     "run": true,
     "params":{
-      "select_endpoint": "http://localhost:7200/repositories/0923r1aug",
-      "query_folder": "/nas/home/dongyul/queries_v3/data/",
-      "output_folder": "/nas/home/dongyul/qa_0923r1aug/ta2outputs/",
-      "log_folder": "/nas/home/dongyul/qa_0923r1aug/ta2logs/",
+      "select_endpoint": "http://gaiadev01.isi.edu:7200/repositories/0923r1aug",
+      "query_folder": "/Users/dongyuli/isi/eval_queries/data/",
+      "output_folder": "/Users/dongyuli/isi/",
+      "log_folder": "/Users/dongyuli/isi/",
       "batch_num": "1"
     }
   },
