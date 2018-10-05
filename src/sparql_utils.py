@@ -1,141 +1,8 @@
-from src.constants import *
-
-
-def serialize_get_justi(node_uri, limit=None):
-    if isinstance(node_uri, list):
-        # justi on bnode assertion
-        s, p, o = node_uri
-        justi_lines = '''
-        ?xxx a rdf:Statement ;
-             rdf:subject <%s> ;
-             rdf:predicate ldcOnt:%s ;
-             rdf:object <%s> ;
-             aida:justifiedBy ?justification .
-        ''' % (s, p, o)
-    else:
-        justi_lines = '''
-        <%s> aida:justifiedBy ?justification .
-        ''' % node_uri
-    return '''
-        SELECT DISTINCT ?doceid ?sid ?kfid ?so ?eo ?ulx ?uly ?brx ?bry ?st ?et ?cv
-        WHERE {
-            
-            %s
-            ?justification aida:source          ?doceid .
-            ?justification aida:confidence      ?confidence .
-            ?confidence    aida:confidenceValue ?cv .
-    
-            OPTIONAL { 
-                ?justification a                           aida:TextJustification .
-                ?justification aida:startOffset            ?so .
-                ?justification aida:endOffsetInclusive     ?eo 
-            }
-    
-            OPTIONAL { 
-                ?justification a                           aida:ImageJustification .
-                ?justification aida:boundingBox            ?bb  .
-                ?bb            aida:boundingBoxUpperLeftX  ?ulx .
-                ?bb            aida:boundingBoxUpperLeftY  ?uly .
-                ?bb            aida:boundingBoxLowerRightX ?brx .
-                ?bb            aida:boundingBoxLowerRightY ?bry 
-            }
-    
-            OPTIONAL { 
-                ?justification a                           aida:KeyFrameVideoJustification .
-                ?justification aida:keyFrame               ?kfid .
-                ?justification aida:boundingBox            ?bb  .
-                ?bb            aida:boundingBoxUpperLeftX  ?ulx .
-                ?bb            aida:boundingBoxUpperLeftY  ?uly .
-                ?bb            aida:boundingBoxLowerRightX ?brx .
-                ?bb            aida:boundingBoxLowerRightY ?bry 
-            }
-    
-            # OPTIONAL { 
-            #     ?justification a                           aida:ShotVideoJustification .
-            #     ?justification aida:shot                   ?sid 
-            # }
-            # 
-            # OPTIONAL { 
-            #     ?justification a                           aida:AudioJustification .
-            #     ?justification aida:startTimestamp         ?st .
-            #     ?justification aida:endTimestamp           ?et 
-            # }
-        } %s
-    ''' % (justi_lines, ' LIMIT %d' % limit if limit else '')
-
-
-def serialize_get_justi_cluster(node_uri, mode, limit=None):
-    # now that all nodes will be a cluster rather than an entity/event/relation:
-    if isinstance(node_uri, list):
-        # justi on bnode assertion
-        s, p, o = node_uri
-        justi_lines = '''
-        ?mem aida:cluster <%s> ;
-             aida:clusterMember ?sub .
-        ?mem2 aida:cluster <%s> ;
-              aida:clusterMember ?obj .
-        ?xxx a rdf:Statement ;
-             rdf:subject ?sub ;
-             rdf:predicate ldcOnt:%s ;
-             rdf:object ?obj ;
-             aida:justifiedBy ?justification .
-        ''' % (s, o, p)
-    else:
-        justi_lines = '''
-        ?mem aida:cluster <%s> ;
-             aida:clusterMember ?x .
-        ?x aida:justifiedBy ?justification .
-        ''' % node_uri
-    return '''
-        SELECT DISTINCT ?doceid ?sid ?kfid ?so ?eo ?ulx ?uly ?brx ?bry ?st ?et ?cv
-        WHERE {
-            
-            %s
-            ?justification aida:source          ?doceid .
-            ?justification aida:confidence      ?confidence .
-            ?confidence    aida:confidenceValue ?cv .
-    
-            OPTIONAL { 
-                ?justification a                           aida:TextJustification .
-                ?justification aida:startOffset            ?so .
-                ?justification aida:endOffsetInclusive     ?eo 
-            }
-    
-            OPTIONAL { 
-                ?justification a                           aida:ImageJustification .
-                ?justification aida:boundingBox            ?bb  .
-                ?bb            aida:boundingBoxUpperLeftX  ?ulx .
-                ?bb            aida:boundingBoxUpperLeftY  ?uly .
-                ?bb            aida:boundingBoxLowerRightX ?brx .
-                ?bb            aida:boundingBoxLowerRightY ?bry 
-            }
-    
-            OPTIONAL { 
-                ?justification a                           aida:KeyFrameVideoJustification .
-                ?justification aida:keyFrame               ?kfid .
-                ?justification aida:boundingBox            ?bb  .
-                ?bb            aida:boundingBoxUpperLeftX  ?ulx .
-                ?bb            aida:boundingBoxUpperLeftY  ?uly .
-                ?bb            aida:boundingBoxLowerRightX ?brx .
-                ?bb            aida:boundingBoxLowerRightY ?bry 
-            }
-    
-            # OPTIONAL { 
-            #     ?justification a                           aida:ShotVideoJustification .
-            #     ?justification aida:shot                   ?sid 
-            # }
-            # 
-            # OPTIONAL { 
-            #     ?justification a                           aida:AudioJustification .
-            #     ?justification aida:startTimestamp         ?st .
-            #     ?justification aida:endTimestamp           ?et 
-            # }
-        } %s
-    ''' % (justi_lines, ' LIMIT %d' % limit if limit else '')
+from src.utils import *
 
 
 def serialize_string_descriptor(name_string):
-    return '?%s aida:hasName "%s" .' % (NODE, name_string.strip('"').encode('latin1').decode('utf-8'))
+    return '?%s aida:hasName "%s" .' % (NODE, decode_name(name_string.strip('"')))
 
 
 def serialize_text_descriptor(doceid, start, end):
@@ -169,7 +36,7 @@ def serialize_image_video_descriptor(doceid, topleft, bottomright, keyframeid=''
 
 
 def serialize_string_descriptor_relax(name_string):
-    return '?%s aida:hasName "%s" .' % (NODE, name_string.strip('"').encode('latin1').decode('utf-8'))
+    return '?%s aida:hasName "%s" .' % (NODE, decode_name(name_string.strip('"')))
 
 
 def serialize_text_descriptor_relax(doceid, start, end, var_suffix=''):
@@ -179,7 +46,7 @@ def serialize_text_descriptor_relax(doceid, start, end, var_suffix=''):
          aida:startOffset          ?{svar} ;
          aida:endOffsetInclusive   ?{evar} 
     ] 
-    FILTER ( (?{evar} >= {end} && ?{svar} <= {end}) || (?{svar} <= {start} && ?{evar} >= {start}) )
+    FILTER ( (?{evar} >= {start} && ?{svar} <= {end}) || (?{svar} <= {end} && ?{evar} >= {start}) )
     '''.format(docied=doceid, svar=EPSO + var_suffix, evar=EPEO + var_suffix, start=start, end=end)
 
 
@@ -200,8 +67,8 @@ def serialize_image_video_descriptor_relax(doceid, topleft, bottomright, keyfram
             ] 
         ] 
         FILTER (
-            ((?{lvar} <= {left} && ?{rvar} >= {left}) || (?{rvar} >= {right} && ?{lvar} <= {right})) &&
-            ((?{tvar} <= {top} && ?{bvar} >= {top}) || (?{bvar} >= {bottom} && ?{tvar} <= {bottom}))
+            ((?{lvar} <= {right} && ?{rvar} >= {left}) || (?{rvar} >= {left} && ?{lvar} <= {right})) &&
+            ((?{tvar} <= {bottom} && ?{bvar} >= {top}) || (?{bvar} >= {top} && ?{tvar} <= {bottom}))
         )
     '''.format(justification_type=justification_type, doceid=doceid, keyframe_triple=keyframe_triple,
                lvar=EPULX + var_suffix, tvar=EPULY + var_suffix,

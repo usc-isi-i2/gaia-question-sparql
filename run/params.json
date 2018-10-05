@@ -1,0 +1,34 @@
+{
+  "ta1": {
+    "run": false,
+    "params":{
+      "ttls_folder": "/nas/home/dongyul/0923r1aug/",
+      "query_folder": "/nas/home/dongyul/queries_v3/data/",
+      "output_folder": "/nas/home/dongyul/qa_0923r1aug/outputs/",
+      "log_folder": "/nas/home/dongyul/qa_0923r1aug/logs/",
+      "batch_num": "1",
+      "fuseki": "http://localhost:3030/test"
+    }
+  },
+  "ta2": {
+    "run": true,
+    "params":{
+      "select_endpoint": "http://gaiadev01.isi.edu:7200/repositories/0923r1aug",
+      "query_folder": "/Users/dongyuli/isi/eval_queries/data/",
+      "output_folder": "/Users/dongyuli/isi/",
+      "log_folder": "/Users/dongyuli/isi/",
+      "batch_num": "1"
+    }
+  },
+  "ta3": {
+    "run": false,
+    "params":{
+      "ttls_folder": "/Users/dongyuli/isi/data/dis_r0nl/dir_0/",
+      "query_folder": "query_folder",
+      "output_folder": "",
+      "log_folder": "",
+      "batch_num": "1",
+      "fuseki": ""
+    }
+  }
+}

@@ -1,48 +1,47 @@
-
-from SPARQLWrapper import SPARQLWrapper, CSV
+from requests import put
+from SPARQLWrapper import SPARQLWrapper, CSV, POST
 from rdflib.graph import Graph
 import csv
 from enum import Enum
 from itertools import combinations
 
-from src.utils import *
 from src.sparql_utils import *
 from src.constants import *
 
 
 class Selector(object):
-    def __init__(self, endpoint: str):
+    def __init__(self, endpoint: str, use_fuseki=''):
+        sparql_ep = ''
         if endpoint.endswith('.ttl'):
-            g = Graph()
-            g.parse(endpoint, format='n3')
-            self.graph = g
-            self.run = self.select_query_rdflib
-        else:
-            self.sw = SPARQLWrapper(endpoint)
-            self.sw.setReturnFormat(CSV)
-            if '7200' in endpoint:
-                self.run = self.select_query_graphdb
+            if use_fuseki:
+                put(use_fuseki + '/data', data=open(endpoint).read().encode('utf-8'), headers={'Content-Type': 'text/turtle'})
+                sparql_ep = use_fuseki + '/sparql'
             else:
-                self.run = self.select_query_fuseki
+                g = Graph()
+                g.parse(endpoint, format='n3')
+                self.graph = g
+                self.run = self.select_query_rdflib
+        else:
+            sparql_ep = endpoint
+        if sparql_ep:
+            self.sw = SPARQLWrapper(sparql_ep)
+            self.sw.setReturnFormat(CSV)
+            self.sw.setMethod(POST)
+            self.run = self.select_query_url
 
     def select_query_rdflib(self, q):
-        # print(q)
         csv_res = self.graph.query(PREFIX + q).serialize(format='csv')
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
-        return list(csv.reader(rows))
+        res = list(csv.reader(rows))
+        return res
 
-    def select_query_graphdb(self, q):
-        sparql_query = 'query=' + PREFIX + q
-        return self.select_query_url(sparql_query)
-
-    def select_query_fuseki(self, q):
+    def select_query_url(self, q):
         sparql_query = PREFIX + q
-        return self.select_query_url(sparql_query)
-
-    def select_query_url(self, full_q):
-        self.sw.setQuery(full_q)
+        # print(sparql_query)
+        self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
-        return list(csv.reader(rows))
+        res = list(csv.reader(rows))
+        return res
 
 
 class Mode(Enum):
@@ -52,15 +51,16 @@ class Mode(Enum):
 
 
 class QueryTool(object):
-    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None):
+    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki='', block_ocrs=False):
         """
         :param selector: a Selector instance, for run select query and get results in list(list)
         :param mode:
         :param relax_num_ep:
         """
-        self.select = Selector(endpoint).run
+        self.select = Selector(endpoint, use_fuseki).run
         self.mode = mode
         self.at_least = relax_num_ep
+        self.block_ocrs = block_ocrs
 
     def get_best_node(self, descriptors) -> str:
         '''
@@ -209,8 +209,8 @@ class QueryTool(object):
                     target_brx, target_bry = des[BOTTOMRIGHT].split(',')
                     score = get_overlap_img(*[int(x) for x in cand_bound],
                                             int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
-                # TODO: how much overlapped ?
-                if score < 0.3:
+                # TODO: how much overlapped? consider FP? consider centroid distance?
+                if score < 0.2:
                     continue
                 cur_score += score
             if cur_score > best_score:
@@ -219,9 +219,10 @@ class QueryTool(object):
         return best_uri
 
     def get_justi(self, node_uri, limit=None):
-        return self.select(self.serialize_get_justi_cluster(node_uri, limit))
+        sparql = self.serialize_get_justi(node_uri, limit)
+        return self.select(sparql)
 
-    def serialize_get_justi_cluster(self, node_uri, limit):
+    def serialize_get_justi(self, node_uri, limit=None):
         if self.mode == Mode.CLUSTER:
             # now that all nodes will be a cluster rather than an entity/event/relation:
             if isinstance(node_uri, list):
@@ -304,5 +305,10 @@ class QueryTool(object):
                 #     ?justification aida:startTimestamp         ?st .
                 #     ?justification aida:endTimestamp           ?et 
                 # }
+                
+                %s
+                
             } %s
-        ''' % (justi_lines, ' LIMIT %d' % limit if limit else '')
+        ''' % (justi_lines,
+               block_ocr_sparql if self.block_ocrs else '',
+               ' LIMIT %d' % limit if limit else '')

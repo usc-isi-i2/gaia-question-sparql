@@ -106,3 +106,9 @@ venv.bak/
 
 
 outputs/
+
+/legacy
+/resources
+
+/src/tools/n2p.json
+/src/tools/p2n.json

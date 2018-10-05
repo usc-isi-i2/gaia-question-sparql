@@ -1,31 +1,18 @@
-# question-sparql
-[gaia] convert a xml question to sparql query, get results and format to xml response
+# GAIA QA
 
-## Documentation
-
-#### Installation:
+#### installation:
 * `git clone` the repo
-* run `cd question-sparql`
+* run `cd gaia-question-sparql`
 * run `pip install -r requirements.txt` to install dependencies
+OR run 
+`conda env create -f environment.yml`
+`source activate gaia_qa_env`
 
-#### UPDATE - 20180901
-The old version question-answering is under `legacy` folder.
-Current version will fit the edge definition as:
-```
-subject: an Event or a Relation
-predicate: the role in the Event/Relation(detailed predicate with '_XXX')
-object: an Entity
-```
+#### unittests: 
+`python -W ignore -m unittest discover`
 
-Under the `src/basic` folder is the scripts for strictly parse the query to sparql and format the results as xml.
-(NIST-QA)
-
-Under the `src/advanced` folder, there will be scripts for relaxation and super graph query.
-(ISI-QA)
-
-The `query_generator` folder contains scripts for automatically generating graph queries in xml, from the sub-graphs of our dataset.
- - run `generate_graph_query.py`
-
+#### deactive from conda env:
+`source deactivate`
 
 
 
