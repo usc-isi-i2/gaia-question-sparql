@@ -1,0 +1,147 @@
+@prefix domainOntology: <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/SeedlingOntology#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml:   <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix aida:  <https://tac.nist.gov/tracks/SM-KBP/2018/ontologies/InterchangeOntology#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix test:  <http://www.test.sys/ke#> .
+
+test:entity1 a aida:Entity ;
+            aida:hasName "entity1_name";
+            aida:justifiedBy _:b01, _:b07 .
+
+test:type_assertion1 a rdf:Statement ;
+  rdf:subject test:entity1;
+  rdf:predicate rdf:type;
+  rdf:object domainOntology:Person ;
+  aida:justifiedBy _:b01, _:b07 .
+
+_:b01 a aida:TextJustification ;
+      aida:source "doc1_child1" ;
+      aida:startOffset "0"^^xsd:int ;
+      aida:endOffsetInclusive "10"^^xsd:int  ;
+      aida:confidence [ a aida:Confidence ;
+        aida:confidenceValue "1"^^xsd:int ] .
+
+
+test:event2 a aida:Event ;
+            aida:justifiedBy _:b02 .
+
+test:type_assertion2 a rdf:Statement ;
+  rdf:subject test:event2;
+  rdf:predicate rdf:type;
+  rdf:object domainOntology:Conflict.Attack ;
+  aida:justifiedBy _:b02 .
+
+_:b02 a aida:TextJustification ;
+      aida:source "doc1_child2" ;
+      aida:startOffset "30"^^xsd:int ;
+      aida:endOffsetInclusive "40"^^xsd:int ;
+      aida:confidence [ a aida:Confidence ;
+        aida:confidenceValue "1"^^xsd:int ] .
+
+
+test:relation3 a aida:Relation ;
+            aida:justifiedBy _:b03 .
+
+test:type_assertion3 a rdf:Statement ;
+  rdf:subject test:relation3;
+  rdf:predicate rdf:type;
+  rdf:object domainOntology:Located.Near ;
+  aida:justifiedBy _:b03 .
+
+_:b03 a aida:TextJustification ;
+      aida:source "doc1_child3" ;
+      aida:startOffset "60"^^xsd:int ;
+      aida:endOffsetInclusive "70"^^xsd:int ;
+      aida:confidence [ a aida:Confidence ;
+        aida:confidenceValue "1"^^xsd:int ] .
+
+
+test:entity4 a aida:Entity ;
+            aida:hasName "entity4_name";
+            aida:justifiedBy _:b04 .
+
+test:type_assertion4 a rdf:Statement ;
+  rdf:subject test:entity4;
+  rdf:predicate rdf:type;
+  rdf:object domainOntology:Location ;
+  aida:justifiedBy _:b04 .
+
+_:b04 a aida:TextJustification ;
+      aida:source "doc1_child4" ;
+      aida:startOffset "90"^^xsd:int ;
+      aida:endOffsetInclusive "100"^^xsd:int ;
+      aida:confidence [ a aida:Confidence ;
+       aida:confidenceValue "1"^^xsd:int ] .
+
+
+test:edge5 a rdf:Statement ;
+  rdf:subject test:event2;
+  rdf:predicate domainOntology:Conflict.Attack_Attacker;
+  rdf:object test:entity1 ;
+  aida:justifiedBy _:b05 .
+
+_:b05 a aida:TextJustification ;
+      aida:source "doc1_child5" ;
+      aida:startOffset "120"^^xsd:int ;
+      aida:endOffsetInclusive "130"^^xsd:int ;
+      aida:confidence [ a aida:Confidence ;
+       aida:confidenceValue "1"^^xsd:int ] .
+
+
+test:edge6 a rdf:Statement ;
+  rdf:subject test:event2;
+  rdf:predicate domainOntology:Conflict.Attack_Place;
+  rdf:object test:entity4 ;
+  aida:justifiedBy _:b06 .
+
+_:b06 a aida:TextJustification ;
+      aida:source "doc1_child6" ;
+      aida:startOffset "150"^^xsd:int ;
+      aida:endOffsetInclusive "160"^^xsd:int ;
+      aida:confidence [ a aida:Confidence ;
+       aida:confidenceValue "1"^^xsd:int ] .
+
+
+_:b07 a aida:ImageJustification ;
+      aida:source "doc1_child7" ;
+      aida:boundingBox [
+        a aida:BoundingBox ;
+        aida:boundingBoxLowerRightX "100"^^xsd:int ;
+        aida:boundingBoxLowerRightY "100"^^xsd:int ;
+        aida:boundingBoxUpperLeftX "0"^^xsd:int ;
+        aida:boundingBoxUpperLeftY "0"^^xsd:int ]  ;
+      aida:confidence [ a aida:Confidence ;
+       aida:confidenceValue "1"^^xsd:int ] .
+
+
+test:mem1 a aida:ClusterMembership ;
+  aida:cluster test:cluster1 ;
+  aida:clusterMember test:entity1 .
+
+test:mem2 a aida:ClusterMembership ;
+  aida:cluster test:cluster2 ;
+  aida:clusterMember test:event2 .
+
+test:mem3 a aida:ClusterMembership ;
+  aida:cluster test:cluster3 ;
+  aida:clusterMember test:relation3 .
+
+test:mem4 a aida:ClusterMembership ;
+  aida:cluster test:cluster4 ;
+  aida:clusterMember test:entity4 .
+
+test:cluster1 a aida:SameAsCluster ;
+  aida:prototype test:entity1 .
+
+test:cluster2 a aida:SameAsCluster ;
+  aida:prototype test:event2 .
+
+test:cluster3 a aida:SameAsCluster ;
+  aida:prototype test:relation3 .
+
+test:cluster4 a aida:SameAsCluster ;
+  aida:prototype test:entity4 .

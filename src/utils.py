@@ -14,7 +14,7 @@ for k, v in n2p.items():
 ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
 block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
 
-coredocs = set(open(os.path.dirname(__file__) + '/tools/coredocs.txt').readlines())
+coredocs = set([_.strip() for _ in open(os.path.dirname(__file__) + '/tools/coredocs.txt').readlines()])
 
 
 def update_xml(root, obj):
@@ -84,22 +84,6 @@ def xml_loader(xml_file_or_string: str, query_key: str) -> list:
 
 
 def pprint(x):
-    # if not x:
-    #     print('Empty')
-    # if isinstance(x, dict):
-    #     print(json.dumps(x, indent=2))
-    # elif isinstance(x, list):
-    #     for ele in x:
-    #         pprint(ele)
-    # elif isinstance(x, ET.ElementTree):
-    #     print(minidom.parseString(ET.tostring(x.getroot())).toprettyxml())
-    # else:
-    #     if isinstance(x, bytes):
-    #         x = x.decode('utf-8')
-    #     try:
-    #         print(minidom.parseString(x).toprettyxml())
-    #     except:
-    #         print(x)
     print(to_string(x))
 
 

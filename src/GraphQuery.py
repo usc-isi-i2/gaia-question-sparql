@@ -30,7 +30,7 @@ class GraphQuery(object):
                     root.append(responses)
                 else:
                     if root_doc:
-                        diff.append(self.query_list[i])
+                        diff.append(self.query_list[i]['@id'])
                     if single.fail_on_justi:
                         failed_on_justi.append(i)
             except Exception:

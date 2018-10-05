@@ -1,0 +1,9 @@
+name: gaia_qa_env
+dependencies:
+  - pip=10.0.1=py36_0
+  - python=3.6.6=hc167b69_0
+  - pip:
+    - xmltodict==0.11.0
+    - SPARQLWrapper==1.8.2
+    - rdflib==4.2.2
+    - requests==2.19.1

@@ -97,6 +97,10 @@ class SingleGraphQuery(object):
                     select_nodes, sparql_query = self.relax_backbone_one_of(backbone=backbone, one_of=one_of)
                     if select_nodes and self.query_response(select_nodes, sparql_query):
                         break
+                # if not work, try search from ep node
+                if not len(self.root_responses):
+                    non_ep_nodes = {}
+                    self.dfs()
         return self.root_responses
 
     def query_response(self, select_nodes, sparql_query):
@@ -131,6 +135,55 @@ class SingleGraphQuery(object):
         }
         ''' % (' '.join(select_nodes), '\n'.join(states))
         return select_nodes, sparql_query
+
+    def dfs(self):
+        to_check = []   # [(node_var_with?, node_uri, node_is_object(entity)) ... ]
+        for ep_var, ep_uri in self.ep_nodes.items():
+            to_check.append((ep_var, ep_uri, True))
+        non_ep_nodes = {}
+        while to_check:
+            root_var, root_uri, is_obj = to_check.pop()
+            select_nodes = set()
+            states = []
+            if is_obj:
+                spid = self.ospid[root_var]  # {'?event1' : {'Conflict.Attack_Attacker': '1'}}
+                for s, pid in spid.items():
+                    if not non_ep_nodes.get(s):
+                        for p, _id in pid.items():
+                            self.aug_a_statement(_id, s, p, root_var, select_nodes, states)
+            else:
+                opid = self.sopid[root_var]  # {'?entity1' : {'Conflict.Attack_Attacker': '1'}}
+                for o, pid in opid.items():
+                    if not non_ep_nodes.get(o):
+                        for p, _id in pid.items():
+                            self.aug_a_statement(_id, root_var, p, o, select_nodes, states)
+            select_nodes = list(select_nodes)
+            sparql_query = '''
+            SELECT DISTINCT %s WHERE {
+            %s
+            }
+            ''' % (' '.join(select_nodes), 'OPTIONAL {\n %s }' % '}\nOPTIONAL {\n'.join(states))
+            rows = self.query_tool.select(sparql_query)
+            # TODO: now only take local maximum
+            # TODO: should pick global maximum OR global weighted maximum OR multiple responses for each possibility ?
+            row = self.max_row(rows)
+            for i in range(len(row)):
+                if row[i]:
+                    non_ep_nodes[select_nodes[i]] = row[i]
+                    if (is_obj and row[i] in self.ospid) or (not is_obj and row[i] in self.sopid):
+                        # only add nodes, skip edges
+                        to_check.append((select_nodes[i], row[i], not is_obj))
+        if non_ep_nodes:
+            self.root_responses.append(self.construct_single_response(non_ep_nodes))
+            return True
+        return False
+
+    @staticmethod
+    def max_row(rows):
+        if rows:
+            _, idx = min([(rows[i].count(''), i) for i in range(len(rows))])
+            return rows[idx]
+        return []
 
     def construct_single_response(self, non_ep_nodes: dict) -> ET.Element:
         '''
@@ -173,6 +226,7 @@ class SingleGraphQuery(object):
         return root
 
     def add_justi_for_an_edge(self, justifications_root, s, p, o):
+        # TODO: reconstruct in a better manner
         # limit = 1 if self.doc_id else 0
         # sub_rows = self.get_justi(s, limit)
         # obj_rows = self.get_justi(o, limit)
