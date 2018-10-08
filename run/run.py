@@ -97,12 +97,14 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
         (gq, GRAPH)
     ]:
         print('   query type: %s' % _type, str(datetime.now()))
-        response, error = query.ask_all(qt)
+        response, stat, error = query.ask_all(qt)
         if len(response):
             write_file(response, wrap_output_filename(_type))
         if len(error):
             # each error: doc_id,query_id,query_idx,error_str
             write_file(error, log_folder + _type + '_error.csv')
+        if stat:
+            stat.dump_report(log_folder)
 
     print(' done - ', str(datetime.now()))
     print(' time used: ', datetime.now()-start)
