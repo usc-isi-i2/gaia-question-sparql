@@ -17,7 +17,7 @@ class ClassQuery(object):
                     root.append(response)
             except Exception as e:
                 errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
-        return root, {'errors': errors}
+        return root, None, errors
 
     def ans_one(self, query_tool, q_dict):
         '''

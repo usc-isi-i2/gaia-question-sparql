@@ -40,7 +40,6 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         ZEROHOP:  open(log_folder + 'zerohop_error.csv', 'w'),
         GRAPH:  open(log_folder + 'graph_error.csv', 'w'),
     }
-    diffs = {ZEROHOP: {}, GRAPH: {}}
 
     cnt = 0
     total = len(coredocs)
@@ -59,22 +58,20 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         ]:
             # print('doc_id: %s, query type: %s' % (KB.stem, _type))
             if ta3:
-                response, stat = query.ask_all(qt)
+                response, stat, errors = query.ask_all(qt)
             else:
-                response, stat = query.ask_all(qt, root_doc=KB.stem)
+                response, stat, errors = query.ask_all(qt, root_doc=KB.stem, prefilter=False)
             if len(response):
                 write_file(response, wrap_output_filename(KB.stem, _type))
-            if len(stat['errors']):
+            if len(errors):
                 # each error: doc_id,query_id,query_idx,error_str
                 err_loggers[_type].write(to_string(stat['errors']))
                 err_loggers[_type].write('\n')
-            if stat.get('diff'):
-                diffs[_type][KB.stem] = stat.get('diff')
+            if stat:
+                stat.dump_report(log_folder)
 
     for logger in err_loggers.values():
         logger.close()
-    write_file(diffs[ZEROHOP], log_folder + 'zerohop_diff.json')
-    write_file(diffs[GRAPH], log_folder + 'graph_diff.json')
     print(' done - ', str(datetime.now()))
     print(' time used: ', datetime.now()-start)
 

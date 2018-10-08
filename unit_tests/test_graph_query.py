@@ -13,18 +13,18 @@ ttl_path = base_path + '/sample_ttls/doc1.ttl'
 class TestGraphQuery(unittest.TestCase):
     def test_graph_singleton(self):
         qt = QueryTool(ttl_path, Mode.SINGLETON)
-        responses, errors = gq.ask_all(qt)
-        self.assertFalse(errors.get('errors'))
+        responses, stat, errors = gq.ask_all(qt)
+        self.assertFalse(errors)
         self.assertEqual(len(responses), 6)
 
     def test_graph_cluster(self):
         qt = QueryTool(ttl_path, Mode.CLUSTER, relax_num_ep=1)
-        responses, errors = gq.ask_all(qt)
-        self.assertFalse(errors.get('errors'))
+        responses, stat, errors = gq.ask_all(qt)
+        self.assertFalse(errors)
         self.assertEqual(len(responses), 8)
 
     def test_graph_prototype(self):
         qt = QueryTool(ttl_path, Mode.PROTOTYPE)
-        responses, errors = gq.ask_all(qt)
-        self.assertFalse(errors.get('errors'))
+        responses, stat, errors = gq.ask_all(qt)
+        self.assertFalse(errors)
         self.assertEqual(len(responses), 6)

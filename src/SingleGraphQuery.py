@@ -1,9 +1,10 @@
 from src.utils import *
 from src.QueryTool import QueryTool, Mode
+from src.Stat import Stat, Failure
 
 
 class SingleGraphQuery(object):
-    def __init__(self, query_tool: QueryTool, q_dict: dict, doc_id: str):
+    def __init__(self, query_tool: QueryTool, q_dict: dict, doc_id: str, stat: Stat):
         '''
         :param endpoint: sparql endpoint or rdflib graph
         :param q_dict: {
@@ -57,7 +58,9 @@ class SingleGraphQuery(object):
         }
         '''
         self.doc_id = doc_id
+        self.query_id = q_dict['@id']
         self.query_tool = query_tool
+        self.stat = stat
         self.root_responses = ET.Element('graphquery_responses', attrib={'id':  q_dict['@id']})
         self.eps = q_dict[ENTRYPOINTS][ENTRYPOINT]
         if isinstance(self.eps, dict):
@@ -85,6 +88,7 @@ class SingleGraphQuery(object):
         self.enttype = {} # {'http://xxx': 'Person'}
 
         self.fail_on_justi = False
+        self.found_edge = 0
 
     def get_responses(self):
         if self.find_all_ep:
@@ -99,8 +103,15 @@ class SingleGraphQuery(object):
                         break
                 # if not work, try search from ep node
                 if not len(self.root_responses):
-                    non_ep_nodes = {}
                     self.dfs()
+            if self.fail_on_justi:
+                self.stat.fail(self.query_id, Failure.NO_JUSTI)
+            elif not len(self.root_responses):
+                self.stat.fail(self.query_id, Failure.NO_EDGE, self.ep_nodes.values())
+            else:
+                self.stat.succeed(self.query_id, self.found_edge, len(self.edges))
+        else:
+            self.stat.fail(self.query_id, Failure.NO_EP)
         return self.root_responses
 
     def query_response(self, select_nodes, sparql_query):
@@ -175,8 +186,6 @@ class SingleGraphQuery(object):
                         to_check.append((select_nodes[i], row[i], not is_obj))
         if non_ep_nodes:
             self.root_responses.append(self.construct_single_response(non_ep_nodes))
-            return True
-        return False
 
     @staticmethod
     def max_row(rows):
@@ -205,6 +214,7 @@ class SingleGraphQuery(object):
                             </video_span>
                             <confidence> 0.8 </confidence>
         '''
+        found_edge = 0
         root = ET.Element('response')
         # print('-----construct single query------')
         for e in self.edges:
@@ -218,11 +228,13 @@ class SingleGraphQuery(object):
             # print(e)
             # print(s, assertion, o)
             if s and o and assertion:
+                found_edge += 1
                 edge = ET.SubElement(root, EDGE, attrib={'id': _id})
                 justifications = ET.SubElement(edge, 'justifications')
                 self.fail_on_justi = self.add_justi_for_an_edge(justifications, s, p, o)
                 if self.fail_on_justi:
                     return ET.Element('response')
+        self.found_edge = max(self.found_edge, found_edge)
         return root
 
     def add_justi_for_an_edge(self, justifications_root, s, p, o):
