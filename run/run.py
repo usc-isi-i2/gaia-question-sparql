@@ -8,7 +8,7 @@ from src.ZerohopQuery import ZerohopQuery
 from src.GraphQuery import GraphQuery
 
 
-def load_query(query_folder):
+def load_query(query_folder, n2p_json):
     query_path = Path(query_folder)
     cq, zq, gq = None, None, None
     for q in query_path.glob('*.xml'):
@@ -17,11 +17,12 @@ def load_query(query_folder):
         if q.stem.endswith(ZEROHOP_QUERIES):
             zq = ZerohopQuery(str(q))
         if q.stem.endswith(GRAPH_QUERIES):
-            gq = GraphQuery(str(q))
+            gq = GraphQuery(str(q), n2p_json)
     return cq, zq, gq
 
 
-def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki, ta3=False):
+def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki, n2p_json='', ta3=False):
+
     def wrap_output_filename(_doc, _type):
         """
         The responses to queries should be a compressed tarball (.tgz or .zip) of a single directory (named with the run ID),
@@ -33,7 +34,7 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         return '%s%s.batch%s.%s_responses.xml' % (output_folder, _doc, batch_num, _type)
     start = datetime.now()
     print('start - ', str(start))
-    cq, zq, gq = load_query(query_folder)
+    cq, zq, gq = load_query(query_folder, n2p_json)
     ttls = list(Path(ttls_folder).glob('*.ttl'))
     err_loggers = {
         CLASS:  open(log_folder + 'class_error.csv', 'w'),

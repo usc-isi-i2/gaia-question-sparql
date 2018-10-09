@@ -32,16 +32,18 @@ class Stat(object):
 
     def dump_report(self, output_folder):
         report = '''KB ID: {kb_id}
-        Total Query: {cnt_query}
-        Success: {cnt_success}
-        Failed: {cnt_failed}
-            irrelevant : {cnt_irrelevant}
-            not_find_ep: {cnt_no_ep}
-            find_ep_but_not_find_edge: {cnt_no_edge}
-            find_ep_and_edge_but_lack_of_justification: {cnt_no_justi}
+Total Query: {cnt_query}
+Success: {cnt_success}
+Failed: {cnt_failed}
+    irrelevant : {cnt_irrelevant}
+    not_find_ep: {cnt_no_ep}
+    find_ep_but_not_find_edge: {cnt_no_edge}
+    find_ep_and_edge_but_lack_of_justification: {cnt_no_justi}
+=NO EDGE LIST=
+{no_edge_list}
+=NO JUSTI LIST=
+{no_justi_list}
 
-        {no_edge_list}
-        {no_justi_list}
         '''.format(kb_id=self.kb_id,
                    cnt_query=str(self.total_query),
                    cnt_success=str(len(self.success)),
@@ -50,8 +52,8 @@ class Stat(object):
                    cnt_no_ep=str(len(self.failed[Failure.NO_EP])),
                    cnt_no_edge=str(len(self.failed[Failure.NO_EDGE])),
                    cnt_no_justi=str(len(self.failed[Failure.NO_JUSTI])),
-                   no_edge_list=' '.join(self.failed[Failure.NO_EDGE]),
-                   no_justi_list=' '.join(self.failed[Failure.NO_JUSTI])
+                   no_edge_list='\n'.join(self.failed[Failure.NO_EDGE]),
+                   no_justi_list='\n'.join(self.failed[Failure.NO_JUSTI])
                    )
 
         write_file(report, '%s/%s_stat.txt' % (output_folder.rstrip('/'), self.kb_id))
