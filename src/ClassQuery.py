@@ -5,7 +5,7 @@ class ClassQuery(object):
     def __init__(self, xml_file_or_string):
         self.query_list = xml_loader(xml_file_or_string, CLASS_QUERY)
 
-    def ask_all(self, query_tool, start=0, end=None, root_doc=''):
+    def ask_all(self, query_tool, start=0, end=None, root_doc='', prefilter=False):
         root = ET.Element('classquery_responses')
         errors = []
         if not end:
