@@ -1,23 +1,22 @@
 {
   "ta1": {
-    "run": true,
+    "run": false,
     "params":{
       "ttls_folder": "/nas/home/dongyul/ocr_map/1003r4nl/",
       "query_folder": "/nas/home/dongyul/eval_queries/data/",
       "output_folder": "/nas/home/dongyul/qa_ta1_v2/1003r4nl/outputs/",
       "log_folder": "/nas/home/dongyul/qa_ta1_v2/1003r4nl/logs/",
       "batch_num": "1",
-      "fuseki": "http://localhost:3030/test",
-      "n2p": "/nas/home/dongyul/run1v1_n2p.json"
+      "fuseki": "http://localhost:3030/test"
     }
   },
   "ta2": {
-    "run": false,
+    "run": true,
     "params":{
-      "select_endpoint": "http://gaiadev01.isi.edu:7200/repositories/0923r1aug",
-      "query_folder": "/Users/dongyuli/isi/eval_queries/data/",
-      "output_folder": "/Users/dongyuli/isi/",
-      "log_folder": "/Users/dongyuli/isi/",
+      "select_endpoint": "http://localhost:7200/repositories/1003r1nl",
+      "query_folder": "/nas/home/dongyul/eval_queries/data/",
+      "output_folder": "/nas/home/dongyul/qa_ta2/1003r1nl_v2/outputs/",
+      "log_folder": "/nas/home/dongyul/qa_ta2/1003r1nl_v2/logs/",
       "batch_num": "1"
     }
   },
