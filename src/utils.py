@@ -30,6 +30,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
     conf = 0
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
+        doceid = doceid.lsplit('.', 1)[0]
         if merge_conf:
             row_ = {DOCEID: doceid}
             conf += float(cv)
