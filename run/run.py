@@ -8,7 +8,7 @@ from src.ZerohopQuery import ZerohopQuery
 from src.GraphQuery import GraphQuery
 
 
-def load_query(query_folder, n2p_json):
+def load_query(query_folder, n2p_json=''):
     query_path = Path(query_folder)
     cq, zq, gq = None, None, None
     for q in query_path.glob('*.xml'):
@@ -93,8 +93,8 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
     qt = QueryTool(select_endpoint, Mode.PROTOTYPE, relax_num_ep=1, block_ocrs=False)
 
     for query, _type in [
-       # (cq, CLASS),
-       # (zq, ZEROHOP),
+        (cq, CLASS),
+        (zq, ZEROHOP),
         (gq, GRAPH)
     ]:
         print('   query type: %s' % _type, str(datetime.now()))
