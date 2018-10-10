@@ -1,30 +1,24 @@
 #!/usr/bin/env bash
 
+echo "folder containing all ttls(no /): $1"
+echo "output txt file path: $2"
+
 i=0
-echo Folder containing all files without /:
-read folder_all
 
 echo start
 date +"%R"
 
-for f in $folder_all/* ;
+for f in $1/* ;
 do
   if ((i%100==0))
   then
     echo $((i))
     date +"%R"
   fi
-  echo $f >> tmp.txt ;
-  perl -nle 'print $& if m{(?<=aida:hasName      ").+(?=")}' $f >> tmp.txt ;
+  echo $f >> $2 ;
+  perl -nle 'print $& if m{(?<=aida:hasName      ").+(?=")}' $f >> $2 ;
   i=$((i+1))
 done
-
-
-echo python
-date +"%R"
-python mapping_name.py
-
-rm tmp.txt
 
 echo done
 date +"%R"

@@ -151,3 +151,21 @@ def decode_name(x):
         return x
 
 
+def generate_n2p_json(txt_file):
+    with open(txt_file) as f:
+        lines = f.readlines()
+        n2p = {}    # hasName: [ttl file names]
+        p2n = {}
+        for line in lines:
+            l = line.strip()
+            if l.endswith('.ttl'):
+                doc_id = l.rstrip('.ttl').rsplit('/', 1)[-1]
+                p2n[doc_id] = set()
+            else:
+                if l not in n2p:
+                    n2p[l] = set()
+                n2p[l].add(doc_id)
+                p2n[doc_id].add(l)
+        return n2p  #, p2n
+
+

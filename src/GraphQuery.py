@@ -4,14 +4,13 @@ from src.SingleGraphQuery import SingleGraphQuery
 from src.Stat import Stat
 from datetime import datetime
 
+
 class GraphQuery(object):
-    def __init__(self, xml_file_or_string, n2p_json=None):
+    def __init__(self, xml_file_or_string, n2p_txt=None):
         self.query_list = xml_loader(xml_file_or_string, GRAPH_QUERY)
         self.related_docs = []
         try:
-            n2p = json.load(open(n2p_json))
-            for k, v in n2p.items():
-                n2p[k] = set(v)
+            n2p = generate_n2p_json(n2p_txt)
             for q in self.query_list:
                 docs = set([c2p.get(_) for _ in list(find_keys(DOCEID, q[ENTRYPOINTS]))])
                 docs = docs.union(*[n2p.get(name, set()) for name in list(find_keys(NAME_STRING, q[ENTRYPOINTS]))])
