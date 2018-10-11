@@ -32,8 +32,6 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
         doceid = doceid[:9]
         row_ = {DOCEID: doceid}
-        if enttype:
-            row_[ENTTYPE] = enttype
         if so:
             type_ = 'text'
             row_.update({START: so, END: eo})
@@ -57,6 +55,8 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         # elif st:
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
+        if enttype:
+            row_[ENTTYPE] = enttype
         if merge_conf:
             conf += float(cv)
         else:
