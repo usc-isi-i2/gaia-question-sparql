@@ -26,11 +26,11 @@ class GraphQuery(object):
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
-            print(root_doc, i, self.query_list[i]['@id'], datetime.now())
             try:
                 if prefilter and self.related_docs and root_doc in p2c and root_doc not in self.related_docs[i]:
                     continue
                 # ans one:
+                print(root_doc, i, self.query_list[i]['@id'], datetime.now())
                 single = SingleGraphQuery(query_tool, self.query_list[i], root_doc, stat)
                 responses = single.get_responses()
                 if len(responses):
