@@ -44,7 +44,7 @@ class ZerohopQuery(object):
         :return: xml Element
         '''
 
-        single_root = ET.Element('zerohopquery_response', attrib={'id':  q_dict['@id']})
+        single_root = ET.Element('zerohopquery_response', attrib={'QUERY_ID':  q_dict['@id']})
 
         # first get entrypoint node uri
         ep = q_dict[ENTRYPOINT]
