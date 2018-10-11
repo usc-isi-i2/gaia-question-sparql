@@ -13,10 +13,10 @@
   "ta2": {
     "run": true,
     "params":{
-      "select_endpoint": "http://localhost:7200/repositories/1003r4nl",
+      "select_endpoint": "http://localhost:7200/repositories/1003r1nl",
       "query_folder": "/nas/home/dongyul/eval_queries/data/",
-      "output_folder": "/nas/home/dongyul/qa_ta2/1003r4nl/outputs/",
-      "log_folder": "/nas/home/dongyul/qa_ta2/1003r4nl/logs/",
+      "output_folder": "/nas/home/dongyul/qa_ta2/1003r1nl/outputs/",
+      "log_folder": "/nas/home/dongyul/qa_ta2/1003r1nl/logs/",
       "batch_num": "1"
     }
   },

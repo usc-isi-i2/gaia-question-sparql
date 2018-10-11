@@ -10,7 +10,7 @@ date +"%R"
 
 for f in $1/* ;
 do
-  if ((i%100==0))
+  if ((i%2000==0))
   then
     echo $((i))
     date +"%R"
