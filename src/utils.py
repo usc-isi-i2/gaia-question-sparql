@@ -31,11 +31,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
         doceid = doceid[:9]
-        if merge_conf:
-            row_ = {DOCEID: doceid}
-            conf += float(cv)
-        else:
-            row_ = {DOCEID: doceid, CONFIDENCE: cv}
+        row_ = {DOCEID: doceid}
         if enttype:
             row_[ENTTYPE] = enttype
         if so:
@@ -61,6 +57,10 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         # elif st:
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
+        if merge_conf:
+            conf += float(cv)
+        else:
+            row_[CONFIDENCE] = cv
         justification = ET.SubElement(justi_root, type_ + suffix)
         update_xml(justification, row_)
     if merge_conf and rows:
