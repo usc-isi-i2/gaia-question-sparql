@@ -31,7 +31,7 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         <DocumentID>.<batchNumber>.{class_responses,zerohop_responses,graph_responses}.xml
         (e.g.,  “IC0015PZ4.batch1.class_responses.xml”)
         """
-        return '%s%s.batch%s.%s_responses.xml' % (output_folder, _doc, batch_num, _type)
+        return '%s%s.%s_responses.xml' % (output_folder, _doc, _type)
     start = datetime.now()
     print('start - ', str(start))
     cq, zq, gq = load_query(query_folder, n2p_txt)
@@ -84,7 +84,7 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
         Please name your response files TA2.<batchNumber>.
         {class_responses,zerohop_responses,graph_responses}.xml  (e.g.,  “TA2.batch1.class_responses.xml”)
         """
-        return '%sTA2.batch%s.%s_responses.xml' % (output_folder, batch_num, _type)
+        return '%sTA2.%s_responses.xml' % (output_folder, _type)
 
     start = datetime.now()
     print('start - ', str(start))
