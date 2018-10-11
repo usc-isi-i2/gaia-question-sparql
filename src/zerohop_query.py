@@ -1,6 +1,6 @@
-
+import traceback
 from src.sparql_utils import *
-from src.QueryTool import QueryTool
+from src.query_tool import QueryTool
 
 
 class ZerohopQuery(object):
@@ -25,7 +25,8 @@ class ZerohopQuery(object):
                 if len(response):
                     root.append(response)
             except Exception as e:
-                errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
+                errors.append('%s\n%s\n' % (','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))), traceback.format_exc))
+
         return root, None, errors
 
     def ans_one(self, quert_tool, q_dict):
