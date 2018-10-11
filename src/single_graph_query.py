@@ -1,6 +1,6 @@
 from src.utils import *
-from src.QueryTool import QueryTool, Mode
-from src.Stat import Stat, Failure
+from src.query_tool import QueryTool, Mode
+from src.stat import Stat, Failure
 
 
 class SingleGraphQuery(object):

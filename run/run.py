@@ -2,10 +2,10 @@ from pathlib import Path
 from datetime import datetime
 import sys
 sys.path.append('../')
-from src.QueryTool import *
-from src.ClassQuery import ClassQuery
-from src.ZerohopQuery import ZerohopQuery
-from src.GraphQuery import GraphQuery
+from src.query_tool import *
+from src.class_query import ClassQuery
+from src.zerohop_query import ZerohopQuery
+from src.graph_query import GraphQuery
 
 
 def load_query(query_folder, n2p_txt=''):

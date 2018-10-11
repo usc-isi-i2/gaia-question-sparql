@@ -1,7 +1,7 @@
-import sys
+import traceback
 from src.utils import *
-from src.SingleGraphQuery import SingleGraphQuery
-from src.Stat import Stat
+from src.single_graph_query import SingleGraphQuery
+from src.stat import Stat
 from datetime import datetime
 
 
@@ -35,11 +35,8 @@ class GraphQuery(object):
                 responses = single.get_responses()
                 if len(responses):
                     root.append(responses)
-            except Exception:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i),
-                                        str(exc_type), str(fname), str(exc_tb.tb_lineno))))
+            except Exception as e:
+                errors.append('%s\n%s\n' % (','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))), traceback.format_exc))
         return root, stat, errors
 
     @property

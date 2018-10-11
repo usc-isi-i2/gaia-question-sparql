@@ -2,8 +2,8 @@ import unittest
 import sys
 import os
 sys.path.append('../')
-from src.GraphQuery import GraphQuery
-from src.QueryTool import QueryTool, Mode
+from src.graph_query import GraphQuery
+from src.query_tool import QueryTool, Mode
 
 base_path = os.path.dirname(__file__)
 gq = GraphQuery(base_path + '/sample_queries/graph_queries.xml')

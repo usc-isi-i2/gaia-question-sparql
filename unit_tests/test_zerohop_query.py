@@ -2,8 +2,8 @@ import unittest
 import sys
 import os
 sys.path.append('../')
-from src.ZerohopQuery import ZerohopQuery
-from src.QueryTool import QueryTool, Mode
+from src.zerohop_query import ZerohopQuery
+from src.query_tool import QueryTool, Mode
 
 base_path = os.path.dirname(__file__)
 zq = ZerohopQuery(base_path + '/sample_queries/zerohop_queries.xml')
