@@ -48,8 +48,8 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         if stat:
             stat.dump_report(log_folder)
 
-    start = datetime.now()
-    print('start - ', str(start))
+    start_time = datetime.now()
+    print('start - ', str(start_time))
 
     ttls = list(Path(ttls_folder).glob('*.ttl'))
     err_loggers = {
@@ -95,7 +95,7 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     for logger in err_loggers.values():
         logger.close()
     print(' done - ', str(datetime.now()))
-    print(' time used: ', datetime.now()-start)
+    print(' time used: ', datetime.now() - start_time)
 
 
 def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num=1, start=0, end=None,
@@ -109,8 +109,8 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num=
         """
         return '%sTA2.%s_responses.xml' % (output_folder, _type)
 
-    start = datetime.now()
-    print('start - ', str(start))
+    start_time = datetime.now()
+    print('start - ', str(start_time))
     cq, zq, gq = load_query(query_folder)
     qt = QueryTool(select_endpoint, Mode.PROTOTYPE, relax_num_ep=1, block_ocrs=False)
 
@@ -134,7 +134,7 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num=
             stat.dump_report(log_folder)
 
     print(' done - ', str(datetime.now()))
-    print(' time used: ', datetime.now()-start)
+    print(' time used: ', datetime.now() - start_time)
 
 
 def run_ta3(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki):
