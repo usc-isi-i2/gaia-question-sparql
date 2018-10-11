@@ -11,12 +11,9 @@ class ClassQuery(object):
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
-            try:
-                response = self.ans_one(query_tool, self.query_list[i])
-                if len(response):
-                    root.append(response)
-            except Exception as e:
-                errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
+            response = self.ans_one(query_tool, self.query_list[i])
+            if len(response):
+                root.append(response)
         return root, None, errors
 
     def ans_one(self, query_tool, q_dict):
