@@ -8,7 +8,7 @@
       "log_folder": "/nas/home/dongyul/qa_ta1_v2/1003r4nl/logs/",
       "batch_num": "1",
       "fuseki": "http://localhost:3030/test",
-      "n2p": "/nas/home/dongyul/run1v1_n2p.json"
+      "n2p_txt": "/nas/home/dongyul/run1v1_n2p.jtxt"
     }
   },
   "ta2": {
