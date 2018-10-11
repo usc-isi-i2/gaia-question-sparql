@@ -124,7 +124,7 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num=
 
     for query, _type in to_run:
         print('   query type: %s' % _type, str(datetime.now()))
-        response, stat, errors = query.ask_all(qt, start=0, end=None, prefilter=False)
+        response, stat, errors = query.ask_all(qt, start=start, end=end, prefilter=False)
         if len(response):
             write_file(response, wrap_output_filename(_type))
         if len(errors):
