@@ -20,6 +20,7 @@ class ZerohopQuery(object):
             try:
                 if prefilter and self.related_doc and root_doc in p2c and self.related_doc[i] != root_doc:
                     continue
+                print('Zerohop %s : %d of %d ' % (self.query_list[i]['@id'], i, len(self.query_list)))
                 response = self.ans_one(quert_tool, self.query_list[i])
                 if len(response):
                     root.append(response)
