@@ -12,7 +12,7 @@ class ClassQuery(object):
             end = len(self.query_list)
         for i in range(start, end):
             response = self.ans_one(query_tool, self.query_list[i])
-            if len(response):
+            if response and len(response):
                 root.append(response)
         return root, None, errors
 
@@ -31,7 +31,8 @@ class ClassQuery(object):
         single_root = ET.Element('classquery_response', attrib={'QUERY_ID':  q_dict['@id']})
         justifications = ET.SubElement(single_root, 'justifications')
         construct_justifications(justifications, enttype, rows)
-        return single_root
+        if len(justifications):
+            return single_root
 
     @staticmethod
     def to_sparql(enttype):

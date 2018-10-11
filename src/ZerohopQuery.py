@@ -55,6 +55,8 @@ class ZerohopQuery(object):
         # and then find justifications
         # TODO: now find justi on node_uri, NIST sparql is to find on type_statement uri, mjr said we'll argue on it
         rows = quert_tool.get_justi(node_uri)
+        if not rows:
+            return single_root
         update_xml(single_root, {'system_nodeid': node_uri})
         construct_justifications(single_root, None, rows)
         return single_root
