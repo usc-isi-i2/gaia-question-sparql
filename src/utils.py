@@ -7,9 +7,6 @@ from src.constants import *
 
 c2p = json.load(open(os.path.dirname(__file__) + '/tools/c2p.json'))
 p2c = json.load(open(os.path.dirname(__file__) + '/tools/p2c.json'))
-n2p = json.load(open(os.path.dirname(__file__) + '/tools/n2p.json'))
-for k, v in n2p.items():
-    n2p[k] = set(v)
 
 ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
 block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
@@ -33,13 +30,8 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
     conf = 0
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
-        if merge_conf:
-            row_ = {DOCEID: doceid}
-            conf += float(cv)
-        else:
-            row_ = {DOCEID: doceid, CONFIDENCE: cv}
-        if enttype:
-            row_[ENTTYPE] = enttype
+        doceid = doceid[:9]
+        row_ = {DOCEID: doceid}
         if so:
             type_ = 'text'
             row_.update({START: so, END: eo})
@@ -63,6 +55,12 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         # elif st:
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
+        if enttype:
+            row_[ENTTYPE] = enttype
+        if merge_conf:
+            conf += float(cv)
+        else:
+            row_[CONFIDENCE] = cv
         justification = ET.SubElement(justi_root, type_ + suffix)
         update_xml(justification, row_)
     if merge_conf and rows:
@@ -152,5 +150,23 @@ def decode_name(x):
         return x.encode('latin-1').decode('utf-8', errors='ignore')
     except UnicodeEncodeError:
         return x
+
+
+def generate_n2p_json(txt_file):
+    with open(txt_file) as f:
+        lines = f.readlines()
+        n2p = {}    # hasName: [ttl file names]
+        p2n = {}
+        for line in lines:
+            l = line.strip()
+            if l.endswith('.ttl'):
+                doc_id = l.rstrip('.ttl').rsplit('/', 1)[-1]
+                p2n[doc_id] = set()
+            else:
+                if l not in n2p:
+                    n2p[l] = set()
+                n2p[l].add(doc_id)
+                p2n[doc_id].add(l)
+        return n2p  #, p2n
 
 

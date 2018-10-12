@@ -1,31 +1,33 @@
-
+import traceback
 from src.sparql_utils import *
-from src.QueryTool import QueryTool
+from src.query_tool import QueryTool
 
 
 class ZerohopQuery(object):
     def __init__(self, xml_file_or_string: str):
         self.query_list = xml_loader(xml_file_or_string, ZEROHOP_QUERY)
-        self.related_doc = [c2p.get(list(find_keys(DOCEID, q[ENTRYPOINT]))[0]) for q in self.query_list]
+        try:
+            self.related_doc = [c2p.get(list(find_keys(DOCEID, q[ENTRYPOINT]))[0]) for q in self.query_list]
+        except:
+            self.related_doc = []
 
-    def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc=''):
+    def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc='', prefilter=True):
         root = ET.Element('zerohopquery_responses')
         errors = []
-        diff = []
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
             try:
-                if root_doc in p2c and self.related_doc[i] != root_doc:
+                if prefilter and self.related_doc and root_doc in p2c and self.related_doc[i] != root_doc:
                     continue
+                print('Zerohop %s : %d of %d ' % (self.query_list[i]['@id'], i, len(self.query_list)))
                 response = self.ans_one(quert_tool, self.query_list[i])
                 if len(response):
                     root.append(response)
-                elif root_doc:
-                    diff.append(self.query_list[i])
             except Exception as e:
-                errors.append(','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))))
-        return root, {'errors': errors, 'diff': diff}
+                errors.append('%s\n%s\n' % (','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))), traceback.format_exc))
+
+        return root, None, errors
 
     def ans_one(self, quert_tool, q_dict):
         '''
@@ -44,7 +46,7 @@ class ZerohopQuery(object):
         :return: xml Element
         '''
 
-        single_root = ET.Element('zerohopquery_response', attrib={'id':  q_dict['@id']})
+        single_root = ET.Element('zerohopquery_response', attrib={'QUERY_ID':  q_dict['@id']})
 
         # first get entrypoint node uri
         ep = q_dict[ENTRYPOINT]
@@ -55,6 +57,8 @@ class ZerohopQuery(object):
         # and then find justifications
         # TODO: now find justi on node_uri, NIST sparql is to find on type_statement uri, mjr said we'll argue on it
         rows = quert_tool.get_justi(node_uri)
+        if not rows:
+            return single_root
         update_xml(single_root, {'system_nodeid': node_uri})
         construct_justifications(single_root, None, rows)
         return single_root

@@ -2,13 +2,13 @@ from pathlib import Path
 from datetime import datetime
 import sys
 sys.path.append('../')
-from src.QueryTool import *
-from src.ClassQuery import ClassQuery
-from src.ZerohopQuery import ZerohopQuery
-from src.GraphQuery import GraphQuery
+from src.query_tool import *
+from src.class_query import ClassQuery
+from src.zerohop_query import ZerohopQuery
+from src.graph_query import GraphQuery
 
 
-def load_query(query_folder):
+def load_query(query_folder, n2p_txt=''):
     query_path = Path(query_folder)
     cq, zq, gq = None, None, None
     for q in query_path.glob('*.xml'):
@@ -17,11 +17,13 @@ def load_query(query_folder):
         if q.stem.endswith(ZEROHOP_QUERIES):
             zq = ZerohopQuery(str(q))
         if q.stem.endswith(GRAPH_QUERIES):
-            gq = GraphQuery(str(q))
+            gq = GraphQuery(str(q), n2p_txt)
     return cq, zq, gq
 
 
-def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki, ta3=False):
+def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki, n2p_txt='', ta3=False,
+            run_class=True, run_zerohop=True, run_graph=True):
+
     def wrap_output_filename(_doc, _type):
         """
         The responses to queries should be a compressed tarball (.tgz or .zip) of a single directory (named with the run ID),
@@ -30,56 +32,74 @@ def run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
         <DocumentID>.<batchNumber>.{class_responses,zerohop_responses,graph_responses}.xml
         (e.g.,  “IC0015PZ4.batch1.class_responses.xml”)
         """
-        return '%s%s.batch%s.%s_responses.xml' % (output_folder, _doc, batch_num, _type)
-    start = datetime.now()
-    print('start - ', str(start))
-    cq, zq, gq = load_query(query_folder)
+        return '%s%s.%s_responses.xml' % (output_folder, _doc, _type)
+
+    def run_query(querier, _type, qt, doc_id='', prefilter=False):
+        # print('doc_id: %s, query type: %s' % (KB.stem, _type))
+        if ta3:
+            response, stat, errors = querier.ask_all(qt)
+        else:
+            response, stat, errors = querier.ask_all(qt, root_doc=doc_id, prefilter=prefilter)
+        if len(response):
+            write_file(response, wrap_output_filename(KB.stem, _type))
+        if len(errors):
+            # each error: doc_id,query_id,query_idx,error_str
+            write_file(errors, log_folder + _type + '_error.csv')
+        if stat:
+            stat.dump_report(log_folder)
+
+    start_time = datetime.now()
+    print('start - ', str(start_time))
+
     ttls = list(Path(ttls_folder).glob('*.ttl'))
     err_loggers = {
         CLASS:  open(log_folder + 'class_error.csv', 'w'),
         ZEROHOP:  open(log_folder + 'zerohop_error.csv', 'w'),
         GRAPH:  open(log_folder + 'graph_error.csv', 'w'),
     }
-    diffs = {ZEROHOP: {}, GRAPH: {}}
+
+    cq, zq, gq = load_query(query_folder, n2p_txt)
 
     cnt = 0
-    total = len(coredocs)
+    total = len(ttls)
 
-    for KB in ttls:
-        if KB.stem not in coredocs:
-            continue
-        print('\t run %s %d of %d - ' % (KB.stem, cnt, total), str(datetime.now()))
-        cnt += 1
-        qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '', block_ocrs=False)
-
-        for query, _type in [
-            (cq, CLASS),
-            (zq, ZEROHOP),
-            (gq, GRAPH)
-        ]:
-            # print('doc_id: %s, query type: %s' % (KB.stem, _type))
-            if ta3:
-                response, stat = query.ask_all(qt)
-            else:
-                response, stat = query.ask_all(qt, root_doc=KB.stem)
-            if len(response):
-                write_file(response, wrap_output_filename(KB.stem, _type))
-            if len(stat['errors']):
-                # each error: doc_id,query_id,query_idx,error_str
-                err_loggers[_type].write(to_string(stat['errors']))
-                err_loggers[_type].write('\n')
-            if stat.get('diff'):
-                diffs[_type][KB.stem] = stat.get('diff')
+    if not ta3:
+        class_docs = coredocs
+        zerohop_docs = zq.all_related_docs()
+        graph_docs = gq.all_related_docs()
+        for KB in ttls:
+            cnt += 1
+            if (run_class and KB.stem in class_docs) or \
+                    (run_zerohop and KB.stem in zerohop_docs) or \
+                        (run_graph and KB.stem in graph_docs):
+                qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '', block_ocrs=False)
+                print('\t run query on %s : %d of %d  ' % (KB.stem, cnt, total), str(datetime.now()))
+                if run_class and KB.stem in class_docs:
+                    run_query(cq, CLASS, qt, KB.stem)
+                if run_zerohop and KB.stem in zerohop_docs:
+                    run_query(zq, ZEROHOP, qt, KB.stem, prefilter=True)
+                if run_graph and KB.stem in graph_docs:
+                    run_query(gq, GRAPH, qt, KB.stem, prefilter=True)
+    else:
+        for KB in ttls:
+            cnt += 1
+            qt = QueryTool(str(KB), Mode.CLUSTER, relax_num_ep=1, use_fuseki=fuseki or '', block_ocrs=False)
+            print('\t run query on %s : %d of %d  ' % (KB.stem, cnt, total), str(datetime.now()))
+            if run_class:
+                run_query(cq, CLASS, qt, KB.stem)
+            if run_zerohop:
+                run_query(zq, ZEROHOP, qt, KB.stem, prefilter=True)
+            if run_graph:
+                run_query(gq, GRAPH, qt, KB.stem, prefilter=True)
 
     for logger in err_loggers.values():
         logger.close()
-    write_file(diffs[ZEROHOP], log_folder + 'zerohop_diff.json')
-    write_file(diffs[GRAPH], log_folder + 'graph_diff.json')
     print(' done - ', str(datetime.now()))
-    print(' time used: ', datetime.now()-start)
+    print(' time used: ', datetime.now() - start_time)
 
 
-def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num):
+def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num=1, start=0, end=None,
+            run_class=True, run_zerohop=True, run_graph=True):
     def wrap_output_filename(_type):
         """
         The responses to queries should be a compressed tarball (.tgz or .zip) of a single directory (named with the run ID),
@@ -87,28 +107,34 @@ def run_ta2(select_endpoint, query_folder, output_folder, log_folder, batch_num)
         Please name your response files TA2.<batchNumber>.
         {class_responses,zerohop_responses,graph_responses}.xml  (e.g.,  “TA2.batch1.class_responses.xml”)
         """
-        return '%sTA2.batch%s.%s_responses.xml' % (output_folder, batch_num, _type)
+        return '%sTA2.%s_responses.xml' % (output_folder, _type)
 
-    start = datetime.now()
-    print('start - ', str(start))
+    start_time = datetime.now()
+    print('start - ', str(start_time))
     cq, zq, gq = load_query(query_folder)
     qt = QueryTool(select_endpoint, Mode.PROTOTYPE, relax_num_ep=1, block_ocrs=False)
 
-    for query, _type in [
-        (cq, CLASS),
-        (zq, ZEROHOP),
-        (gq, GRAPH)
-    ]:
+    to_run = []
+    if run_class:
+        to_run.append((cq, CLASS))
+    if run_zerohop:
+        to_run.append((zq, ZEROHOP))
+    if run_graph:
+        to_run.append((gq, GRAPH))
+
+    for query, _type in to_run:
         print('   query type: %s' % _type, str(datetime.now()))
-        response, error = query.ask_all(qt)
+        response, stat, errors = query.ask_all(qt, start=start, end=end, prefilter=False)
         if len(response):
             write_file(response, wrap_output_filename(_type))
-        if len(error):
+        if len(errors):
             # each error: doc_id,query_id,query_idx,error_str
-            write_file(error, log_folder + _type + '_error.csv')
+            write_file(errors, log_folder + _type + '_errors.csv')
+        if stat:
+            stat.dump_report(log_folder)
 
     print(' done - ', str(datetime.now()))
-    print(' time used: ', datetime.now()-start)
+    print(' time used: ', datetime.now() - start_time)
 
 
 def run_ta3(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki):
@@ -122,15 +148,5 @@ def run_ta3(ttls_folder, query_folder, output_folder, log_folder, batch_num, fus
     run_ta1(ttls_folder, query_folder, output_folder, log_folder, batch_num, fuseki, ta3=True)
 
 
-_, param = sys.argv
-runs = {
-    'ta1': run_ta1,
-    'ta2': run_ta2,
-    'ta3': run_ta3
-}
-with open(param) as f:
-    params = json.load(f)
-    for k, v in params.items():
-        if v.get('run'):
-            runs[k](**v.get('params'))
+
 

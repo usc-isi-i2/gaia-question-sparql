@@ -7,6 +7,7 @@ from itertools import combinations
 
 from src.sparql_utils import *
 from src.constants import *
+from src.timeout import timeout
 
 
 class Selector(object):
@@ -29,12 +30,14 @@ class Selector(object):
             self.sw.setMethod(POST)
             self.run = self.select_query_url
 
+    @timeout(600, 'select rdflib timeout: 10 min')
     def select_query_rdflib(self, q):
         csv_res = self.graph.query(PREFIX + q).serialize(format='csv')
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
         res = list(csv.reader(rows))
         return res
 
+    @timeout(900, 'select url timeout: 15 min')
     def select_query_url(self, q):
         sparql_query = PREFIX + q
         # print(sparql_query)
