@@ -15,6 +15,6 @@ class TestClassQuery(unittest.TestCase):
         responses, stat, errors = cq.ask_all(qt)
         res = [len(x.find('justifications')) for x in responses.getchildren()]
         self.assertFalse(errors)
-        self.assertEqual(res, [0, 2, 1])
+        self.assertEqual(res, [2, 1])
 
 
