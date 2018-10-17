@@ -41,7 +41,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
                          TOPLEFT: '%s,%s' % (uly, ulx),
                          BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
-        else:
+        elif uly:
             type_ = 'image'
             row_.update({TOPLEFT: '%s,%s' % (uly, ulx),
                          BOTTOMRIGHT: '%s,%s' % (bry, brx),
@@ -55,6 +55,9 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         # elif st:
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
+        else:
+            print('wired justification ', doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv)
+            continue
         if enttype:
             row_[ENTTYPE] = enttype
         if merge_conf:
