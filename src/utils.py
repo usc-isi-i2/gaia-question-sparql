@@ -29,6 +29,7 @@ def update_xml(root, obj):
 
 def construct_justifications(justi_root, enttype, rows, suffix='_justification', merge_conf=False):
     conf = 0
+    wrong_justi = []
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
         # TODO: tmp fix for eval, some docs are with extensions / may be in wrong justification types
@@ -37,6 +38,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
                 kfid = doceid.split('.', 1)[0]
             doceid = doceid[:9]
         type_ = c2type[doceid]
+
         row_ = {DOCEID: doceid}
 
         if type_ == 'text' and so and eo:
@@ -60,7 +62,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
         else:
-            print('wrong justification ', doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv)
+            wrong_justi.append('\t'.join(row))
             continue
         if enttype:
             row_[ENTTYPE] = enttype
@@ -72,6 +74,8 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         update_xml(justification, row_)
     if merge_conf and rows:
         update_xml(justi_root, {CONFIDENCE: str(conf/len(rows))})
+
+    print(enttype, len(wrong_justi), ' of ', len(rows))
 
 
 def xml_loader(xml_file_or_string: str, query_key: str) -> list:
