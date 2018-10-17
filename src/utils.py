@@ -7,6 +7,7 @@ from src.constants import *
 
 c2p = json.load(open(os.path.dirname(__file__) + '/tools/c2p.json'))
 p2c = json.load(open(os.path.dirname(__file__) + '/tools/p2c.json'))
+c2type = json.load(open(os.path.dirname(__file__) + '/tools/c2type.json'))
 
 ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
 block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
@@ -30,19 +31,22 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
     conf = 0
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
-        doceid = doceid[:9]
+        # TODO: tmp fix for eval, some docs are with extensions / may be in wrong justification types
+        if len(doceid) > 9:
+            if doceid[9] == '_':
+                kfid = doceid.split('.', 1)[0]
+            doceid = doceid[:9]
+        type_ = c2type[doceid]
         row_ = {DOCEID: doceid}
-        if so:
-            type_ = 'text'
+
+        if type_ == 'text' and so and eo:
             row_.update({START: so, END: eo})
-        elif kfid:
-            type_ = 'video'
+        elif uly and ulx and bry and brx and type_ == 'video' and kfid:
             row_.update({KEYFRAMEID: kfid,
                          TOPLEFT: '%s,%s' % (uly, ulx),
                          BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
-        elif uly:
-            type_ = 'image'
+        elif uly and ulx and bry and brx and type_ == 'image':
             row_.update({TOPLEFT: '%s,%s' % (uly, ulx),
                          BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
@@ -56,7 +60,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
         else:
-            print('wired justification ', doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv)
+            print('wrong justification ', doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv)
             continue
         if enttype:
             row_[ENTTYPE] = enttype
