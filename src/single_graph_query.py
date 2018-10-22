@@ -174,16 +174,19 @@ class SingleGraphQuery(object):
             %s
             }
             ''' % (' '.join(select_nodes), 'OPTIONAL {\n %s }' % '}\nOPTIONAL {\n'.join(states))
-            rows = self.query_tool.select(sparql_query)
-            # TODO: now only take local maximum
-            # TODO: should pick global maximum OR global weighted maximum OR multiple responses for each possibility ?
-            row = self.max_row(rows)
-            for i in range(len(row)):
-                if row[i]:
-                    non_ep_nodes[select_nodes[i]] = row[i]
-                    if (is_obj and row[i] in self.ospid) or (not is_obj and row[i] in self.sopid):
-                        # only add nodes, skip edges
-                        to_check.append((select_nodes[i], row[i], not is_obj))
+            try:
+                rows = self.query_tool.select(sparql_query)
+                row = self.max_row(rows)
+                # TODO: now only take local maximum
+                # TODO: should pick global maximum OR global weighted maximum OR multiple responses for each possibility ?
+                for i in range(len(row)):
+                    if row[i]:
+                        non_ep_nodes[select_nodes[i]] = row[i]
+                        if (is_obj and row[i] in self.ospid) or (not is_obj and row[i] in self.sopid):
+                            # only add nodes, skip edges
+                            to_check.append((select_nodes[i], row[i], not is_obj))
+            except TimeoutError as e:
+                print('inner timeout', e)
         if non_ep_nodes:
             self.root_responses.append(self.construct_single_response(non_ep_nodes))
 

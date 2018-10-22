@@ -1,5 +1,6 @@
 import traceback
 from src.sparql_utils import *
+from src.stat import ZHStat
 from src.query_tool import QueryTool
 
 
@@ -14,6 +15,7 @@ class ZerohopQuery(object):
     def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc='', prefilter=True):
         root = ET.Element('zerohopquery_responses')
         errors = []
+        stat = ZHStat(root_doc)
         if not end:
             end = len(self.query_list)
         for i in range(start, end):
@@ -24,10 +26,13 @@ class ZerohopQuery(object):
                 response = self.ans_one(quert_tool, self.query_list[i])
                 if len(response):
                     root.append(response)
+                    stat.succeed(self.query_list[i]['@id'])
+                else:
+                    stat.fail(self.query_list[i]['@id'])
             except Exception as e:
                 errors.append('%s\n%s\n' % (','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))), traceback.format_exc))
 
-        return root, None, errors
+        return root, stat, errors
 
     def ans_one(self, quert_tool, q_dict):
         '''
