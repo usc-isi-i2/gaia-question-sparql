@@ -30,7 +30,7 @@ class Stat(object):
         self.failed[fail_type].append('%s : %s' % (query_id, ' '.join(node_uri)))
         self.total_query += 1
 
-    def dump_report(self, output_folder):
+    def dump_report(self, output_folder, prefix=''):
         report = '''KB ID: {kb_id}
 Total Query: {cnt_query}
 Success: {cnt_success}
@@ -56,4 +56,4 @@ Failed: {cnt_failed}
                    no_justi_list='\n'.join(self.failed[Failure.NO_JUSTI])
                    )
 
-        write_file(report, '%s/%s_stat.txt' % (output_folder.rstrip('/'), self.kb_id))
+        write_file(report, '%s/%s%s_stat.txt' % (output_folder.rstrip('/'), str(prefix), self.kb_id))
