@@ -33,8 +33,8 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
         # TODO: tmp fix for eval, some docs are with extensions / may be in wrong justification types
-        if len(doceid) > 9:
-            if doceid[9] == '_':
+        if doceid not in c2type:
+            if len(doceid) > 9 and doceid[9] == '_':
                 kfid = doceid.split('.', 1)[0]
             doceid = doceid[:9]
         type_ = c2type[doceid]

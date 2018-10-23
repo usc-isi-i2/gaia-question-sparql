@@ -32,6 +32,7 @@ class Selector(object):
 
     @timeout(600, 'select rdflib timeout: 10 min')
     def select_query_rdflib(self, q):
+        # print(q)
         csv_res = self.graph.query(PREFIX + q).serialize(format='csv')
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
         res = list(csv.reader(rows))
@@ -39,8 +40,8 @@ class Selector(object):
 
     @timeout(900, 'select url timeout: 15 min')
     def select_query_url(self, q):
+        # print(q)
         sparql_query = PREFIX + q
-        # print(sparql_query)
         self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
         res = list(csv.reader(rows))
@@ -213,7 +214,7 @@ class QueryTool(object):
                     score = get_overlap_img(*[int(x) for x in cand_bound],
                                             int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
                 # TODO: how much overlapped? consider FP? consider centroid distance?
-                if score < 0.2:
+                if score <= 0:
                     continue
                 cur_score += score
             if cur_score > best_score:

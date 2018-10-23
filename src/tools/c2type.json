@@ -41323,5 +41323,12 @@
   "IC001Q0ES": "image",
   "IC001Q0ET": "image",
   "IC001Q0EU": "image",
-  "IC001Q0EV": "image"
+  "IC001Q0EV": "image",
+  "doc1_child1": "text",
+  "doc1_child2": "text",
+  "doc1_child3": "text",
+  "doc1_child4": "text",
+  "doc1_child5": "text",
+  "doc1_child6": "text",
+  "doc1_child7": "image"
 }
