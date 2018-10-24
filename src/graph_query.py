@@ -55,8 +55,12 @@ class GraphQuery(object):
         res = {}
         for i in range(len(self.related_docs)):
             q_id = self.query_list[i]['@id']
+            q_ep = self.query_list[i][ENTRYPOINTS]
+            q_ep_types = [x for x in [NAME_STRING, TEXT_DESCRIPTOR, IMAGE_DESCRIPTOR, VIDEO_DESCRIPTOR]
+                          if list(find_keys(x, q_ep))]
+            q_tuple = (q_id, q_ep_types)
             for doc in self.related_docs[i]:
                 if doc not in res:
                     res[doc] = []
-                res[doc].append(q_id)
+                res[doc].append(q_tuple)
         return res
