@@ -38,13 +38,14 @@ class Selector(object):
         res = list(csv.reader(rows))
         return res
 
-    @timeout(900, 'select url timeout: 15 min')
+    @timeout(1200, 'select url timeout: 20 min')
     def select_query_url(self, q):
         # print(q)
         sparql_query = PREFIX + q
         self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
         res = list(csv.reader(rows))
+        # print(res)
         return res
 
 
