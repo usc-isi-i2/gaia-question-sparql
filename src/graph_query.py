@@ -8,6 +8,8 @@ from datetime import datetime
 class GraphQuery(object):
     def __init__(self, xml_file_or_string, n2p_txt=None):
         self.query_list = xml_loader(xml_file_or_string, GRAPH_QUERY)
+        self.query_ep_types = [[x for x in [NAME_STRING, TEXT_DESCRIPTOR, IMAGE_DESCRIPTOR, VIDEO_DESCRIPTOR]
+                          if list(find_keys(x, q[ENTRYPOINTS]))] for q in self.query_list]
         self.related_docs = []
         try:
             n2p = generate_n2p_json(n2p_txt)
@@ -47,18 +49,15 @@ class GraphQuery(object):
     def related_q2d(self):
         res = {}
         for i in range(len(self.related_docs)):
-            res[self.query_list[i]['@id']] = self.related_docs[i]
+            q_tuple = (self.query_list[i]['@id'], ','.join(self.query_ep_types[i]))
+            res[q_tuple] = self.related_docs[i]
         return res
 
     @property
     def related_d2q(self):
         res = {}
         for i in range(len(self.related_docs)):
-            q_id = self.query_list[i]['@id']
-            q_ep = self.query_list[i][ENTRYPOINTS]
-            q_ep_types = [x for x in [NAME_STRING, TEXT_DESCRIPTOR, IMAGE_DESCRIPTOR, VIDEO_DESCRIPTOR]
-                          if list(find_keys(x, q_ep))]
-            q_tuple = (q_id, q_ep_types)
+            q_tuple = (self.query_list[i]['@id'], ','.join(self.query_ep_types[i]))
             for doc in self.related_docs[i]:
                 if doc not in res:
                     res[doc] = []
