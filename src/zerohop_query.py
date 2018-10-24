@@ -16,7 +16,7 @@ class ZerohopQuery(object):
         root = ET.Element('zerohopquery_responses')
         errors = []
         stat = ZHStat(root_doc)
-        if not end:
+        if not end or end < start or end > len(self.query_list):
             end = len(self.query_list)
         for i in range(start, end):
             try:

@@ -26,7 +26,7 @@ class GraphQuery(object):
         root = ET.Element('graphqueries_responses')
         stat = Stat(root_doc)
         errors = []
-        if not end:
+        if not end or end < start or end > len(self.query_list):
             end = len(self.query_list)
         for i in range(start, end):
             try:

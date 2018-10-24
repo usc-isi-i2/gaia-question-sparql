@@ -8,7 +8,7 @@ class ClassQuery(object):
     def ask_all(self, query_tool, start=0, end=None, root_doc='', prefilter=False):
         root = ET.Element('classquery_responses')
         errors = []
-        if not end:
+        if not end or end < start or end > len(self.query_list):
             end = len(self.query_list)
         for i in range(start, end):
             response = self.ans_one(query_tool, self.query_list[i])

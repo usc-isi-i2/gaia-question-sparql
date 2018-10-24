@@ -58,7 +58,7 @@ AIDA_HASNAME = 'aida:hasName'
 AIDA_JUSTIFIEDBY = 'aida:justifiedBy'
 AIDA_TEXTJUSTIFICATION = 'aida:TextJustification'
 AIDA_IMAGEJUSTIFICATION = 'aida:ImageJustification'
-AIDA_VIDEOJUSTIFICATION = 'aida:KeyframeVideoJustification'
+AIDA_VIDEOJUSTIFICATION = 'aida:KeyFrameVideoJustification'
 
 AIDA_SOURCE = 'aida:source'
 AIDA_STARTOFFSET = 'aida:startOffset'
