@@ -44,5 +44,19 @@ class GraphQuery(object):
         return set().union(*self.related_docs)
 
     @property
-    def separate_related_docs(self):
-        return self.related_docs
+    def related_q2d(self):
+        res = {}
+        for i in range(len(self.related_docs)):
+            res[self.query_list[i]['@id']] = self.related_docs[i]
+        return res
+
+    @property
+    def related_d2q(self):
+        res = {}
+        for i in range(len(self.related_docs)):
+            q_id = self.query_list[i]['@id']
+            for doc in self.related_docs[i]:
+                if doc not in res:
+                    res[doc] = []
+                res[doc].append(q_id)
+        return res

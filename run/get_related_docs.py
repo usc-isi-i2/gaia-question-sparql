@@ -5,4 +5,4 @@ from src.graph_query import GraphQuery
 
 _, query_file, n2p_txt, output = sys.argv
 gq = GraphQuery(query_file, n2p_txt)
-write_file(gq.separate_related_docs, output)
+write_file(gq.related_d2q, output)
