@@ -42,3 +42,7 @@ class GraphQuery(object):
     @property
     def all_related_docs(self):
         return set().union(*self.related_docs)
+
+    @property
+    def separate_related_docs(self):
+        return self.related_docs
