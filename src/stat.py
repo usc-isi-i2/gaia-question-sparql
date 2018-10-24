@@ -56,7 +56,7 @@ Failed: {cnt_failed}
                    no_justi_list='\n'.join(self.failed[Failure.NO_JUSTI])
                    )
 
-        write_file(report, '%s/%s_stat.txt' % (output_folder.rstrip('/'), self.kb_id))
+        write_file(report, '%s/%s_gr_stat.txt' % (output_folder.rstrip('/'), self.kb_id))
 
 
 class ZHStat(Stat):
@@ -79,4 +79,4 @@ Failed: {cnt_failed}
                    cnt_failed=str(self.total_query - len(self.success))
                    )
 
-        write_file(report, '%s/%s_stat.txt' % (output_folder.rstrip('/'), self.kb_id))
+        write_file(report, '%s/%s_zh_stat.txt' % (output_folder.rstrip('/'), self.kb_id))
