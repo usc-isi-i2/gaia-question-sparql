@@ -7,3 +7,4 @@ _, query_file, n2p_txt, output_prefix = sys.argv
 gq = GraphQuery(query_file, n2p_txt)
 write_file(gq.related_d2q, output_prefix + '_d2q.json')
 write_file(gq.related_q2d, output_prefix + '_q2d.json')
+write_file(gq.related_img_video, output_prefix + '_d2img_video_doc.json')

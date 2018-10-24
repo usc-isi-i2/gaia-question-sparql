@@ -11,11 +11,12 @@ class GraphQuery(object):
         self.query_ep_types = [[x for x in [NAME_STRING, TEXT_DESCRIPTOR, IMAGE_DESCRIPTOR, VIDEO_DESCRIPTOR]
                           if list(find_keys(x, q[ENTRYPOINTS]))] for q in self.query_list]
         self.related_docs = []
+        self.n2p = {}
         try:
-            n2p = generate_n2p_json(n2p_txt)
+            self.n2p = generate_n2p_json(n2p_txt)
             for q in self.query_list:
                 docs = set([c2p.get(_) for _ in list(find_keys(DOCEID, q[ENTRYPOINTS]))])
-                docs = docs.union(*[n2p.get(name, set()) for name in list(find_keys(NAME_STRING, q[ENTRYPOINTS]))])
+                docs = docs.union(*[self.n2p.get(name, set()) for name in list(find_keys(NAME_STRING, q[ENTRYPOINTS]))])
                 self.related_docs.append(docs)
         except Exception as e:
             print(e)
@@ -62,3 +63,34 @@ class GraphQuery(object):
                     res[doc] = []
                 res[doc].append(q_tuple)
         return res
+
+    @property
+    def related_img_video(self):
+        res = {}
+        if self.n2p and c2p:
+            for i in range(len(self.related_docs)):
+                q = self.query_list[i]
+                q_id = q['@id']
+                eps = q[ENTRYPOINTS][ENTRYPOINT]
+                parents = {}
+                if isinstance(eps, dict):
+                    eps = [eps]
+                for ep in eps:
+                    source1 = ep['typed_descriptor'].get(IMAGE_DESCRIPTOR, {}).get(DOCEID)
+                    source = source1 or ep['typed_descriptor'].get(VIDEO_DESCRIPTOR, {}).get(DOCEID)
+                    if c2p.get(source):
+                        if c2p.get(source) not in parents:
+                            parents[c2p.get(source)] = []
+                        parents[c2p.get(source)].append(source)
+                if parents:
+                    for doc in self.related_docs[i]:
+                        if doc in parents:
+                            if doc not in res:
+                                res[doc] = {}
+                            res[doc][q_id] = parents[doc]
+        return res
+
+
+
+
+
