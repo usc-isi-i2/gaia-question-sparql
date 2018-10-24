@@ -49,8 +49,7 @@ class GraphQuery(object):
     def related_q2d(self):
         res = {}
         for i in range(len(self.related_docs)):
-            q_tuple = (self.query_list[i]['@id'], ','.join(self.query_ep_types[i]))
-            res[q_tuple] = self.related_docs[i]
+            res[self.query_list[i]['@id']] = (self.related_docs[i], ','.join(self.query_ep_types[i]))
         return res
 
     @property
