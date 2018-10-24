@@ -1,7 +1,6 @@
 
 import sys
-sys.path.append('../')
-from run.run import run_ta1
+from run import run_ta1
 
 _, runN, vN = sys.argv
 param = {

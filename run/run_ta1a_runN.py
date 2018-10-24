@@ -1,7 +1,6 @@
 
 import sys
-sys.path.append('../')
-from run.run import run_ta1
+from run import run_ta1
 
 mapping = {
     '1': 'r1nl',
