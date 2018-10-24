@@ -215,8 +215,8 @@ class QueryTool(object):
                     score = get_overlap_img(*[int(x) for x in cand_bound],
                                             int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
                 # TODO: how much overlapped? consider FP? consider centroid distance?
-                if score <= 0:
-                    continue
+                # if score <= 0:
+                #     continue
                 cur_score += score
             if cur_score > best_score:
                 best_score = cur_score
