@@ -3,7 +3,7 @@ from datetime import datetime
 import sys
 sys.path.append('../')
 from src.query_tool import *
-from run.run import load_query
+from run import load_query
 
 
 def run_ta3(input, output, query_folder, fuseki, run_class=True, run_zerohop=True, run_graph=True):
@@ -29,6 +29,15 @@ def run_ta3(input, output, query_folder, fuseki, run_class=True, run_zerohop=Tru
 
     for KB in ttls:
         qt = QueryTool(str(KB), Mode.PROTOTYPE, relax_num_ep=1, use_fuseki=fuseki or '', block_ocrs=False)
+        update_res = qt.update('''
+        insert {?r aida:justifiedBy ?j} where {
+        ?x aida:prototype ?p .
+        ?r rdf:subject ?p ;
+           rdf:predicate rdf:type ;
+           rdf:object ?o .
+        ?p aida:justifiedBy ?j .}
+        ''')
+        print(update_res)
         cnt += 1
         print('\t run query on %s : %d of %d  ' % (KB.stem, cnt, total), str(datetime.now()))
         if run_class:
