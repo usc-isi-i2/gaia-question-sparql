@@ -11,12 +11,12 @@ def run_ta3(input, output, query_folder, fuseki, run_class=True, run_zerohop=Tru
         doc_id = KB.stem
         response, stat, errors = querier.ask_all(qt, root_doc=doc_id)
         if len(response):
-            write_file(response, output + 'outputs/' + str(KB).rstrip('.ttl') + ('.%s_responses.xml' % _type))
+            write_file(response, output + 'outputs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_responses.xml' % _type))
         if len(errors):
             # each error: doc_id,query_id,query_idx,error_str
-            write_file(errors, output + 'logs/' + str(KB).rstrip('.ttl') + ('.%s_errors.csv' % _type))
+            write_file(errors, output + 'logs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_errors.csv' % _type))
         if stat:
-            stat.dump_report(output + 'logs/' + str(KB).rstrip('.ttl') + ('.%s_errors.csv' % _type))
+            stat.dump_report(output + 'logs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_errors.csv' % _type))
 
     path = Path(input)
     ttls = list(path.glob('**/*.ttl'))
