@@ -8,6 +8,7 @@ from datetime import datetime
 class GraphQuery(object):
     def __init__(self, xml_file_or_string, n2p_txt=None):
         self.query_list = xml_loader(xml_file_or_string, GRAPH_QUERY)
+        self.all_queries_id = [_['@id'] for _ in self.query_list]
         self.query_ep_types = [[x for x in [NAME_STRING, TEXT_DESCRIPTOR, IMAGE_DESCRIPTOR, VIDEO_DESCRIPTOR]
                           if list(find_keys(x, q[ENTRYPOINTS]))] for q in self.query_list]
         self.related_docs = []
@@ -41,6 +42,9 @@ class GraphQuery(object):
             except Exception as e:
                 errors.append('%s\n%s\n' % (','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))), traceback.format_exc))
         return root, stat, errors
+
+    def get_query_by_idx(self, idx):
+        return self.query_list[idx]
 
     @property
     def all_related_docs(self):

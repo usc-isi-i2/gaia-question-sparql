@@ -97,11 +97,7 @@ def pprint(x):
 
 
 def write_file(x, output, mode='w'):
-    if len(output.rsplit('/', 1)) == 2:
-        dirpath = output.rsplit('/', 1)[0]
-        if dirpath and dirpath != '.':
-            if not os.path.exists(dirpath):
-                os.makedirs(dirpath)
+    os.makedirs(os.path.dirname(output), exist_ok=True)
     with open(output, mode) as f:
         f.write(to_string(x))
 
