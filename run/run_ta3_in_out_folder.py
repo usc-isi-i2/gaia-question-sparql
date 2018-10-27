@@ -16,13 +16,15 @@ def run_ta3(input, output, query_folder, fuseki, run_class=True, run_zerohop=Tru
             # each error: doc_id,query_id,query_idx,error_str
             write_file(errors, output + 'logs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_errors.csv' % _type))
         if stat:
-            stat.dump_report(output + 'logs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_errors.csv' % _type))
+            stat.dump_report(output + 'logs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_stat' % _type))
 
     path = Path(input)
     ttls = list(path.glob('**/*.ttl'))
     cq, zq, gq = load_query(query_folder)
     start_time = datetime.now()
     print('start - ', str(start_time))
+    for x in ttls:
+      print(str(x))    
 
     cnt = 0
     total = len(ttls)

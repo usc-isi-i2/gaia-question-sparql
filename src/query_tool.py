@@ -13,10 +13,12 @@ from src.timeout import timeout
 class Selector(object):
     def __init__(self, endpoint: str, use_fuseki=''):
         sparql_ep = ''
+        update_ep = ''
         if endpoint.endswith('.ttl'):
             if use_fuseki:
                 put(use_fuseki + '/data', data=open(endpoint).read().encode('utf-8'), headers={'Content-Type': 'text/turtle'})
                 sparql_ep = use_fuseki + '/sparql'
+                update_ep = use_fuseki + '/update'
             else:
                 g = Graph()
                 g.parse(endpoint, format='n3')
@@ -29,7 +31,10 @@ class Selector(object):
             self.sw.setReturnFormat(CSV)
             self.sw.setMethod(POST)
             self.run = self.select_query_url
-            self.update = self.update_query_url
+            if update_ep:
+                self.sw_update = SPARQLWrapper(update_ep)
+                self.sw_update.setMethod(POST)
+                self.update = self.update_query_url
 
     @timeout(600, 'select rdflib timeout: 10 min')
     def select_query_rdflib(self, q):
@@ -53,9 +58,8 @@ class Selector(object):
     def update_query_url(self, q):
         # print(q)
         sparql_query = PREFIX + q
-        self.sw.setQuery(sparql_query)
-        self.sw.setMethod(POST)
-        res = self.sw.query()
+        self.sw_update.setQuery(sparql_query)
+        res = self.sw_update.query()
         return res
 
 
