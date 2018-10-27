@@ -3,7 +3,7 @@ from datetime import datetime
 import sys
 sys.path.append('../')
 from src.query_tool import *
-from run.run import load_query
+from run import load_query
 
 
 def run_ta3(input, output, query_folder, fuseki, run_class=True, run_zerohop=True, run_graph=True):
