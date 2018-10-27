@@ -29,6 +29,7 @@ class Selector(object):
             self.sw.setReturnFormat(CSV)
             self.sw.setMethod(POST)
             self.run = self.select_query_url
+            self.update = self.update_query_url
 
     @timeout(600, 'select rdflib timeout: 10 min')
     def select_query_rdflib(self, q):
@@ -48,6 +49,15 @@ class Selector(object):
         # print(res)
         return res
 
+    @timeout(1200, 'update url timeout: 20 min')
+    def update_query_url(self, q):
+        # print(q)
+        sparql_query = PREFIX + q
+        self.sw.setQuery(sparql_query)
+        self.sw.setMethod(POST)
+        res = self.sw.query()
+        return res
+
 
 class Mode(Enum):
     SINGLETON = 'singleton'
@@ -62,7 +72,9 @@ class QueryTool(object):
         :param mode:
         :param relax_num_ep:
         """
-        self.select = Selector(endpoint, use_fuseki).run
+        selector = Selector(endpoint, use_fuseki)
+        self.select = selector.run
+        self.update = selector.update
         self.mode = mode
         self.at_least = relax_num_ep
         self.block_ocrs = block_ocrs

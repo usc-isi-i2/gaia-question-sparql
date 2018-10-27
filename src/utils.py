@@ -75,7 +75,7 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
     if merge_conf and rows:
         update_xml(justi_root, {CONFIDENCE: str(conf/len(rows))})
 
-    print(enttype, len(wrong_justi), ' of ', len(rows))
+    # print(enttype, len(wrong_justi), ' of ', len(rows))
 
 
 def xml_loader(xml_file_or_string: str, query_key: str) -> list:
