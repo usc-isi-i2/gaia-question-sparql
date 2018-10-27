@@ -12,6 +12,7 @@ from src.timeout import timeout
 
 class Selector(object):
     def __init__(self, endpoint: str, use_fuseki=''):
+        self.update = None
         sparql_ep = ''
         update_ep = ''
         if endpoint.endswith('.ttl'):
