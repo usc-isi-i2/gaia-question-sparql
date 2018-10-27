@@ -1,0 +1,36 @@
+{
+  "queries": {
+    "eval_graph_query": {
+      "label": "m9 graph query",
+      "type": "graph",
+      "file_path": "/nas/home/dongyul/eval_queries/data/graph_queries.xml"
+    },
+    "local_eval_graph_query": {
+      "label": "m9 graph query",
+      "type": "graph",
+      "file_path": "/Users/dongyuli/isi/eval_queries/data/graph_queries.xml"
+    }
+  },
+  "endpoints": {
+    "ta2_run1": {
+      "label": "ta2 run1",
+      "type": "remote_ep",
+      "endpoint": "http://localhost:7200/repositories/1003r1nl"
+    },
+    "ta1a_run1": {
+      "label": "ta1a run1",
+      "type": "local_files",
+      "file_path": "/Users/dongyuli/isi/eval_queries/data/graph_queries.xml",
+      "endpoint": "http://localhost:7200/repositories/1003r1nl"
+    }
+    "remote_eps": {
+      "ta2_run1": "http://localhost:7200/repositories/1003r1nl",
+      "ta2_run2": "http://localhost:7200/repositories/1003r2nl",
+      "ta2_run3": "http://localhost:7200/repositories/1003r1wl",
+      "ta2_run4": "http://localhost:7200/repositories/1003r4nl"
+    },
+    "local_files": {
+      "ta1a_run1": "/nas/home/dongyul/ocr_map/1003r1nl/"
+    }
+  }
+}
