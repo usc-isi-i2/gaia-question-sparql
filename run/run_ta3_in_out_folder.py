@@ -9,7 +9,7 @@ from run import load_query
 def run_ta3(input, output, query_folder, fuseki, run_class=True, run_zerohop=True, run_graph=True):
     def run_query(querier, _type, qt, KB):
         doc_id = KB.stem
-        response, stat, errors = querier.ask_all(qt, root_doc=doc_id)
+        response, stat, errors = querier.ask_all(qt, root_doc=doc_id, verbose=False)
         if len(response):
             write_file(response, output + 'outputs/' + str(KB).rstrip('.ttl').lstrip('/nas/home/dongyul/') + ('.%s_responses.xml' % _type))
         if len(errors):

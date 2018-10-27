@@ -12,7 +12,7 @@ class ZerohopQuery(object):
         except:
             self.related_doc = []
 
-    def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc='', prefilter=True):
+    def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc='', prefilter=True, verbose=True):
         root = ET.Element('zerohopquery_responses')
         errors = []
         stat = ZHStat(root_doc)
@@ -22,7 +22,8 @@ class ZerohopQuery(object):
             try:
                 if prefilter and self.related_doc and root_doc in p2c and self.related_doc[i] != root_doc:
                     continue
-                print('Zerohop %s : %d of %d ' % (self.query_list[i]['@id'], i, len(self.query_list)))
+                if verbose:
+                    print('Zerohop %s : %d of %d ' % (self.query_list[i]['@id'], i, len(self.query_list)))
                 response = self.ans_one(quert_tool, self.query_list[i])
                 if len(response):
                     root.append(response)
