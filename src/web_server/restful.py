@@ -4,7 +4,7 @@ import xmltodict
 import xml.etree.ElementTree as ET
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_cors import CORS
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from src.graph_query import GraphQuery
 from src.zerohop_query import ZerohopQuery
 from src.class_query import ClassQuery
