@@ -20,10 +20,12 @@ class GraphQuery(object):
                 docs = docs.union(*[self.n2p.get(name, set()) for name in list(find_keys(NAME_STRING, q[ENTRYPOINTS]))])
                 self.related_docs.append(docs)
         except Exception as e:
-            print(e)
+            print('No related docs, it is okay', e)
             pass
 
     def ask_all(self, query_tool, start=0, end=None, root_doc='', prefilter=True, verbose=True):
+        if verbose:
+            print(start, end, root_doc, datetime.now())
         root = ET.Element('graphqueries_responses')
         stat = Stat(root_doc)
         errors = []

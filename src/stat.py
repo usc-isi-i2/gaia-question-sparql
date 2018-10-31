@@ -73,10 +73,13 @@ class ZHStat(Stat):
 Total Query: {cnt_query}
 Success: {cnt_success}
 Failed: {cnt_failed}
+=Failed LIST=
+{failed_list}
         '''.format(kb_id=self.kb_id,
                    cnt_query=str(self.total_query),
                    cnt_success=str(len(self.success)),
-                   cnt_failed=str(self.total_query - len(self.success))
+                   cnt_failed=str(self.total_query - len(self.success)),
+                   failed_list='\n'.join(self.failed[Failure.ZEROHOP])
                    )
         write_file(report, '%s/%s%s_zh_stat.txt' % (output_folder.rstrip('/'), str(prefix), self.kb_id))
 

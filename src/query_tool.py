@@ -214,7 +214,7 @@ class QueryTool(object):
     def get_best_candidate(candidates, to_compare, descriptors):
         # TODO: group by ?node and compare, one ?node may have multiple combination satisfy the descriptors
         best_uri = ''
-        best_score = 0
+        best_score = -1
         for candidate in candidates:
             cur_score = 0
             for i in range(len(to_compare)):
