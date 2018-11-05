@@ -28,7 +28,7 @@
       <enttype> Person </enttype>
       <text_descriptor>
         <doceid> doc1_child1 </doceid>
-        <start> 10 </start>
+        <start> 11 </start>
         <end> 15 </end>
       </text_descriptor>
     </entrypoint>
