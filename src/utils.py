@@ -7,11 +7,13 @@ from src.constants import *
 
 c2p = json.load(open(os.path.dirname(__file__) + '/tools/c2p.json'))
 p2c = json.load(open(os.path.dirname(__file__) + '/tools/p2c.json'))
+c2type = json.load(open(os.path.dirname(__file__) + '/tools/c2type.json'))
 
 ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
 block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
 
 coredocs = set([_.strip() for _ in open(os.path.dirname(__file__) + '/tools/coredocs.txt').readlines()])
+core179 = set([_.strip() for _ in open(os.path.dirname(__file__) + '/tools/core179.txt').readlines()])
 
 
 def update_xml(root, obj):
@@ -28,21 +30,26 @@ def update_xml(root, obj):
 
 def construct_justifications(justi_root, enttype, rows, suffix='_justification', merge_conf=False):
     conf = 0
+    wrong_justi = []
     for row in rows:
         doceid, sid, kfid, so, eo, ulx, uly, brx, bry, st, et, cv = row
-        doceid = doceid[:9]
+        # TODO: tmp fix for eval, some docs are with extensions / may be in wrong justification types
+        if doceid not in c2type:
+            if len(doceid) > 9 and doceid[9] == '_':
+                kfid = doceid.split('.', 1)[0]
+            doceid = doceid[:9]
+        type_ = c2type[doceid]
+
         row_ = {DOCEID: doceid}
-        if so:
-            type_ = 'text'
+
+        if type_ == 'text' and so and eo:
             row_.update({START: so, END: eo})
-        elif kfid:
-            type_ = 'video'
+        elif uly and ulx and bry and brx and type_ == 'video' and kfid:
             row_.update({KEYFRAMEID: kfid,
                          TOPLEFT: '%s,%s' % (uly, ulx),
                          BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
-        else:
-            type_ = 'image'
+        elif uly and ulx and bry and brx and type_ == 'image':
             row_.update({TOPLEFT: '%s,%s' % (uly, ulx),
                          BOTTOMRIGHT: '%s,%s' % (bry, brx),
                          })
@@ -55,6 +62,9 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         # elif st:
         #     type_ = 'audio'
         #     row_.update({START: st, END: et})
+        else:
+            wrong_justi.append('\t'.join(row))
+            continue
         if enttype:
             row_[ENTTYPE] = enttype
         if merge_conf:
@@ -65,6 +75,8 @@ def construct_justifications(justi_root, enttype, rows, suffix='_justification',
         update_xml(justification, row_)
     if merge_conf and rows:
         update_xml(justi_root, {CONFIDENCE: str(conf/len(rows))})
+
+    # print(enttype, len(wrong_justi), ' of ', len(rows))
 
 
 def xml_loader(xml_file_or_string: str, query_key: str) -> list:
@@ -86,11 +98,7 @@ def pprint(x):
 
 
 def write_file(x, output, mode='w'):
-    if len(output.rsplit('/', 1)) == 2:
-        dirpath = output.rsplit('/', 1)[0]
-        if dirpath and dirpath != '.':
-            if not os.path.exists(dirpath):
-                os.makedirs(dirpath)
+    os.makedirs(os.path.dirname(output), exist_ok=True)
     with open(output, mode) as f:
         f.write(to_string(x))
 

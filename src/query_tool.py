@@ -11,12 +11,16 @@ from src.timeout import timeout
 
 
 class Selector(object):
-    def __init__(self, endpoint: str, use_fuseki=''):
+    def __init__(self, endpoint: str, use_fuseki='', disable_timeout=False):
+        self.disable_timeout = disable_timeout
+        self.update = None
         sparql_ep = ''
+        update_ep = ''
         if endpoint.endswith('.ttl'):
             if use_fuseki:
                 put(use_fuseki + '/data', data=open(endpoint).read().encode('utf-8'), headers={'Content-Type': 'text/turtle'})
                 sparql_ep = use_fuseki + '/sparql'
+                update_ep = use_fuseki + '/update'
             else:
                 g = Graph()
                 g.parse(endpoint, format='n3')
@@ -29,21 +33,35 @@ class Selector(object):
             self.sw.setReturnFormat(CSV)
             self.sw.setMethod(POST)
             self.run = self.select_query_url
+            if update_ep:
+                self.sw_update = SPARQLWrapper(update_ep)
+                self.sw_update.setMethod(POST)
+                self.update = self.update_query_url
 
     @timeout(600, 'select rdflib timeout: 10 min')
     def select_query_rdflib(self, q):
+        # print(q)
         csv_res = self.graph.query(PREFIX + q).serialize(format='csv')
         rows = [x.decode('utf-8') for x in csv_res.splitlines()][1:]
         res = list(csv.reader(rows))
         return res
 
-    @timeout(900, 'select url timeout: 15 min')
+    @timeout(1200, 'select url timeout: 20 min')
     def select_query_url(self, q):
+        # print(q)
         sparql_query = PREFIX + q
-        # print(sparql_query)
         self.sw.setQuery(sparql_query)
         rows = self.sw.query().convert().decode('utf-8').splitlines()[1:]
         res = list(csv.reader(rows))
+        # print(res)
+        return res
+
+    @timeout(1200, 'update url timeout: 20 min')
+    def update_query_url(self, q):
+        # print(q)
+        sparql_query = PREFIX + q
+        self.sw_update.setQuery(sparql_query)
+        res = self.sw_update.query()
         return res
 
 
@@ -54,13 +72,15 @@ class Mode(Enum):
 
 
 class QueryTool(object):
-    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki='', block_ocrs=False):
+    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki='', block_ocrs=False, disable_timeout=False):
         """
         :param selector: a Selector instance, for run select query and get results in list(list)
         :param mode:
         :param relax_num_ep:
         """
-        self.select = Selector(endpoint, use_fuseki).run
+        selector = Selector(endpoint, use_fuseki, disable_timeout)
+        self.select = selector.run
+        self.update = selector.update
         self.mode = mode
         self.at_least = relax_num_ep
         self.block_ocrs = block_ocrs
@@ -195,7 +215,7 @@ class QueryTool(object):
     def get_best_candidate(candidates, to_compare, descriptors):
         # TODO: group by ?node and compare, one ?node may have multiple combination satisfy the descriptors
         best_uri = ''
-        best_score = 0
+        best_score = -1
         for candidate in candidates:
             cur_score = 0
             for i in range(len(to_compare)):
@@ -213,8 +233,8 @@ class QueryTool(object):
                     score = get_overlap_img(*[int(x) for x in cand_bound],
                                             int(target_ulx), int(target_uly), int(target_brx), int(target_bry))
                 # TODO: how much overlapped? consider FP? consider centroid distance?
-                if score < 0.2:
-                    continue
+                # if score <= 0:
+                #     continue
                 cur_score += score
             if cur_score > best_score:
                 best_score = cur_score

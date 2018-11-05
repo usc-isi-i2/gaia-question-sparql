@@ -1,5 +1,6 @@
 import traceback
 from src.sparql_utils import *
+from src.stat import ZHStat
 from src.query_tool import QueryTool
 
 
@@ -11,23 +12,28 @@ class ZerohopQuery(object):
         except:
             self.related_doc = []
 
-    def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc='', prefilter=True):
+    def ask_all(self, quert_tool: QueryTool, start=0, end=None, root_doc='', prefilter=True, verbose=True):
         root = ET.Element('zerohopquery_responses')
         errors = []
-        if not end:
+        stat = ZHStat(root_doc)
+        if not end or end < start or end > len(self.query_list):
             end = len(self.query_list)
         for i in range(start, end):
             try:
                 if prefilter and self.related_doc and root_doc in p2c and self.related_doc[i] != root_doc:
                     continue
-                print('Zerohop %s : %d of %d ' % (self.query_list[i]['@id'], i, len(self.query_list)))
+                if verbose:
+                    print('Zerohop %s : %d of %d ' % (self.query_list[i]['@id'], i, len(self.query_list)))
                 response = self.ans_one(quert_tool, self.query_list[i])
                 if len(response):
                     root.append(response)
+                    stat.succeed(self.query_list[i]['@id'])
+                else:
+                    stat.fail(self.query_list[i]['@id'])
             except Exception as e:
                 errors.append('%s\n%s\n' % (','.join((root_doc, self.query_list[i]['@id'], str(i), str(e))), traceback.format_exc))
 
-        return root, None, errors
+        return root, stat, errors
 
     def ans_one(self, quert_tool, q_dict):
         '''
@@ -66,3 +72,29 @@ class ZerohopQuery(object):
     @property
     def all_related_docs(self):
         return set(self.related_doc)
+
+    @property
+    def related_img_video(self):
+        res = {}
+        for i in range(len(self.query_list)):
+            q = self.query_list[i]
+            q_id = q['@id']
+            eps = q[ENTRYPOINT]
+            parents = {}
+            if isinstance(q[ENTRYPOINT], dict):
+                eps = [q[ENTRYPOINT]]
+            for ep in eps:
+                source1 = ep.get(IMAGE_DESCRIPTOR, {}).get(DOCEID)
+                source = source1 or ep.get(VIDEO_DESCRIPTOR, {}).get(DOCEID)
+                if c2p.get(source):
+                    if c2p.get(source) not in parents:
+                        parents[c2p.get(source)] = []
+                    parents[c2p.get(source)].append(source)
+            if parents:
+                doc = self.related_doc[i]
+                if doc in parents:
+                    if doc not in res:
+                        res[doc] = {}
+                    res[doc][q_id] = parents[doc]
+        return res
+

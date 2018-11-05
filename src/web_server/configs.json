@@ -1,0 +1,52 @@
+{
+  "queries": {
+    "eval_graph_query": {
+      "label": "m9 graph query(server)",
+      "type": "graph",
+      "file_path": "/nas/home/dongyul/eval_queries/data/graph_queries.xml"
+    },
+    "local_eval_graph_query": {
+      "label": "m9 graph query(local)",
+      "type": "graph",
+      "file_path": "/Users/dongyuli/isi/eval_queries/data/graph_queries.xml"
+    }
+  },
+  "endpoints": {
+    "ta2_run1": {
+      "label": "ta2 run1(localhost)",
+      "type": "remote_ep",
+      "endpoint": "http://localhost:7200/repositories/1003r1nl",
+      "mode": "prototype",
+      "outputs": {
+        "eval_graph_query": "/nas/home/dongyul/qa_ta2/1003r1nl/outputs/TA2.graph_responses.xml"
+      }
+    },
+    "gaiadev_ta2_run1": {
+      "label": "ta2 run1(gaiadev01)",
+      "type": "remote_ep",
+      "endpoint": "http://gaiadev01.isi.edu:7200/repositories/1003r1nl",
+      "mode": "prototype",
+      "outputs": {
+        "local_eval_graph_query": "/Users/dongyuli/isi/qa_checking/response/TA2.graph_responses.xml"
+      }
+    },
+    "ta1a_run1": {
+      "label": "ta1a run1(server_localhost)",
+      "type": "local_files",
+      "folder_path": "/nas/home/dongyul/ocr_map/1003r1nl/",
+      "n2p": "/nas/home/dongyul/ocr_map/1003r1nl.txt",
+      "endpoint": "http://localhost:3030/run1",
+      "mode": "cluster",
+      "outputs": {
+        "eval_graph_query": "/nas/home/dongyul/qa_ta1a/run1/outputs/"
+      }
+    },
+    "pc_ta1a_run1": {
+      "label": "ta1a run1(pc_localhost)",
+      "type": "local_files",
+      "folder_path": "/Users/dongyuli/isi/data/dis_r0nl/dir_0/",
+      "endpoint": "http://localhost:3030/test",
+      "mode": "cluster"
+    }
+  }
+}
