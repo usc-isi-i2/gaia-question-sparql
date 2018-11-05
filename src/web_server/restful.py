@@ -73,9 +73,9 @@ def sample_queries(query_list):
 
 
 def apply_query(query, query_idx, endpoint):
-    print('----apply query----', ep, query_idx)
     query_instance = get_query_instance(query)
     ep = endpoints[endpoint]
+    print('----apply query----', ep, query_idx)
     responses = {}
     if ep[TYPE] == REMOTE_EP:
         qt = QueryTool(endpoint=ep[ENDPOINT], mode=modes[ep[MODE]], relax_num_ep=1)
