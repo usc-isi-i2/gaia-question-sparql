@@ -73,26 +73,23 @@ def sample_queries(query_list):
 
 
 def apply_query(query, query_idx, endpoint):
-    print('----apply query----')
+    print('----apply query----', ep, query_idx)
     query_instance = get_query_instance(query)
     ep = endpoints[endpoint]
-    print(ep, query_idx)
+    responses = {}
     if ep[TYPE] == REMOTE_EP:
         qt = QueryTool(endpoint=ep[ENDPOINT], mode=modes[ep[MODE]], relax_num_ep=1)
         response, stat, errors = query_instance.ask_all(query_tool=qt, start=query_idx, end=query_idx+1, prefilter=False)
-        print('----', response, errors)
-        print(to_string(response))
-        return {'dummy': xmltodict.parse(to_string(response))}
+        if response:
+            responses = {'dummy': xmltodict.parse(to_string(response))}
     else:
-        responses = {}
         if query_instance.related_docs:
             for ttl_file in query_instance.related_docs[query_idx]:
                 qt = QueryTool(endpoint=ep[FOLDER_PATH] + ttl_file + '.ttl', mode=modes[ep[MODE]], relax_num_ep=1, use_fuseki=ep[ENDPOINT])
-                print('=========', query, query_idx, endpoint, ttl_file)
                 response, stat, errors = query_instance.ask_all(query_tool=qt, start=query_idx, end=query_idx+1,
                                                                 root_doc=ttl_file, prefilter=False)
                 responses[ttl_file] = xmltodict.parse(to_string(response))
-        return responses
+    return responses
 
 
 def search_xml(file_path, target_qid, tag):
@@ -155,4 +152,4 @@ def find(query_key, query_idx, ep_key):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5001, host='0.0.0.0')
+    app.run(debug=True, port=5001, host='0.0.0.0')
