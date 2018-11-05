@@ -1,6 +1,6 @@
 
 from enum import Enum
-from src.utils import write_file
+from src.utils import write_file, to_string
 
 
 class Failure(Enum):
@@ -31,6 +31,13 @@ class Stat(object):
     def fail(self, query_id, fail_type, node_uri=()):
         self.failed[fail_type].append('%s : %s' % (query_id, ' '.join(node_uri)))
         self.total_query += 1
+
+    def dumps_json_report(self):
+        return to_string({
+            'kb_id': self.kb_id,
+            'success': self.success,
+            'failed': self.failed
+        })
 
     def dump_report(self, output_folder, prefix=''):
         report = '''KB ID: {kb_id}
@@ -73,10 +80,13 @@ class ZHStat(Stat):
 Total Query: {cnt_query}
 Success: {cnt_success}
 Failed: {cnt_failed}
+=Failed LIST=
+{failed_list}
         '''.format(kb_id=self.kb_id,
                    cnt_query=str(self.total_query),
                    cnt_success=str(len(self.success)),
-                   cnt_failed=str(self.total_query - len(self.success))
+                   cnt_failed=str(self.total_query - len(self.success)),
+                   failed_list='\n'.join(self.failed[Failure.ZEROHOP])
                    )
         write_file(report, '%s/%s%s_zh_stat.txt' % (output_folder.rstrip('/'), str(prefix), self.kb_id))
 

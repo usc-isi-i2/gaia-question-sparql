@@ -72,3 +72,29 @@ class ZerohopQuery(object):
     @property
     def all_related_docs(self):
         return set(self.related_doc)
+
+    @property
+    def related_img_video(self):
+        res = {}
+        for i in range(len(self.query_list)):
+            q = self.query_list[i]
+            q_id = q['@id']
+            eps = q[ENTRYPOINT]
+            parents = {}
+            if isinstance(q[ENTRYPOINT], dict):
+                eps = [q[ENTRYPOINT]]
+            for ep in eps:
+                source1 = ep.get(IMAGE_DESCRIPTOR, {}).get(DOCEID)
+                source = source1 or ep.get(VIDEO_DESCRIPTOR, {}).get(DOCEID)
+                if c2p.get(source):
+                    if c2p.get(source) not in parents:
+                        parents[c2p.get(source)] = []
+                    parents[c2p.get(source)].append(source)
+            if parents:
+                doc = self.related_doc[i]
+                if doc in parents:
+                    if doc not in res:
+                        res[doc] = {}
+                    res[doc][q_id] = parents[doc]
+        return res
+

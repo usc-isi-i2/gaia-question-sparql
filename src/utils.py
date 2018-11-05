@@ -13,6 +13,7 @@ ocrs = set(json.load(open(os.path.dirname(__file__) + '/tools/ocrs.json')))
 block_ocr_sparql = 'FILTER (?doceid not in ( "%s" ))' % '", "'.join(ocrs)
 
 coredocs = set([_.strip() for _ in open(os.path.dirname(__file__) + '/tools/coredocs.txt').readlines()])
+core179 = set([_.strip() for _ in open(os.path.dirname(__file__) + '/tools/core179.txt').readlines()])
 
 
 def update_xml(root, obj):

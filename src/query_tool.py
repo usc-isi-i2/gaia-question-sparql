@@ -11,7 +11,8 @@ from src.timeout import timeout
 
 
 class Selector(object):
-    def __init__(self, endpoint: str, use_fuseki=''):
+    def __init__(self, endpoint: str, use_fuseki='', disable_timeout=False):
+        self.disable_timeout = disable_timeout
         self.update = None
         sparql_ep = ''
         update_ep = ''
@@ -71,13 +72,13 @@ class Mode(Enum):
 
 
 class QueryTool(object):
-    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki='', block_ocrs=False):
+    def __init__(self, endpoint: str, mode: Mode, relax_num_ep=None, use_fuseki='', block_ocrs=False, disable_timeout=False):
         """
         :param selector: a Selector instance, for run select query and get results in list(list)
         :param mode:
         :param relax_num_ep:
         """
-        selector = Selector(endpoint, use_fuseki)
+        selector = Selector(endpoint, use_fuseki, disable_timeout)
         self.select = selector.run
         self.update = selector.update
         self.mode = mode
@@ -214,7 +215,7 @@ class QueryTool(object):
     def get_best_candidate(candidates, to_compare, descriptors):
         # TODO: group by ?node and compare, one ?node may have multiple combination satisfy the descriptors
         best_uri = ''
-        best_score = 0
+        best_score = -1
         for candidate in candidates:
             cur_score = 0
             for i in range(len(to_compare)):
