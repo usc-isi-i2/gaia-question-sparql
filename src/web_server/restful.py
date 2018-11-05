@@ -78,17 +78,22 @@ def apply_query(query, query_idx, endpoint):
     print('----apply query----', ep, query_idx)
     responses = {}
     if ep[TYPE] == REMOTE_EP:
-        qt = QueryTool(endpoint=ep[ENDPOINT], mode=modes[ep[MODE]], relax_num_ep=1)
+        qt = QueryTool(endpoint=ep[ENDPOINT], mode=modes[ep[MODE]], relax_num_ep=1, disable_timeout=True)
         response, stat, errors = query_instance.ask_all(query_tool=qt, start=query_idx, end=query_idx+1, prefilter=False)
+        if errors:
+            print('errors:', errors)
         if response:
-            responses = {'dummy': xmltodict.parse(to_string(response))}
+            responses = {'dummy': xmltodict.parse(to_string(response))['graphqueries_responses']}
     else:
         if query_instance.related_docs:
             for ttl_file in query_instance.related_docs[query_idx]:
-                qt = QueryTool(endpoint=ep[FOLDER_PATH] + ttl_file + '.ttl', mode=modes[ep[MODE]], relax_num_ep=1, use_fuseki=ep[ENDPOINT])
+                qt = QueryTool(endpoint=ep[FOLDER_PATH] + ttl_file + '.ttl', mode=modes[ep[MODE]], relax_num_ep=1,
+                               use_fuseki=ep[ENDPOINT], disable_timeout=True)
                 response, stat, errors = query_instance.ask_all(query_tool=qt, start=query_idx, end=query_idx+1,
                                                                 root_doc=ttl_file, prefilter=False)
-                responses[ttl_file] = xmltodict.parse(to_string(response))
+                if errors:
+                    print('errors:', errors)
+                responses[ttl_file] = xmltodict.parse(to_string(response))['graphqueries_responses']
     return responses
 
 
